@@ -87,6 +87,16 @@
     return 'research';
   }
 
+  function getIdeasPrefillHint() {
+    return [
+      'IDEA CAPTURE (prefill_idea_draft): The Ideas form has 7 text fields — title, summary, motivation (required), trigger, data, methods, effort.',
+      'When importing from an uploaded file or long user message, map the source into ALL applicable fields; never send only title+summary.',
+      'Research category: summary=core idea, motivation=gap/why us, trigger=spark, data=datasets/fieldwork, methods=approach, effort=timeline/outcome.',
+      'App category: same keys; labels differ (problem/gap, scope, implementation sketch, ship criteria).',
+      'See ideas-workspace-guide.md for examples. Use category matching ideas_category when on the Ideas page.',
+    ].join(' ');
+  }
+
   function getVariables() {
     return {
       current_page: getPagePath(),
@@ -94,8 +104,24 @@
       user_role: 'Prof. Abdullah',
       vault_root: 'https://asabtan.sa',
       uploaded_file_name: '',
-      website_context: '',
+      website_context: getIdeasPrefillHint(),
     };
+  }
+
+  var IDEA_OPTIONAL_KEYS = ['trigger', 'data', 'methods', 'effort'];
+
+  function pickIdeaField(args, key) {
+    if (args == null) return '';
+    if (args[key] != null && args[key] !== '') return String(args[key]).trim();
+    if (args.fields && args.fields[key] != null) return String(args.fields[key]).trim();
+    return '';
+  }
+
+  function computeHiddenSections(args) {
+    if (Array.isArray(args.hidden_sections)) return args.hidden_sections;
+    return IDEA_OPTIONAL_KEYS.filter(function (key) {
+      return !pickIdeaField(args, key);
+    });
   }
 
   function chatEndpoint() {
@@ -198,14 +224,72 @@
   }
 
   function navigateToPage(args) {
-    var path = String(args.path || '').trim();
-    if (!path) return;
-    if (/^https?:\/\//i.test(path)) {
-      window.location.href = path;
+    if (trySamePageVaultAction(args)) return;
+
+    var href = buildNavHref(args);
+    if (!href) return;
+    if (/^https?:\/\//i.test(href)) {
+      window.location.href = href;
       return;
     }
-    if (path.charAt(0) !== '/') path = '/' + path;
-    window.location.href = path;
+    if (href.charAt(0) !== '/') href = '/' + href;
+    window.location.href = href;
+  }
+
+  function buildNavHref(args) {
+    var path = String(args.path || '').trim();
+    if (!path) return '';
+
+    var section = args.section ? String(args.section).trim().toLowerCase().replace(/\s+/g, '-') : '';
+    var open = args.open ? String(args.open).trim() : '';
+
+    if (/^https?:\/\//i.test(path)) {
+      try {
+        var abs = new URL(path);
+        if (section) abs.searchParams.set('section', section);
+        if (open) abs.searchParams.set('open', open);
+        return abs.href;
+      } catch (e) {
+        return path;
+      }
+    }
+
+    var split = path.split('?');
+    var base = split[0];
+    var params = new URLSearchParams(split[1] || '');
+    if (section) params.set('section', section);
+    if (open) params.set('open', open);
+    if (base.charAt(0) !== '/') base = '/' + base;
+    var qs = params.toString();
+    return qs ? base + '?' + qs : base;
+  }
+
+  function pathsMatch(currentPath, targetPath) {
+    var cur = String(currentPath || '').replace(/^\//, '').split('?')[0].toLowerCase();
+    var tgt = String(targetPath || '').replace(/^\//, '').split('?')[0].toLowerCase();
+    return cur === tgt || cur.endsWith('/' + tgt) || tgt.endsWith('/' + cur);
+  }
+
+  function trySamePageVaultAction(args) {
+    var path = String(args.path || '').trim().split('?')[0];
+    if (!pathsMatch(window.location.pathname, path)) return false;
+
+    if (args.section && window.SabtanPaper1Guide && typeof window.SabtanPaper1Guide.openSection === 'function') {
+      window.SabtanPaper1Guide.openSection(args.section);
+      return true;
+    }
+
+    if (args.open && /research-ideas/i.test(window.location.pathname)) {
+      window.dispatchEvent(new CustomEvent('sabtan-assistant-vault-open', {
+        detail: {
+          open: String(args.open),
+          category: getIdeasCategory(),
+        },
+      }));
+      return true;
+    }
+
+    return false;
   }
 
   function prefillIdeaDraft(args) {
@@ -220,24 +304,36 @@
     }
     if (!state || !Array.isArray(state.ideas)) state = { ideas: [] };
 
-    var hidden = Array.isArray(args.hidden_sections)
-      ? args.hidden_sections
-      : ['trigger', 'data', 'methods', 'effort'];
+    var fields = {
+      title: pickIdeaField(args, 'title'),
+      summary: pickIdeaField(args, 'summary'),
+      motivation: pickIdeaField(args, 'motivation'),
+      trigger: pickIdeaField(args, 'trigger'),
+      data: pickIdeaField(args, 'data'),
+      methods: pickIdeaField(args, 'methods'),
+      effort: pickIdeaField(args, 'effort'),
+    };
+
+    var hidden = computeHiddenSections(args);
+    var tags = Array.isArray(args.tags)
+      ? args.tags.map(function (t) { return String(t).trim(); }).filter(Boolean)
+      : [];
 
     var idea = {
       id: uid(),
-      title: args.title || '',
-      summary: args.summary || '',
-      motivation: args.motivation || '',
-      trigger: args.trigger || '',
-      data: args.data || '',
-      methods: args.methods || '',
-      effort: args.effort || '',
+      title: fields.title,
+      summary: fields.summary,
+      motivation: fields.motivation,
+      trigger: fields.trigger,
+      data: fields.data,
+      methods: fields.methods,
+      effort: fields.effort,
       status: 'halfbaked',
       author: localStorage.getItem(AUTHOR_KEY) || 'AS',
-      tags: [],
+      tags: tags,
       comments: [],
       hiddenSections: hidden,
+      assistantPrefill: true,
       created: Date.now(),
       updated: Date.now(),
     };
@@ -254,7 +350,7 @@
       return;
     }
 
-    window.location.href = '/research-ideas.html?view=' + category;
+    window.location.href = '/research-ideas.html?view=' + category + '&open=' + encodeURIComponent(idea.id);
   }
 
   function executeToolCalls(toolCalls, log, addMessageFn) {
@@ -262,7 +358,10 @@
     var add = addMessageFn || appendMessage;
     toolCalls.forEach(function (tc) {
       if (tc.name === 'navigate_to_page') {
-        add(log, 'system', 'Opening ' + (tc.arguments.label || tc.arguments.path || 'page') + '…');
+        var navLabel = tc.arguments.label || tc.arguments.path || 'page';
+        if (tc.arguments.section) navLabel += ' → ' + tc.arguments.section;
+        if (tc.arguments.open === 'new') navLabel += ' (new idea panel)';
+        add(log, 'system', 'Opening ' + navLabel + '…');
         setTimeout(function () { navigateToPage(tc.arguments); }, 400);
       } else if (tc.name === 'prefill_idea_draft') {
         add(log, 'system', 'Creating idea draft…');

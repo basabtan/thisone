@@ -1,0 +1,57 @@
+{
+  "name": "prefill_idea_draft",
+  "description": "Create a new idea in the Ideas workspace and pre-fill the full form. Use when the user asks to capture, import, or draft an idea — especially from an uploaded document, chat summary, or report. You MUST populate every field you can infer from the source (not just title and summary). After calling, the browser opens the idea panel with the draft.",
+  "strict": false,
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "category": {
+        "type": "string",
+        "enum": ["research", "app"],
+        "description": "research = paper/field-study ideas; app = vault UI/product ideas"
+      },
+      "title": {
+        "type": "string",
+        "description": "Working title"
+      },
+      "summary": {
+        "type": "string",
+        "description": "Research: the core idea (2–4 sentences). App: what we are building."
+      },
+      "motivation": {
+        "type": "string",
+        "description": "Research: why now / why us — the gap this fills. App: problem or gap. REQUIRED — always fill when capturing from a document."
+      },
+      "trigger": {
+        "type": "string",
+        "description": "What sparked the idea — paper, workshop, observation, conversation. Optional but fill when known."
+      },
+      "data": {
+        "type": "string",
+        "description": "Research: data needed or available. App: scope and touchpoints. Optional but fill when known."
+      },
+      "methods": {
+        "type": "string",
+        "description": "Research: methods envisioned. App: implementation sketch. Optional but fill when known."
+      },
+      "effort": {
+        "type": "string",
+        "description": "Rough scale and expected outcome (e.g. 6-month side project, short paper). Optional but fill when known."
+      },
+      "hidden_sections": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": ["trigger", "data", "methods", "effort"]
+        },
+        "description": "Optional section keys to keep collapsed in the UI. Omit to auto-expand any section you filled."
+      },
+      "tags": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Optional short tags (e.g. Paper-2, fieldwork, UI)"
+      }
+    },
+    "required": ["category", "title", "summary", "motivation"]
+  }
+}

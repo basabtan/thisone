@@ -75,5 +75,39 @@ Same field keys; different labels in the UI:
 ## Notes for the assistant
 
 - Do not confuse **research ideas** (papers) with **app ideas** (vault build).
-- When importing from a report, map content to the six text fields; leave unknown optional fields empty.
+- **When capturing from a document, chat, or report:** call `prefill_idea_draft` with **all seven fields** you can infer — not only `title` and `summary`. At minimum always include **`motivation`**. Fill `trigger`, `data`, `methods`, and `effort` whenever the source mentions them; use `""` only when truly unknown.
+- **Field mapping from typical reports:**
+
+| Source content | Target field |
+|----------------|--------------|
+| Title, aim, hypothesis | `title`, `summary` |
+| Gap, rationale, why this team | `motivation` |
+| Workshop, paper cite, observation | `trigger` |
+| Sites, datasets, field/lab needs | `data` |
+| Methods, statistics, workflow | `methods` |
+| Timeline, deliverable, paper type | `effort` |
+
+- Omit `hidden_sections` unless you intentionally want empty optional cards collapsed; filled sections auto-expand in the UI.
 - User ideas in production live in browser localStorage — this document describes schema and examples only.
+
+---
+
+## OpenAI function definition (update Bob's tool)
+
+Replace Bob's `prefill_idea_draft` function with the JSON in **`prefill-idea-draft-tool.json`** (same folder). The live tool must expose **`motivation`, `trigger`, `data`, `methods`, `effort`** — if the schema only lists `title` and `summary`, the API will strip the other fields before they reach the browser.
+
+### Example — full research capture from a report
+
+```json
+{
+  "category": "research",
+  "title": "Joint roughness as Najd cataclasis proxy",
+  "summary": "JRC profiles at five granodiorite sites may correlate with Najd-related cataclastic overprint — a low-cost field proxy complementing NII.",
+  "motivation": "No published JRC–Najd study; we hold the only existing structural dataset for these sites.",
+  "trigger": "SGS workshop, March — rapid field methods to pre-screen sites.",
+  "data": "Five sites, scanline JRC, ~4-day revisit; pair with existing Najd % and Schmidt R.",
+  "methods": "Barton–Choubey JRC, linear regression against Najd family proportion and GSI.",
+  "effort": "6-month side project; short methods paper or Paper 2 section.",
+  "tags": ["Paper-2", "fieldwork"]
+}
+```

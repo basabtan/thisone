@@ -131,12 +131,39 @@
       width: 168px;
       min-height: 120px;
       align-self: stretch;
+      position: relative;
       background-color: #e8e2d6;
       background-repeat: no-repeat;
       background-position: center;
       background-size: cover;
       border-right: 1px solid var(--line);
       transition: background-image 0.35s ease;
+    }
+
+    .tool-nav-art.is-placeholder {
+      background-color: #ece6dc;
+      background-image: none;
+    }
+
+    .tool-nav-art.is-placeholder::before {
+      content: "";
+      position: absolute;
+      inset: 14px 16px;
+      border: 1px dashed rgba(47, 83, 103, 0.28);
+      border-radius: 10px;
+      background: rgba(255, 253, 248, 0.5);
+    }
+
+    .tool-nav-art.is-placeholder::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 40px;
+      height: 32px;
+      transform: translate(-50%, -50%);
+      opacity: 0.32;
+      background: center / contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 32' fill='none'%3E%3Crect x='4' y='6' width='32' height='22' rx='3' stroke='%232f5367' stroke-width='1.5'/%3E%3Cpath d='M8 22l7-8 5 6 4-5 8 9' stroke='%232f5367' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='14' cy='13' r='2.5' stroke='%23a5643a' stroke-width='1.5'/%3E%3C/svg%3E");
     }
 
     .tool-art-switch {
@@ -404,7 +431,7 @@
           <span class="tool-art-switch-caption">Compass dial</span>
         </div>
         <article class="tool-nav-item">
-          <div class="tool-nav-art" data-tool="vtest" role="img" aria-label="V-test artwork"></div>
+          <div class="tool-nav-art is-placeholder" data-tool="vtest" role="img" aria-label="Artwork placeholder"></div>
           <a class="tool-nav-link" href="vtest-najd.html">
             <span class="tool-nav-name">V-test Dashboard<span class="tool-nav-badge">Live</span></span>
             <span class="tool-nav-desc">Test preferred orientation (μ₀) for Najd fault sites — interactive compass, presets, and live statistics.</span>
@@ -429,7 +456,7 @@
           <span class="tool-art-switch-caption">Bubble level</span>
         </div>
         <article class="tool-nav-item">
-          <div class="tool-nav-art" data-tool="tilt" role="img" aria-label="Surface tilt level artwork"></div>
+          <div class="tool-nav-art is-placeholder" data-tool="tilt" role="img" aria-label="Artwork placeholder"></div>
           <a class="tool-nav-link" href="najd-tilt-level.html">
             <span class="tool-nav-name">Surface Tilt Level<span class="tool-nav-badge">Live</span></span>
             <span class="tool-nav-desc">Field utility using your phone sensors — read total tilt, slope, roll, pitch, and lower direction on a surface.</span>
@@ -454,7 +481,7 @@
           <span class="tool-art-switch-caption">Slope wedge</span>
         </div>
         <article class="tool-nav-item">
-          <div class="tool-nav-art" data-tool="geostrength" role="img" aria-label="GeoStrength artwork"></div>
+          <div class="tool-nav-art is-placeholder" data-tool="geostrength" role="img" aria-label="Artwork placeholder"></div>
           <a class="tool-nav-link" href="geostrength.html">
             <span class="tool-nav-name">GeoStrength<span class="tool-nav-badge">Live</span></span>
             <span class="tool-nav-desc">Rock mass classification and slope stability — GSI, Hoek–Brown, wedge analysis, and Najd Δθ modules.</span>
@@ -479,7 +506,7 @@
           <span class="tool-art-switch-caption">Layer stack</span>
         </div>
         <article class="tool-nav-item">
-          <div class="tool-nav-art" data-tool="pavement" role="img" aria-label="Pavement toolkit artwork"></div>
+          <div class="tool-nav-art is-placeholder" data-tool="pavement" role="img" aria-label="Artwork placeholder"></div>
           <a class="tool-nav-link" href="geo-pavement-toolkit.html">
             <span class="tool-nav-name">Geotechnical &amp; Pavement Toolkit<span class="tool-nav-badge">Live</span></span>
             <span class="tool-nav-desc">Foundation bearing capacity, subgrade CBR, plate bearing test, and flexible-pavement design — live calculations with working shown.</span>
@@ -496,6 +523,7 @@
   <script src="/shared/assistant-chat.js"></script>
   <script>
     (function () {
+      var ART_ENABLED = false;
       var STORAGE_KEY = "sabtan-instruments-art";
       var ART = {
         vtest: ["vtest-art.svg", "vtest-art-2.svg", "vtest-art-3.svg", "vtest-art-4.svg"],
@@ -542,7 +570,15 @@
         var panel = row ? row.querySelector('.tool-nav-art[data-tool="' + tool + '"]') : null;
         if (!panel || !switchEl) return;
 
-        panel.style.backgroundImage = 'url("assets/instruments/' + ART[tool][index] + '")';
+        if (ART_ENABLED) {
+          panel.style.backgroundImage = 'url("assets/instruments/' + ART[tool][index] + '")';
+          panel.classList.remove("is-placeholder");
+          panel.setAttribute("aria-label", CAPTIONS[tool][index] + " artwork");
+        } else {
+          panel.style.backgroundImage = "none";
+          panel.classList.add("is-placeholder");
+          panel.setAttribute("aria-label", "Artwork placeholder — " + CAPTIONS[tool][index]);
+        }
         switchEl.querySelector(".tool-art-switch-status").textContent = (index + 1) + " / " + total;
         switchEl.querySelector(".tool-art-switch-caption").textContent = CAPTIONS[tool][index];
 

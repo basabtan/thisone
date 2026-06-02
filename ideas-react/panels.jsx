@@ -3,6 +3,19 @@
    ════════════════════════════════════════════════════════════════ */
 const { useState: useStateP, useEffect: useEffectP, useMemo: useMemoP } = React;
 
+function fallbackPanelOrigin(){
+  if(typeof window === 'undefined') return { top: 120, left: 80, width: 280, height: 72 };
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const w = Math.min(320, vw * 0.42);
+  return {
+    top: Math.max(96, vh * 0.28),
+    left: (vw - w) / 2,
+    width: w,
+    height: 72,
+  };
+}
+
 function fieldPreview(text, maxLen){
   const t = (text || '').trim().replace(/\s+/g, ' ');
   if(!t) return '';
@@ -103,6 +116,15 @@ function DetailPanel({
   const [focusField, setFocusField] = useStateP(null); // field key to auto-focus when entering edit
   useEffectP(() => {
     if(!idea){ setEditing(false); setFocusField(null); return; }
+    if(idea.assistantPrefill){
+      setEditing(true);
+      setFocusField(null);
+      var collapseEmpty = ['trigger', 'data', 'methods', 'effort'].filter(function (key) {
+        return !(idea[key] || '').trim();
+      });
+      onPatch(idea.id, { assistantPrefill: false, hiddenSections: collapseEmpty });
+      return;
+    }
     const blank = !(idea.title || '').trim() && !(idea.summary || '').trim();
     setEditing(blank);
     setFocusField(blank ? 'title' : null);
@@ -175,8 +197,11 @@ function DetailPanel({
   // batched with React 18 commits and the expand setState then gets lost.
   useEffectP(() => {
     let timer;
-    if(open && originRect){
-      setRect(originRect);
+    if(open){
+      const start = originRect
+        || (typeof getOriginRect === 'function' ? getOriginRect() : null)
+        || fallbackPanelOrigin();
+      setRect(start);
       setMounted(true);
       setExpanded(false);
       timer = setTimeout(() => setExpanded(true), 20);

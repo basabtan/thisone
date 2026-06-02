@@ -12,6 +12,38 @@ function getInitialCategory(){
   return 'research';
 }
 
+function rectFromElement(el){
+  if(!el || !el.getBoundingClientRect) return null;
+  const r = el.getBoundingClientRect();
+  return { top: r.top, left: r.left, width: r.width, height: r.height };
+}
+
+function rectFromIdeaId(id){
+  return rectFromElement(document.querySelector('[data-idea-id="' + id + '"]'));
+}
+
+function fallbackOriginRect(){
+  if(typeof window === 'undefined') return { top: 120, left: 80, width: 280, height: 72 };
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const w = Math.min(320, vw * 0.42);
+  return {
+    top: Math.max(96, vh * 0.28),
+    left: (vw - w) / 2,
+    width: w,
+    height: 72,
+  };
+}
+
+function resolveOriginRect(id, event){
+  return rectFromEvent(event) || (id ? rectFromIdeaId(id) : null) || fallbackOriginRect();
+}
+
+function rectFromEvent(event){
+  const el = event && event.currentTarget;
+  return rectFromElement(el);
+}
+
 function IdeasCategorySwitch({ category, onCategoryChange }){
   const [spotlight, setSpotlight] = useStateA(function(){
     try { return localStorage.getItem('ideas-category-switch-seen') !== '1'; } catch (e) { return true; }
@@ -101,19 +133,12 @@ function IdeasWorkspace({ useIdeasHook, meta, category, onCategoryChange }){
       });
   }, [ideas, search, statusFilters, tagFilters, authorFilter, sort]);
 
-  function rectFromEvent(event){
-    const el = event && event.currentTarget;
-    if(!el || !el.getBoundingClientRect) return null;
-    const r = el.getBoundingClientRect();
-    return { top: r.top, left: r.left, width: r.width, height: r.height };
-  }
-
   const openIdea = useCallbackA((id, event) => {
     if(compareMode){
       toggleSelect(id);
       return;
     }
-    setOriginRect(rectFromEvent(event));
+    setOriginRect(resolveOriginRect(id, event));
     setOpenId(id);
     setPanelOpen(true);
   }, [compareMode]);
@@ -132,11 +157,20 @@ function IdeasWorkspace({ useIdeasHook, meta, category, onCategoryChange }){
   }, []);
 
   function onNew(event){
-    setOriginRect(rectFromEvent(event));
     const id = addIdea(activeAuthor);
+    setOriginRect(resolveOriginRect(id, event));
     setOpenId(id);
     setPanelOpen(true);
   }
+
+  const openIdeaById = useCallbackA((id) => {
+    const run = () => {
+      setOriginRect(rectFromIdeaId(id) || fallbackOriginRect());
+      setOpenId(id);
+      setPanelOpen(true);
+    };
+    requestAnimationFrame(() => requestAnimationFrame(run));
+  }, []);
 
   function toggleSelect(id){
     setSelectedIds(prev => {
@@ -200,23 +234,82 @@ function IdeasWorkspace({ useIdeasHook, meta, category, onCategoryChange }){
     return () => clearTimeout(t);
   }, []);
 
+  const deepLinkHandled = useRefA(false);
+
   useEffectA(() => {
-    try {
-      var raw = sessionStorage.getItem('sabtan-assistant-open-idea');
-      if (!raw) return;
-      var pending = JSON.parse(raw);
-      if (!pending || !pending.id) return;
+    function stripOpenParam(){
+      try {
+        var url = new URL(window.location.href);
+        if (!url.searchParams.has('open')) return;
+        url.searchParams.delete('open');
+        window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+      } catch (e) {}
+    }
+
+    function applyPending(pending, fromSession){
+      if (!pending) return;
       if (pending.category && pending.category !== category) {
-        onCategoryChange(pending.category);
+        if (fromSession) {
+          onCategoryChange(pending.category);
+        }
         return;
       }
-      sessionStorage.removeItem('sabtan-assistant-open-idea');
-      if (ideas.some(function (i) { return i.id === pending.id; })) {
-        setOpenId(pending.id);
-        setPanelOpen(true);
+      if (pending.open === 'new') {
+        deepLinkHandled.current = true;
+        stripOpenParam();
+        if (fromSession) sessionStorage.removeItem('sabtan-assistant-open-idea');
+        onNew();
+        return;
+      }
+      if (!pending.id) return;
+      if (!ideas.some(function (i) { return i.id === pending.id; })) return;
+      deepLinkHandled.current = true;
+      stripOpenParam();
+      if (fromSession) sessionStorage.removeItem('sabtan-assistant-open-idea');
+      openIdeaById(pending.id);
+    }
+
+    if (deepLinkHandled.current) return;
+
+    try {
+      var raw = sessionStorage.getItem('sabtan-assistant-open-idea');
+      if (raw) {
+        applyPending(JSON.parse(raw), true);
+        return;
       }
     } catch (e) {}
-  }, [ideas, category, onCategoryChange]);
+
+    try {
+      var openParam = new URLSearchParams(window.location.search).get('open');
+      if (!openParam) return;
+      applyPending(
+        openParam === 'new'
+          ? { open: 'new', category: category }
+          : { id: openParam, category: category },
+        false
+      );
+    } catch (e) {}
+  }, [ideas, category, onCategoryChange, openIdeaById]);
+
+  useEffectA(() => {
+    function onAssistantOpen(e){
+      var detail = e && e.detail;
+      if (!detail) return;
+      if (detail.category && detail.category !== category) {
+        onCategoryChange(detail.category);
+        return;
+      }
+      if (detail.open === 'new') {
+        onNew();
+        return;
+      }
+      if (detail.id && ideas.some(function (i) { return i.id === detail.id; })) {
+        openIdeaById(detail.id);
+      }
+    }
+    window.addEventListener('sabtan-assistant-vault-open', onAssistantOpen);
+    return () => window.removeEventListener('sabtan-assistant-vault-open', onAssistantOpen);
+  }, [ideas, category, onCategoryChange, openIdeaById]);
 
   const currentIdea = ideas.find(i => i.id === openId);
   const selectedIdeaObjects = selectedIds.map(id => ideas.find(i => i.id === id)).filter(Boolean);

@@ -87,6 +87,44 @@ These URLs still work but redirect — prefer the target path:
 - **Instruments** is linked from the home Explore hub and from `instruments.html` tool cards.
 - Ideas data is stored in the **browser** (localStorage), not on a server.
 - Vault assistant chat appears on most pages; use `navigate_to_page` with a path from this map.
+- **In-page cards** (Ideas detail panels, Paper 1 guide sections) use grow/morph animations. The assistant cannot “click” — use the deep-link fields below.
+
+---
+
+## Deep links (open cards / panels)
+
+Use optional fields on `navigate_to_page` (or put them in the path query string):
+
+### Research / App Ideas (`research-ideas.html`)
+
+| Intent | Path or args |
+|--------|----------------|
+| Open blank **New idea** panel | `research-ideas.html?view=research&open=new` or `{ "path": "research-ideas.html?view=research", "open": "new" }` |
+| Open a draft after `prefill_idea_draft` | `{ "path": "research-ideas.html?view=research", "open": "<idea-id>" }` (usually automatic after prefill) |
+
+Categories: use `view=research` or `view=app`.
+
+### Paper 1 guide sections (`paper-1-guide.html`)
+
+| Section | `section` slug |
+|---------|----------------|
+| Abstract | `abstract` |
+| Introduction | `introduction` (alias: `intro`) |
+| Geological Setting | `geological-setting` (alias: `setting`) |
+| Study Sites | `study-sites` |
+| Field Methodology | `field-methodology` |
+| Statistical Methods | `statistical-methods` (aliases: `methods`, `stats`) |
+| Results | `results` |
+| Discussion | `discussion` |
+| Conclusions | `conclusions` |
+
+Example — open Statistical Methods:
+
+```json
+{ "path": "paper-1-guide.html", "section": "statistical-methods", "label": "Paper 1 — Statistical Methods" }
+```
+
+Or path only: `paper-1-guide.html?section=results`
 
 ---
 
@@ -114,10 +152,12 @@ These URLs still work but redirect — prefer the target path:
 { "path": "instruments.html", "label": "Instruments", "reason": "Catalogue of live geological tools" }
 { "path": "vtest-najd.html", "label": "V-test Dashboard", "reason": "Circular statistics for preferred orientation" }
 { "path": "research-ideas.html?view=research", "label": "Research Ideas", "reason": "Capture a paper or field-study idea" }
+{ "path": "research-ideas.html?view=research", "open": "new", "label": "New research idea", "reason": "Open blank idea panel" }
+{ "path": "paper-1-guide.html", "section": "statistical-methods", "label": "Paper 1 — Statistical Methods", "reason": "Open that guide section card" }
 { "path": "Sabtan Knowledge Base/profile.html", "label": "Executive Profile", "reason": "Prof. Abdullah capability profile" }
 ```
 
-Paths are relative to the site root (`asabtan.sa`). Query strings are allowed.
+Paths are relative to the site root (`asabtan.sa`). Query strings are allowed. Optional **`section`** (Paper 1 guide) and **`open`** (Ideas workspace) open the morphing card panels after navigation.
 
 ---
 

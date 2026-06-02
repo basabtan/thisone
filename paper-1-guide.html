@@ -588,7 +588,7 @@
       <p class="section-expand-hint">Click any section to expand · text scales as the card grows</p>
       <div class="section-list" id="paper-sections">
 
-        <div class="section-item" tabindex="0" role="button" aria-expanded="false">
+        <div class="section-item" tabindex="0" role="button" aria-expanded="false" data-section="abstract">
           <div class="sec-num">1</div>
           <div>
             <div class="sec-title">Abstract</div>
@@ -597,7 +597,7 @@
           </div>
         </div>
 
-        <div class="section-item" tabindex="0" role="button" aria-expanded="false">
+        <div class="section-item" tabindex="0" role="button" aria-expanded="false" data-section="introduction">
           <div class="sec-num">2</div>
           <div>
             <div class="sec-title">Introduction</div>
@@ -606,7 +606,7 @@
           </div>
         </div>
 
-        <div class="section-item" tabindex="0" role="button" aria-expanded="false">
+        <div class="section-item" tabindex="0" role="button" aria-expanded="false" data-section="geological-setting">
           <div class="sec-num">3</div>
           <div>
             <div class="sec-title">Geological Setting</div>
@@ -615,7 +615,7 @@
           </div>
         </div>
 
-        <div class="section-item" tabindex="0" role="button" aria-expanded="false">
+        <div class="section-item" tabindex="0" role="button" aria-expanded="false" data-section="study-sites">
           <div class="sec-num">4</div>
           <div>
             <div class="sec-title">Study Sites</div>
@@ -624,7 +624,7 @@
           </div>
         </div>
 
-        <div class="section-item" tabindex="0" role="button" aria-expanded="false">
+        <div class="section-item" tabindex="0" role="button" aria-expanded="false" data-section="field-methodology">
           <div class="sec-num">5</div>
           <div>
             <div class="sec-title">Field Methodology</div>
@@ -633,7 +633,7 @@
           </div>
         </div>
 
-        <div class="section-item" tabindex="0" role="button" aria-expanded="false">
+        <div class="section-item" tabindex="0" role="button" aria-expanded="false" data-section="statistical-methods">
           <div class="sec-num">6</div>
           <div>
             <div class="sec-title">Statistical Methods</div>
@@ -642,7 +642,7 @@
           </div>
         </div>
 
-        <div class="section-item" tabindex="0" role="button" aria-expanded="false">
+        <div class="section-item" tabindex="0" role="button" aria-expanded="false" data-section="results">
           <div class="sec-num">7</div>
           <div>
             <div class="sec-title">Results</div>
@@ -651,7 +651,7 @@
           </div>
         </div>
 
-        <div class="section-item" tabindex="0" role="button" aria-expanded="false">
+        <div class="section-item" tabindex="0" role="button" aria-expanded="false" data-section="discussion">
           <div class="sec-num">8</div>
           <div>
             <div class="sec-title">Discussion</div>
@@ -660,7 +660,7 @@
           </div>
         </div>
 
-        <div class="section-item" tabindex="0" role="button" aria-expanded="false">
+        <div class="section-item" tabindex="0" role="button" aria-expanded="false" data-section="conclusions">
           <div class="sec-num">9</div>
           <div>
             <div class="sec-title">Conclusions</div>
@@ -963,6 +963,50 @@ function resetZoom() {
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && panel) closePanel();
   });
+
+  var SECTION_ALIASES = {
+    intro: 'introduction',
+    setting: 'geological-setting',
+    methods: 'statistical-methods',
+    stats: 'statistical-methods',
+    field: 'field-methodology',
+    sites: 'study-sites',
+    conclusion: 'conclusions',
+  };
+
+  function normalizeSectionSlug(slug) {
+    var key = String(slug || '').trim().toLowerCase().replace(/\s+/g, '-');
+    return SECTION_ALIASES[key] || key;
+  }
+
+  function findSectionItem(slug) {
+    var key = normalizeSectionSlug(slug);
+    var match = null;
+    items.forEach(function (el) {
+      if (el.getAttribute('data-section') === key) match = el;
+    });
+    return match;
+  }
+
+  function openSectionBySlug(slug) {
+    var item = findSectionItem(slug);
+    if (!item) return false;
+    item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(function () { openPanel(item); }, 320);
+    return true;
+  }
+
+  window.SabtanPaper1Guide = { openSection: openSectionBySlug };
+
+  try {
+    var sectionParam = new URLSearchParams(window.location.search).get('section');
+    if (sectionParam) {
+      setTimeout(function () { openSectionBySlug(sectionParam); }, 450);
+      var cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.delete('section');
+      window.history.replaceState({}, '', cleanUrl.pathname + cleanUrl.search + cleanUrl.hash);
+    }
+  } catch (e) {}
 })();
 </script>
 <script src="/shared/nav-strip.js" data-nav-active="paper1guide"></script>

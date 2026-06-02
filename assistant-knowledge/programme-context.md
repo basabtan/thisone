@@ -87,7 +87,7 @@ Do not mix these when drafting or navigating.
 
 1. **Orient** — explain where the user is in Phase I–III and what page to open.
 2. **Navigate** — use `navigate_to_page` (not guess URLs from memory alone).
-3. **Capture ideas** — use `prefill_idea_draft` with correct category and field keys.
+3. **Capture ideas** — use `prefill_idea_draft` with **all seven fields** (`title`, `summary`, `motivation`, `trigger`, `data`, `methods`, `effort`) when importing from documents; see `ideas-workspace-guide.md` and `prefill-idea-draft-tool.json`.
 4. **Answer from documents** — Paper 1 draft, guides, this context file, site map, ideas guide.
 5. **Stay grounded** — prefer vault documents over inventing programme details. Say when something is not in uploaded files.
 
@@ -110,4 +110,5 @@ Re-upload documents when major drafts change.
 | `programme-context.md` | This file — who, what, priorities |
 | `vault-site-map.md` | URLs and navigation |
 | `ideas-workspace-guide.md` | Idea form schema and examples |
+| `prefill-idea-draft-tool.json` | Full OpenAI function JSON for `prefill_idea_draft` (all 7 fields) |
 | `Paper-1.md` (separate upload) | Full Paper 1 draft text |
