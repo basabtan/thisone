@@ -7,6 +7,57 @@
   var AUTHOR_KEY = 'najd-ideas-active-author';
   var PENDING_OPEN_KEY = 'sabtan-assistant-open-idea';
   var THREAD_KEY = 'sabtan-assistant-thread-id';
+  var SETTINGS_KEY = 'sabtan-assistant-settings';
+  var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+  var ACCEPT_ATTACHMENTS = '.pdf,.txt,.md,.doc,.docx,.png,.jpg,.jpeg,.webp,.gif';
+  var PANEL_PRESETS = {
+    s: { w: 320, h: 420 },
+    m: { w: 380, h: 520 },
+    l: { w: 480, h: 640 },
+  };
+  var FONT_SCALES = [0.85, 1, 1.15, 1.3];
+
+  function readSettings() {
+    try {
+      var raw = localStorage.getItem(SETTINGS_KEY);
+      var cfg = raw ? JSON.parse(raw) : {};
+      return {
+        panelW: cfg.panelW || PANEL_PRESETS.m.w,
+        panelH: cfg.panelH || PANEL_PRESETS.m.h,
+        fontScale: cfg.fontScale || 1,
+        sizePreset: cfg.sizePreset || 'm',
+      };
+    } catch (e) {
+      return { panelW: PANEL_PRESETS.m.w, panelH: PANEL_PRESETS.m.h, fontScale: 1, sizePreset: 'm' };
+    }
+  }
+
+  function writeSettings(cfg) {
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(cfg));
+    } catch (e) {}
+  }
+
+  function nearestFontScale(value) {
+    var best = FONT_SCALES[0];
+    FONT_SCALES.forEach(function (s) {
+      if (Math.abs(s - value) < Math.abs(best - value)) best = s;
+    });
+    return best;
+  }
+
+  function readFileAsBase64(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        var result = String(reader.result || '');
+        var comma = result.indexOf(',');
+        resolve(comma >= 0 ? result.slice(comma + 1) : result);
+      };
+      reader.onerror = function () { reject(new Error('Could not read file.')); };
+      reader.readAsDataURL(file);
+    });
+  }
 
   function uid() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -42,10 +93,17 @@
     return '/.netlify/functions/chat';
   }
 
-  function appendMessage(log, role, text) {
+  function appendMessage(log, role, text, attachmentName) {
     var el = document.createElement('div');
     el.className = 'sabtan-assistant-msg ' + role;
     el.textContent = text;
+    if (attachmentName) {
+      var tag = document.createElement('span');
+      tag.className = 'sabtan-assistant-attach-tag';
+      tag.textContent = '📎 ' + attachmentName;
+      el.appendChild(document.createElement('br'));
+      el.appendChild(tag);
+    }
     log.appendChild(el);
     log.scrollTop = log.scrollHeight;
     return el;
@@ -194,18 +252,46 @@
   }
 
   function mountUI() {
+    var settings = readSettings();
+    var pendingAttachment = null;
+
     var root = document.createElement('div');
     root.className = 'sabtan-assistant-root';
+    root.style.setProperty('--sa-panel-w', settings.panelW + 'px');
+    root.style.setProperty('--sa-panel-h', settings.panelH + 'px');
+    root.style.setProperty('--sa-font-scale', String(settings.fontScale));
     root.innerHTML =
       '<div class="sabtan-assistant-panel" id="sabtan-assistant-panel" hidden>' +
         '<div class="sabtan-assistant-head">' +
-          '<div><h2>Vault assistant</h2><p>Sabtan Knowledge Base</p></div>' +
+          '<div class="sabtan-assistant-head-main">' +
+            '<h2>Vault assistant</h2>' +
+            '<p>Sabtan Knowledge Base</p>' +
+          '</div>' +
+          '<div class="sabtan-assistant-toolbar" aria-label="Assistant display options">' +
+            '<div class="sabtan-assistant-toolgroup" role="group" aria-label="Text size">' +
+              '<button type="button" class="sabtan-assistant-toolbtn" id="sabtan-assistant-font-down" title="Smaller text">A−</button>' +
+              '<button type="button" class="sabtan-assistant-toolbtn" id="sabtan-assistant-font-up" title="Larger text">A+</button>' +
+            '</div>' +
+            '<div class="sabtan-assistant-toolgroup" role="group" aria-label="Window size">' +
+              '<button type="button" class="sabtan-assistant-toolbtn" data-size="s" title="Small window">S</button>' +
+              '<button type="button" class="sabtan-assistant-toolbtn" data-size="m" title="Medium window">M</button>' +
+              '<button type="button" class="sabtan-assistant-toolbtn" data-size="l" title="Large window">L</button>' +
+            '</div>' +
+          '</div>' +
         '</div>' +
         '<div class="sabtan-assistant-log" id="sabtan-assistant-log"></div>' +
+        '<div class="sabtan-assistant-pending" id="sabtan-assistant-pending">' +
+          '<span>Attached:</span>' +
+          '<span class="sabtan-assistant-pending-name" id="sabtan-assistant-pending-name"></span>' +
+          '<button type="button" class="sabtan-assistant-pending-clear" id="sabtan-assistant-pending-clear">Remove</button>' +
+        '</div>' +
         '<form class="sabtan-assistant-form" id="sabtan-assistant-form">' +
-          '<input class="sabtan-assistant-input" id="sabtan-assistant-input" type="text" placeholder="Ask or navigate…" autocomplete="off" />' +
+          '<input type="file" id="sabtan-assistant-file" accept="' + ACCEPT_ATTACHMENTS + '" hidden />' +
+          '<button type="button" class="sabtan-assistant-attach" id="sabtan-assistant-attach" title="Attach file">📎</button>' +
+          '<input class="sabtan-assistant-input" id="sabtan-assistant-input" type="text" placeholder="Ask, navigate, or attach a file…" autocomplete="off" />' +
           '<button class="sabtan-assistant-send" type="submit">Send</button>' +
         '</form>' +
+        '<button type="button" class="sabtan-assistant-resize" id="sabtan-assistant-resize" title="Drag to resize" aria-label="Resize assistant window"></button>' +
       '</div>' +
       '<div class="sabtan-assistant-fab-col">' +
         '<button type="button" class="sabtan-assistant-toggle" id="sabtan-assistant-toggle" aria-expanded="false" title="Vault assistant">✦</button>' +
@@ -220,7 +306,146 @@
     var form = document.getElementById('sabtan-assistant-form');
     var input = document.getElementById('sabtan-assistant-input');
     var sendBtn = form.querySelector('.sabtan-assistant-send');
+    var attachBtn = document.getElementById('sabtan-assistant-attach');
+    var fileInput = document.getElementById('sabtan-assistant-file');
+    var pendingRow = document.getElementById('sabtan-assistant-pending');
+    var pendingName = document.getElementById('sabtan-assistant-pending-name');
+    var pendingClear = document.getElementById('sabtan-assistant-pending-clear');
+    var resizeHandle = document.getElementById('sabtan-assistant-resize');
+    var fontDown = document.getElementById('sabtan-assistant-font-down');
+    var fontUp = document.getElementById('sabtan-assistant-font-up');
+    var sizeButtons = panel.querySelectorAll('[data-size]');
     var threadId = null;
+
+    function persistSettings() {
+      writeSettings({
+        panelW: settings.panelW,
+        panelH: settings.panelH,
+        fontScale: settings.fontScale,
+        sizePreset: settings.sizePreset,
+      });
+    }
+
+    function applyPanelSize() {
+      root.style.setProperty('--sa-panel-w', settings.panelW + 'px');
+      root.style.setProperty('--sa-panel-h', settings.panelH + 'px');
+    }
+
+    function applyFontScale() {
+      root.style.setProperty('--sa-font-scale', String(settings.fontScale));
+      fontDown.setAttribute('aria-disabled', settings.fontScale <= FONT_SCALES[0] ? 'true' : 'false');
+      fontUp.setAttribute('aria-disabled', settings.fontScale >= FONT_SCALES[FONT_SCALES.length - 1] ? 'true' : 'false');
+    }
+
+    function syncSizeButtons() {
+      sizeButtons.forEach(function (btn) {
+        btn.classList.toggle('is-active', btn.dataset.size === settings.sizePreset);
+      });
+    }
+
+    function setPendingAttachment(file) {
+      pendingAttachment = file || null;
+      if (pendingAttachment) {
+        pendingRow.classList.add('visible');
+        pendingName.textContent = pendingAttachment.name;
+      } else {
+        pendingRow.classList.remove('visible');
+        pendingName.textContent = '';
+        fileInput.value = '';
+      }
+    }
+
+    applyPanelSize();
+    applyFontScale();
+    syncSizeButtons();
+
+    fontDown.addEventListener('click', function () {
+      var idx = FONT_SCALES.indexOf(settings.fontScale);
+      if (idx <= 0) idx = FONT_SCALES.indexOf(nearestFontScale(settings.fontScale));
+      if (idx > 0) settings.fontScale = FONT_SCALES[idx - 1];
+      applyFontScale();
+      persistSettings();
+    });
+
+    fontUp.addEventListener('click', function () {
+      var idx = FONT_SCALES.indexOf(settings.fontScale);
+      if (idx < 0) idx = FONT_SCALES.indexOf(nearestFontScale(settings.fontScale));
+      if (idx < FONT_SCALES.length - 1) settings.fontScale = FONT_SCALES[idx + 1];
+      applyFontScale();
+      persistSettings();
+    });
+
+    sizeButtons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var preset = PANEL_PRESETS[btn.dataset.size];
+        if (!preset) return;
+        settings.sizePreset = btn.dataset.size;
+        settings.panelW = preset.w;
+        settings.panelH = preset.h;
+        applyPanelSize();
+        syncSizeButtons();
+        persistSettings();
+      });
+    });
+
+    attachBtn.addEventListener('click', function () {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function () {
+      var file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+      if (file.size > MAX_ATTACHMENT_BYTES) {
+        appendMessage(log, 'error', 'File too large (max 10 MB).');
+        fileInput.value = '';
+        return;
+      }
+      setPendingAttachment(file);
+    });
+
+    pendingClear.addEventListener('click', function () {
+      setPendingAttachment(null);
+    });
+
+    (function bindResize() {
+      var dragging = false;
+      var startX = 0;
+      var startY = 0;
+      var startW = 0;
+      var startH = 0;
+
+      function onMove(e) {
+        if (!dragging) return;
+        var dx = startX - e.clientX;
+        var dy = startY - e.clientY;
+        settings.panelW = Math.min(Math.max(startW + dx, 280), window.innerWidth - 24);
+        settings.panelH = Math.min(Math.max(startH + dy, 320), window.innerHeight - 100);
+        settings.sizePreset = 'custom';
+        applyPanelSize();
+        syncSizeButtons();
+      }
+
+      function onUp() {
+        if (!dragging) return;
+        dragging = false;
+        panel.classList.remove('is-resizing');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        persistSettings();
+      }
+
+      resizeHandle.addEventListener('mousedown', function (e) {
+        e.preventDefault();
+        dragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        startW = settings.panelW;
+        startH = settings.panelH;
+        panel.classList.add('is-resizing');
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    })();
 
     try {
       threadId = sessionStorage.getItem(THREAD_KEY);
@@ -229,7 +454,7 @@
     appendMessage(
       log,
       'bot',
-      'I can help you navigate the vault, explain the Najd programme, and capture ideas. Try: “Open research ideas” or “Draft an idea about …”.'
+      'I can help you navigate the vault, explain the Najd programme, and capture ideas. Attach a PDF or document with 📎. Try: “Open research ideas” or “Summarise this file”.'
     );
 
     toggle.addEventListener('click', function () {
@@ -242,21 +467,41 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var message = input.value.trim();
-      if (!message) return;
+      var attachmentFile = pendingAttachment;
+      if (!message && !attachmentFile) return;
 
-      appendMessage(log, 'user', message);
+      appendMessage(log, 'user', message || '(attached file)', attachmentFile ? attachmentFile.name : null);
       input.value = '';
+      setPendingAttachment(null);
       sendBtn.disabled = true;
 
-      fetch(chatEndpoint(), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: message,
-          threadId: threadId,
-          variables: getVariables(),
-        }),
-      })
+      var payload = {
+        message: message,
+        threadId: threadId,
+        variables: getVariables(),
+      };
+
+      var sendRequest = attachmentFile
+        ? readFileAsBase64(attachmentFile).then(function (dataBase64) {
+            payload.attachments = [{
+              name: attachmentFile.name,
+              mimeType: attachmentFile.type || 'application/octet-stream',
+              dataBase64: dataBase64,
+            }];
+            payload.variables = Object.assign({}, payload.variables, {
+              uploaded_file_name: attachmentFile.name,
+            });
+          })
+        : Promise.resolve();
+
+      sendRequest
+        .then(function () {
+          return fetch(chatEndpoint(), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+        })
         .then(function (res) {
           return res.json().then(function (data) {
             if (!res.ok) throw new Error(data.error || 'Request failed');

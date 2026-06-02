@@ -6,6 +6,9 @@ const CORS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
+const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+const IMAGE_MIME = new Set(['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif']);
+
 function json(statusCode, body) {
   return {
     statusCode,
@@ -82,6 +85,50 @@ function extractToolCalls(run) {
     });
 }
 
+async function uploadAssistantFile(apiKey, fileName, mimeType, base64Data) {
+  const buffer = Buffer.from(base64Data, 'base64');
+  if (buffer.length > MAX_ATTACHMENT_BYTES) {
+    throw new Error(`File too large (max ${Math.round(MAX_ATTACHMENT_BYTES / (1024 * 1024))} MB).`);
+  }
+
+  const form = new FormData();
+  form.append('purpose', 'assistants');
+  form.append('file', new Blob([buffer], { type: mimeType || 'application/octet-stream' }), fileName);
+
+  const res = await fetch(`${OPENAI_BASE}/files`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${apiKey}` },
+    body: form,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data?.error?.message || 'File upload failed');
+  }
+  return data;
+}
+
+function buildUserMessageBody(text, fileIds, imageFileIds) {
+  const content = [{ type: 'text', text }];
+  imageFileIds.forEach((fileId) => {
+    content.push({ type: 'image_file', image_file: { file_id: fileId } });
+  });
+
+  const body = {
+    role: 'user',
+    content,
+  };
+
+  const docIds = fileIds.filter((id) => !imageFileIds.includes(id));
+  if (docIds.length) {
+    body.attachments = docIds.map((fileId) => ({
+      file_id: fileId,
+      tools: [{ type: 'file_search' }],
+    }));
+  }
+
+  return body;
+}
+
 async function getLatestAssistantText(apiKey, threadId) {
   const data = await openaiFetch(
     apiKey,
@@ -123,8 +170,10 @@ export async function handler(event) {
   }
 
   const message = String(payload.message || '').trim();
-  if (!message) {
-    return json(400, { error: 'message is required' });
+  const attachments = Array.isArray(payload.attachments) ? payload.attachments : [];
+
+  if (!message && !attachments.length) {
+    return json(400, { error: 'message or attachment is required' });
   }
 
   const variables = payload.variables || {};
@@ -139,12 +188,41 @@ export async function handler(event) {
       threadId = thread.id;
     }
 
+    const uploadedFileIds = [];
+    const imageFileIds = [];
+
+    for (const item of attachments.slice(0, 3)) {
+      const name = String(item.name || 'attachment').trim();
+      const mimeType = String(item.mimeType || 'application/octet-stream');
+      const dataBase64 = String(item.dataBase64 || '');
+      if (!dataBase64) continue;
+
+      const uploaded = await uploadAssistantFile(apiKey, name, mimeType, dataBase64);
+      uploadedFileIds.push(uploaded.id);
+      if (IMAGE_MIME.has(mimeType.toLowerCase())) {
+        imageFileIds.push(uploaded.id);
+      }
+    }
+
+    if (uploadedFileIds.length) {
+      variables.uploaded_file_name = attachments
+        .map((a) => a.name)
+        .filter(Boolean)
+        .join(', ');
+    }
+
+    const userText = [
+      buildSessionContext(variables),
+      '',
+      'User message:',
+      message || 'Please review the attached file(s).',
+    ].join('\n');
+
+    const messageBody = buildUserMessageBody(userText, uploadedFileIds, imageFileIds);
+
     await openaiFetch(apiKey, `/threads/${threadId}/messages`, {
       method: 'POST',
-      body: JSON.stringify({
-        role: 'user',
-        content: `${buildSessionContext(variables)}\n\nUser message:\n${message}`,
-      }),
+      body: JSON.stringify(messageBody),
     });
 
     let run = await openaiFetch(apiKey, `/threads/${threadId}/runs`, {
