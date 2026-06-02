@@ -265,12 +265,12 @@
       { id: "knowledge", label: "Knowledge Base", href: kbLink, configurable: true },
       { id: "overview", label: "Overview", href: link("najd-roadmap.html?layer=overview"), configurable: true },
       { id: "phase1", label: "Phase I", href: link("phase-1-papers.html"), configurable: true },
-      { id: "paper1guide", label: "P1 Guide", href: link("Paper 1/drafts/p1/G -p1 - guide .html"), configurable: true },
+      { id: "paper1guide", label: "P1 Guide", href: link("paper-1-guide.html"), configurable: true },
     ];
 
     var najdMenuItems = [
       { label: "Phase I", href: link("phase-1-papers.html") },
-      { label: "P1 Guide", href: link("Paper 1/drafts/p1/G -p1 - guide .html") },
+      { label: "P1 Guide", href: link("paper-1-guide.html") },
     ];
 
     var strip = document.createElement("nav");

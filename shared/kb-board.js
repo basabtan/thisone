@@ -83,7 +83,7 @@
       sectionId: "sec-urg-now",
       title: "Paper 1 — Author Guide",
       hint: "Visual drafting guide",
-      href: "Paper 1/drafts/p1/G -p1 - guide .html",
+      href: "paper-1-guide.html",
       builtin: true,
     },
     {

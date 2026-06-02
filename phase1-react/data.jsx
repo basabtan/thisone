@@ -37,7 +37,7 @@ const PHASE1_PAPERS = [
     },
     description:
       'Two statistically distinct joint families co-exist at all 5 sites — Najd (NW–SE, R̄≈0.98–1.00) and Red Sea (NE–SW). Site 2 shows Red Sea more coherent than Najd, indicating overprinting. Site 5 is a three-way mixture: Najd 39%, Red Sea 18%, unclassified 42%.',
-    guideHref: '/Paper 1/drafts/p1/G -p1 - guide .html',
+    guideHref: 'paper-1-guide.html',
     guideLabel: 'Open Paper 1 Writing Guide →',
     authors: [
       {

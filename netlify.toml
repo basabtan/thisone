@@ -33,4 +33,9 @@
   to = "/najd-roadmap.html"
   status = 301
 
+[[redirects]]
+  from = "/Paper 1/drafts/p1/G -p1 - guide .html"
+  to = "/paper-1-guide.html"
+  status = 301
+
 # SPA-style fallback not needed — every route is a real HTML file

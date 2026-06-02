@@ -21,7 +21,7 @@ const PAGES = [
   { path: "research-ideas-dev.html", nav: "required", active: "ideas" },
   { path: "research-ideas.html", nav: "bundled", active: "ideas" },
   { path: "Sabtan Knowledge Base/index.html", nav: "required", active: "knowledge" },
-  { path: "Paper 1/drafts/p1/G -p1 - guide .html", nav: "required", active: "paper1guide" },
+  { path: "paper-1-guide.html", nav: "required", active: "paper1guide" },
   { path: "Najd Fault System Dashboard.html", nav: "required", active: "knowledge" },
 ];
 
