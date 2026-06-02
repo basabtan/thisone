@@ -69,6 +69,49 @@
   --sa-copper:#a5643a;
 }
 .sabtan-assistant-panel.open{opacity:1;transform:none;pointer-events:auto}
+.sabtan-assistant-panel.is-dragover{border-color:var(--sa-blue);box-shadow:0 0 0 2px rgba(47,83,103,.18),0 22px 50px rgba(55,45,30,.2)}
+
+.sabtan-assistant-dropzone{
+  position:absolute;inset:0;z-index:4;display:none;align-items:center;justify-content:center;
+  background:rgba(47,83,103,.12);backdrop-filter:blur(2px);
+  border:2px dashed var(--sa-blue);border-radius:16px;pointer-events:none;
+}
+.sabtan-assistant-dropzone:not([hidden]){display:flex}
+.sabtan-assistant-dropzone-label{
+  padding:10px 16px;border-radius:999px;background:rgba(255,253,248,.95);
+  border:1px solid var(--sa-line);font-size:calc(12px * var(--sa-font-scale));
+  font-style:italic;color:var(--sa-blue-dk);font-weight:600;
+}
+
+body.sabtan-assistant-page-docked{
+  padding-right:var(--sa-body-dock-inset,0);
+  transition:padding-right .25s ease;
+  box-sizing:border-box;
+}
+body.sabtan-assistant-page-docked *{box-sizing:border-box}
+
+.sabtan-assistant-root.is-docked{
+  right:0;bottom:0;top:0;left:auto;width:var(--sa-dock-w,420px);
+  max-width:min(50vw,720px);align-items:stretch;gap:0;
+}
+.sabtan-assistant-root.is-docked .sabtan-assistant-fab-col{display:none}
+.sabtan-assistant-root.is-docked .sabtan-assistant-panel{
+  position:relative;right:auto;bottom:auto;left:auto;top:auto;
+  width:100%;height:100%;min-width:0;min-height:0;max-width:none;max-height:none;
+  border-radius:0;border-top:none;border-right:none;border-bottom:none;
+  opacity:1;transform:none;pointer-events:auto;
+  box-shadow:-12px 0 40px rgba(55,45,30,.12);
+}
+.sabtan-assistant-dock-resize{
+  position:absolute;left:0;top:0;bottom:0;width:8px;cursor:ew-resize;z-index:5;
+  border:none;padding:0;background:transparent;
+}
+.sabtan-assistant-dock-resize:hover,
+.sabtan-assistant-panel.is-resizing .sabtan-assistant-dock-resize{
+  background:linear-gradient(90deg,rgba(47,83,103,.12),transparent);
+}
+.sabtan-assistant-root.is-docked .sabtan-assistant-resize{display:none}
+.sabtan-assistant-root.is-docked .sabtan-assistant-toolbar{max-width:none}
 
 .sabtan-assistant-head{
   padding:10px 12px 10px 34px;border-bottom:1px solid var(--sa-line);
@@ -283,4 +326,8 @@
   .sabtan-assistant-root{right:12px;bottom:88px}
   .sabtan-assistant-panel{bottom:58px;--sa-panel-h:460px}
   .sabtan-assistant-toolbar{max-width:140px}
+  .sabtan-assistant-root.is-docked{
+    width:100vw;max-width:100vw;
+  }
+  body.sabtan-assistant-page-docked{padding-right:0}
 }

@@ -10,9 +10,12 @@
   var HISTORY_KEY = 'sabtan-assistant-history';
   var PANEL_OPEN_KEY = 'sabtan-assistant-panel-open';
   var SETTINGS_KEY = 'sabtan-assistant-settings';
+  var DOCK_WIDTH_DEFAULT = 420;
+  var DOCK_WIDTH_MIN = 320;
+  var DOCK_WIDTH_MAX = 720;
   var MAX_HISTORY = 80;
   var WELCOME_MESSAGE =
-    'I can help you navigate the vault, explain the Najd programme, and capture ideas. Attach a PDF or document with 📎. Try: “Open research ideas” or “Summarise this file”.';
+    'I can help you navigate the vault, explain the Najd programme, and capture ideas. Attach a PDF or document with 📎 or drag it onto this window. Use Dock for a side panel. Try: “Open research ideas”.';
   var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
   var ACCEPT_ATTACHMENTS = '.pdf,.txt,.md,.doc,.docx,.png,.jpg,.jpeg,.webp,.gif';
   var PANEL_PRESETS = {
@@ -31,9 +34,11 @@
         panelH: cfg.panelH || PANEL_PRESETS.m.h,
         fontScale: cfg.fontScale || 1,
         sizePreset: cfg.sizePreset || 'm',
+        dockMode: !!cfg.dockMode,
+        dockW: cfg.dockW || DOCK_WIDTH_DEFAULT,
       };
     } catch (e) {
-      return { panelW: PANEL_PRESETS.m.w, panelH: PANEL_PRESETS.m.h, fontScale: 1, sizePreset: 'm' };
+      return { panelW: PANEL_PRESETS.m.w, panelH: PANEL_PRESETS.m.h, fontScale: 1, sizePreset: 'm', dockMode: false, dockW: DOCK_WIDTH_DEFAULT };
     }
   }
 
@@ -382,9 +387,14 @@
               '<button type="button" class="sabtan-assistant-toolbtn" data-size="m" title="Medium window">M</button>' +
               '<button type="button" class="sabtan-assistant-toolbtn" data-size="l" title="Large window">L</button>' +
             '</div>' +
+            '<button type="button" class="sabtan-assistant-toolbtn" id="sabtan-assistant-dock" title="Dock to side">Dock</button>' +
             '<button type="button" class="sabtan-assistant-toolbtn sabtan-assistant-newchat" id="sabtan-assistant-newchat" title="Start new chat">New</button>' +
           '</div>' +
         '</div>' +
+        '<div class="sabtan-assistant-dropzone" id="sabtan-assistant-dropzone" hidden aria-hidden="true">' +
+          '<span class="sabtan-assistant-dropzone-label">Drop file to attach</span>' +
+        '</div>' +
+        '<button type="button" class="sabtan-assistant-dock-resize" id="sabtan-assistant-dock-resize" title="Drag to resize dock" aria-label="Resize docked panel" hidden></button>' +
         '<div class="sabtan-assistant-log" id="sabtan-assistant-log"></div>' +
         '<div class="sabtan-assistant-pending" id="sabtan-assistant-pending">' +
           '<span>Attached:</span>' +
@@ -420,7 +430,11 @@
     var fontDown = document.getElementById('sabtan-assistant-font-down');
     var fontUp = document.getElementById('sabtan-assistant-font-up');
     var newChatBtn = document.getElementById('sabtan-assistant-newchat');
+    var dockBtn = document.getElementById('sabtan-assistant-dock');
+    var dockResize = document.getElementById('sabtan-assistant-dock-resize');
+    var dropzone = document.getElementById('sabtan-assistant-dropzone');
     var sizeButtons = panel.querySelectorAll('[data-size]');
+    var dragDepth = 0;
 
     function persistSettings() {
       writeSettings({
@@ -428,7 +442,69 @@
         panelH: settings.panelH,
         fontScale: settings.fontScale,
         sizePreset: settings.sizePreset,
+        dockMode: settings.dockMode,
+        dockW: settings.dockW,
       });
+    }
+
+    function applyDockLayout() {
+      var docked = settings.dockMode;
+      root.classList.toggle('is-docked', docked);
+      document.body.classList.toggle('sabtan-assistant-page-docked', docked);
+      root.style.setProperty('--sa-dock-w', settings.dockW + 'px');
+      document.documentElement.style.setProperty(
+        '--sa-body-dock-inset',
+        docked ? settings.dockW + 'px' : '0px'
+      );
+      dockBtn.textContent = docked ? 'Float' : 'Dock';
+      dockBtn.title = docked ? 'Return to floating window' : 'Dock to side of screen';
+      dockBtn.classList.toggle('is-active', docked);
+      dockBtn.setAttribute('aria-pressed', docked ? 'true' : 'false');
+      dockResize.hidden = !docked;
+
+      if (docked) {
+        panel.classList.add('open');
+        panel.hidden = false;
+        toggle.setAttribute('aria-expanded', 'true');
+        writePanelOpen(true);
+      }
+    }
+
+    function setDockMode(on) {
+      settings.dockMode = !!on;
+      applyDockLayout();
+      persistSettings();
+      if (!settings.dockMode) input.focus();
+    }
+
+    function isAcceptedFile(file) {
+      if (!file) return false;
+      var name = String(file.name || '').toLowerCase();
+      var accept = ACCEPT_ATTACHMENTS.split(',').map(function (s) { return s.trim().toLowerCase(); });
+      return accept.some(function (ext) {
+        if (ext.charAt(0) === '.') return name.endsWith(ext);
+        return false;
+      });
+    }
+
+    function queueAttachment(file, logEl) {
+      if (!file) return;
+      if (!isAcceptedFile(file)) {
+        addMessage(logEl, 'error', 'Unsupported file type. Use PDF, text, Word, or image.');
+        return;
+      }
+      if (file.size > MAX_ATTACHMENT_BYTES) {
+        addMessage(logEl, 'error', 'File too large (max 10 MB).');
+        return;
+      }
+      setPendingAttachment(file);
+    }
+
+    function showDropzone(active) {
+      if (!dropzone) return;
+      dropzone.hidden = !active;
+      dropzone.setAttribute('aria-hidden', active ? 'false' : 'true');
+      panel.classList.toggle('is-dragover', active);
     }
 
     function applyPanelSize() {
@@ -463,6 +539,7 @@
     applyPanelSize();
     applyFontScale();
     syncSizeButtons();
+    applyDockLayout();
 
     fontDown.addEventListener('click', function () {
       var idx = FONT_SCALES.indexOf(settings.fontScale);
@@ -499,18 +576,69 @@
 
     fileInput.addEventListener('change', function () {
       var file = fileInput.files && fileInput.files[0];
-      if (!file) return;
-      if (file.size > MAX_ATTACHMENT_BYTES) {
-        addMessage(log, 'error', 'File too large (max 10 MB).');
-        fileInput.value = '';
-        return;
-      }
-      setPendingAttachment(file);
+      queueAttachment(file, log);
     });
 
     pendingClear.addEventListener('click', function () {
       setPendingAttachment(null);
     });
+
+    dockBtn.addEventListener('click', function () {
+      setDockMode(!settings.dockMode);
+    });
+
+    (function bindDragDrop() {
+      function hasFiles(e) {
+        var types = e.dataTransfer && e.dataTransfer.types;
+        return types && (types.indexOf ? types.indexOf('Files') !== -1 : Array.prototype.indexOf.call(types, 'Files') !== -1);
+      }
+
+      function panelOpen() {
+        return panel.classList.contains('open') && !panel.hidden;
+      }
+
+      function onDragEnter(e) {
+        if (!panelOpen() || !hasFiles(e)) return;
+        e.preventDefault();
+        dragDepth += 1;
+        showDropzone(true);
+      }
+
+      function onDragLeave(e) {
+        if (!hasFiles(e)) return;
+        dragDepth = Math.max(0, dragDepth - 1);
+        if (dragDepth === 0 || !panel.contains(e.relatedTarget)) {
+          dragDepth = 0;
+          showDropzone(false);
+        }
+      }
+
+      function onDragOver(e) {
+        if (!panelOpen() || !hasFiles(e)) return;
+        e.preventDefault();
+        if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+      }
+
+      function onDrop(e) {
+        if (!hasFiles(e)) return;
+        e.preventDefault();
+        dragDepth = 0;
+        showDropzone(false);
+        var file = e.dataTransfer.files && e.dataTransfer.files[0];
+        queueAttachment(file, log);
+      }
+
+      function onDragEnd() {
+        dragDepth = 0;
+        showDropzone(false);
+      }
+
+      panel.addEventListener('dragenter', onDragEnter);
+      panel.addEventListener('dragleave', onDragLeave);
+      panel.addEventListener('dragover', onDragOver);
+      panel.addEventListener('drop', onDrop);
+      window.addEventListener('dragend', onDragEnd);
+    })();
 
     (function bindResize() {
       var dragging = false;
@@ -540,12 +668,46 @@
       }
 
       resizeHandle.addEventListener('mousedown', function (e) {
+        if (settings.dockMode) return;
         e.preventDefault();
         dragging = true;
         startX = e.clientX;
         startY = e.clientY;
         startW = settings.panelW;
         startH = settings.panelH;
+        panel.classList.add('is-resizing');
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    })();
+
+    (function bindDockResize() {
+      var dragging = false;
+      var startX = 0;
+      var startW = 0;
+
+      function onMove(e) {
+        if (!dragging) return;
+        var dx = startX - e.clientX;
+        settings.dockW = Math.min(Math.max(startW + dx, DOCK_WIDTH_MIN), DOCK_WIDTH_MAX);
+        applyDockLayout();
+      }
+
+      function onUp() {
+        if (!dragging) return;
+        dragging = false;
+        panel.classList.remove('is-resizing');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        persistSettings();
+      }
+
+      dockResize.addEventListener('mousedown', function (e) {
+        if (!settings.dockMode) return;
+        e.preventDefault();
+        dragging = true;
+        startX = e.clientX;
+        startW = settings.dockW;
         panel.classList.add('is-resizing');
         document.addEventListener('mousemove', onMove);
         document.addEventListener('mouseup', onUp);
@@ -576,6 +738,10 @@
     });
 
     toggle.addEventListener('click', function () {
+      if (settings.dockMode) {
+        setDockMode(false);
+        return;
+      }
       var open = panel.classList.toggle('open');
       panel.hidden = !open;
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
