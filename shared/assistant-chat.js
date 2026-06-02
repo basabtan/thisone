@@ -7,7 +7,12 @@
   var AUTHOR_KEY = 'najd-ideas-active-author';
   var PENDING_OPEN_KEY = 'sabtan-assistant-open-idea';
   var THREAD_KEY = 'sabtan-assistant-thread-id';
+  var HISTORY_KEY = 'sabtan-assistant-history';
+  var PANEL_OPEN_KEY = 'sabtan-assistant-panel-open';
   var SETTINGS_KEY = 'sabtan-assistant-settings';
+  var MAX_HISTORY = 80;
+  var WELCOME_MESSAGE =
+    'I can help you navigate the vault, explain the Najd programme, and capture ideas. Attach a PDF or document with 📎. Try: “Open research ideas” or “Summarise this file”.';
   var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
   var ACCEPT_ATTACHMENTS = '.pdf,.txt,.md,.doc,.docx,.png,.jpg,.jpeg,.webp,.gif';
   var PANEL_PRESETS = {
@@ -93,7 +98,52 @@
     return '/.netlify/functions/chat';
   }
 
-  function appendMessage(log, role, text, attachmentName) {
+  function readHistory() {
+    try {
+      var raw = sessionStorage.getItem(HISTORY_KEY);
+      var list = raw ? JSON.parse(raw) : [];
+      return Array.isArray(list) ? list : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function writeHistory(list) {
+    try {
+      sessionStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(-MAX_HISTORY)));
+    } catch (e) {}
+  }
+
+  function readPanelOpen() {
+    try {
+      return sessionStorage.getItem(PANEL_OPEN_KEY) === '1';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function writePanelOpen(open) {
+    try {
+      sessionStorage.setItem(PANEL_OPEN_KEY, open ? '1' : '0');
+    } catch (e) {}
+  }
+
+  function readThreadId() {
+    try {
+      return sessionStorage.getItem(THREAD_KEY) || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function writeThreadId(id) {
+    try {
+      if (id) sessionStorage.setItem(THREAD_KEY, id);
+      else sessionStorage.removeItem(THREAD_KEY);
+    } catch (e) {}
+  }
+
+  function renderMessageEl(role, text, attachmentName) {
     var el = document.createElement('div');
     el.className = 'sabtan-assistant-msg ' + role;
     el.textContent = text;
@@ -104,6 +154,11 @@
       el.appendChild(document.createElement('br'));
       el.appendChild(tag);
     }
+    return el;
+  }
+
+  function appendMessage(log, role, text, attachmentName) {
+    var el = renderMessageEl(role, text, attachmentName);
     log.appendChild(el);
     log.scrollTop = log.scrollHeight;
     return el;
@@ -169,14 +224,15 @@
     window.location.href = '/research-ideas.html?view=' + category;
   }
 
-  function executeToolCalls(toolCalls, log) {
+  function executeToolCalls(toolCalls, log, addMessageFn) {
     if (!toolCalls || !toolCalls.length) return;
+    var add = addMessageFn || appendMessage;
     toolCalls.forEach(function (tc) {
       if (tc.name === 'navigate_to_page') {
-        appendMessage(log, 'system', 'Opening ' + (tc.arguments.label || tc.arguments.path || 'page') + '…');
+        add(log, 'system', 'Opening ' + (tc.arguments.label || tc.arguments.path || 'page') + '…');
         setTimeout(function () { navigateToPage(tc.arguments); }, 400);
       } else if (tc.name === 'prefill_idea_draft') {
-        appendMessage(log, 'system', 'Creating idea draft…');
+        add(log, 'system', 'Creating idea draft…');
         setTimeout(function () { prefillIdeaDraft(tc.arguments); }, 400);
       }
     });
@@ -254,6 +310,26 @@
   function mountUI() {
     var settings = readSettings();
     var pendingAttachment = null;
+    var chatHistory = readHistory();
+    var threadId = readThreadId();
+
+    function addMessage(log, role, text, attachmentName, persist) {
+      if (persist !== false) {
+        chatHistory.push({
+          role: role,
+          text: text,
+          attachmentName: attachmentName || null,
+        });
+        writeHistory(chatHistory);
+      }
+      return appendMessage(log, role, text, attachmentName);
+    }
+
+    function restoreHistory(log) {
+      chatHistory.forEach(function (entry) {
+        appendMessage(log, entry.role, entry.text, entry.attachmentName);
+      });
+    }
 
     var root = document.createElement('div');
     root.className = 'sabtan-assistant-root';
@@ -277,6 +353,7 @@
               '<button type="button" class="sabtan-assistant-toolbtn" data-size="m" title="Medium window">M</button>' +
               '<button type="button" class="sabtan-assistant-toolbtn" data-size="l" title="Large window">L</button>' +
             '</div>' +
+            '<button type="button" class="sabtan-assistant-toolbtn sabtan-assistant-newchat" id="sabtan-assistant-newchat" title="Start new chat">New</button>' +
           '</div>' +
         '</div>' +
         '<div class="sabtan-assistant-log" id="sabtan-assistant-log"></div>' +
@@ -314,8 +391,8 @@
     var resizeHandle = document.getElementById('sabtan-assistant-resize');
     var fontDown = document.getElementById('sabtan-assistant-font-down');
     var fontUp = document.getElementById('sabtan-assistant-font-up');
+    var newChatBtn = document.getElementById('sabtan-assistant-newchat');
     var sizeButtons = panel.querySelectorAll('[data-size]');
-    var threadId = null;
 
     function persistSettings() {
       writeSettings({
@@ -396,7 +473,7 @@
       var file = fileInput.files && fileInput.files[0];
       if (!file) return;
       if (file.size > MAX_ATTACHMENT_BYTES) {
-        appendMessage(log, 'error', 'File too large (max 10 MB).');
+        addMessage(log, 'error', 'File too large (max 10 MB).');
         fileInput.value = '';
         return;
       }
@@ -447,20 +524,34 @@
       });
     })();
 
-    try {
-      threadId = sessionStorage.getItem(THREAD_KEY);
-    } catch (e) {}
+    log.innerHTML = '';
+    if (chatHistory.length) {
+      restoreHistory(log);
+    } else {
+      addMessage(log, 'bot', WELCOME_MESSAGE);
+    }
 
-    appendMessage(
-      log,
-      'bot',
-      'I can help you navigate the vault, explain the Najd programme, and capture ideas. Attach a PDF or document with 📎. Try: “Open research ideas” or “Summarise this file”.'
-    );
+    if (readPanelOpen()) {
+      panel.classList.add('open');
+      panel.hidden = false;
+      toggle.setAttribute('aria-expanded', 'true');
+    }
+
+    newChatBtn.addEventListener('click', function () {
+      chatHistory = [];
+      writeHistory(chatHistory);
+      writeThreadId(null);
+      threadId = null;
+      log.innerHTML = '';
+      addMessage(log, 'bot', WELCOME_MESSAGE);
+      input.focus();
+    });
 
     toggle.addEventListener('click', function () {
       var open = panel.classList.toggle('open');
       panel.hidden = !open;
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      writePanelOpen(open);
       if (open) input.focus();
     });
 
@@ -470,7 +561,7 @@
       var attachmentFile = pendingAttachment;
       if (!message && !attachmentFile) return;
 
-      appendMessage(log, 'user', message || '(attached file)', attachmentFile ? attachmentFile.name : null);
+      addMessage(log, 'user', message || '(attached file)', attachmentFile ? attachmentFile.name : null);
       input.value = '';
       setPendingAttachment(null);
       sendBtn.disabled = true;
@@ -511,12 +602,10 @@
         .then(function (data) {
           if (data.threadId) {
             threadId = data.threadId;
-            try {
-              sessionStorage.setItem(THREAD_KEY, threadId);
-            } catch (e) {}
+            writeThreadId(threadId);
           }
-          if (data.text) appendMessage(log, 'bot', data.text);
-          executeToolCalls(data.toolCalls, log);
+          if (data.text) addMessage(log, 'bot', data.text);
+          executeToolCalls(data.toolCalls, log, addMessage);
         })
         .catch(function (err) {
           var msg = err.message || 'Could not reach assistant.';
@@ -525,7 +614,7 @@
           } else if (/Failed to fetch|NetworkError/i.test(msg)) {
             msg = 'Assistant unavailable on this server. Deploy to Netlify (or run netlify dev) to enable the API.';
           }
-          appendMessage(log, 'error', msg);
+          addMessage(log, 'error', msg);
         })
         .finally(function () {
           sendBtn.disabled = false;

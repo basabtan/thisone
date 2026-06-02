@@ -93,6 +93,10 @@
 .sabtan-assistant-toolbtn:hover{background:rgba(47,83,103,.08);color:var(--sa-graphite)}
 .sabtan-assistant-toolbtn.is-active{background:var(--sa-blue);color:#fffaf0}
 .sabtan-assistant-toolbtn[aria-disabled="true"]{opacity:.4;cursor:not-allowed}
+.sabtan-assistant-newchat{
+  border:1px solid var(--sa-line);border-radius:999px;background:rgba(255,255,255,.65);
+  padding:4px 10px;
+}
 
 .sabtan-assistant-log{
   flex:1;overflow:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;
