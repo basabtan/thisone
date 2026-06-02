@@ -12,31 +12,35 @@ Use these **relative paths** with `navigate_to_page` when users ask to open or g
 
 From `index.html`, the core Explore destinations are:
 
-| Path | Purpose |
-|------|---------|
-| `najd-roadmap.html` | Najd programme roadmap |
-| `Sabtan Knowledge Base/profile.html` | Prof. Abdullah — executive capability profile |
-| `research-ideas.html?view=research` | Research Ideas workspace |
-| `instruments.html` | Geological calculators & field tools catalogue |
+
+| Path                                 | Purpose                                        |
+| ------------------------------------ | ---------------------------------------------- |
+| `najd-roadmap.html`                  | Najd programme roadmap                         |
+| `Sabtan Knowledge Base/profile.html` | Prof. Abdullah — executive capability profile  |
+| `research-ideas.html?view=research`  | Research Ideas workspace                       |
+| `instruments.html`                   | Geological calculators & field tools catalogue |
+
 
 ---
 
 ## Main programme pages
 
-| Path | Purpose |
-|------|---------|
-| `index.html` | Home hub — Knowledge Base centerpiece, Explore menu, Add shortcuts |
-| `Sabtan Knowledge Base/index.html` | KB hub linking to roadmap, Phase I, ideas, profile |
-| `najd-roadmap.html` | Full programme roadmap (Phases I–III, guides, checklist) |
-| `najd-roadmap.html?layer=overview` | Roadmap overview layer only |
-| `phase-1-papers.html` | Phase I paper cards with author expand |
-| `paper-1-guide.html` | Paper 1 — visual author / drafting guide (primary) |
-| `Paper 1/drafts/p1/p - guide .html` | Paper 1 companion notes (secondary reference) |
-| `research-ideas.html?view=research` | Research Ideas (papers, field studies, reviews) |
-| `research-ideas.html?view=app` | App Ideas (vault UI, product features) |
-| `Najd Fault System Dashboard.html` | Najd structural / slope data dashboard |
-| `Sabtan Knowledge Base/profile.html` | Executive capability profile (50+ years in Saudi Arabia) |
-| `najd1.html` | Earlier programme overview (archive) |
+
+| Path                                 | Purpose                                                            |
+| ------------------------------------ | ------------------------------------------------------------------ |
+| `index.html`                         | Home hub — Knowledge Base centerpiece, Explore menu, Add shortcuts |
+| `Sabtan Knowledge Base/index.html`   | KB hub linking to roadmap, Phase I, ideas, profile                 |
+| `najd-roadmap.html`                  | Full programme roadmap (Phases I–III, guides, checklist)           |
+| `najd-roadmap.html?layer=overview`   | Roadmap overview layer only                                        |
+| `phase-1-papers.html`                | Phase I paper cards with author expand                             |
+| `paper-1-guide.html`                 | Paper 1 — visual author / drafting guide (primary)                 |
+| `Paper 1/drafts/p1/p - guide .html`  | Paper 1 companion notes (secondary reference)                      |
+| `research-ideas.html?view=research`  | Research Ideas (papers, field studies, reviews)                    |
+| `research-ideas.html?view=app`       | App Ideas (vault UI, product features)                             |
+| `Najd Fault System Dashboard.html`   | Najd structural / slope data dashboard                             |
+| `Sabtan Knowledge Base/profile.html` | Executive capability profile (50+ years in Saudi Arabia)           |
+| `najd1.html`                         | Earlier programme overview (archive)                               |
+
 
 ---
 
@@ -44,25 +48,29 @@ From `index.html`, the core Explore destinations are:
 
 Catalogue page: **`instruments.html`**
 
-| Path | Tool | Purpose |
-|------|------|---------|
-| `instruments.html` | — | List of live calculators; each card has its own featured-art style picker |
-| `vtest-najd.html` | V-test Dashboard | Preferred orientation (μ₀) for Najd sites — compass, presets, circular statistics |
-| `najd-tilt-level.html` | Surface Tilt Level | Phone sensors — tilt, slope, roll, pitch, lower direction (HTTPS on mobile) |
-| `geostrength.html` | GeoStrength | Rock mass classification, GSI, Hoek–Brown, wedge analysis, Najd Δθ |
+
+| Path                                 | Tool                            | Purpose                                                                            |
+| ------------------------------------ | ------------------------------- | ---------------------------------------------------------------------------------- |
+| `instruments.html`                   | —                               | List of live calculators; each card has its own featured-art style picker          |
+| `vtest-najd.html`                    | V-test Dashboard                | Preferred orientation (μ₀) for Najd sites — compass, presets, circular statistics  |
+| `najd-tilt-level.html`               | Surface Tilt Level              | Phone sensors — tilt, slope, roll, pitch, lower direction (HTTPS on mobile)        |
+| `geostrength.html`                   | GeoStrength                     | Rock mass classification, GSI, Hoek–Brown, wedge analysis, Najd Δθ                 |
 | `rock-slope-reinforcement-najd.html` | Rock Slope Reinforcement Helper | **Extension of GeoStrength** — planar LEM + bolt spacing, target FS, design charts |
-| `geo-pavement-toolkit.html` | Geotechnical & Pavement Toolkit | Bearing capacity, CBR, plate bearing test, flexible pavement design |
+| `geo-pavement-toolkit.html`          | Geotechnical & Pavement Toolkit | Bearing capacity, CBR, plate bearing test, flexible pavement design                |
+
 
 Typical intents:
 
-| User wants… | Send them to… |
-|-------------|----------------|
-| Calculators / instruments / tools | `instruments.html` |
-| V-test / circular statistics / μ₀ | `vtest-najd.html` |
-| Tilt level / bubble level / phone slope | `najd-tilt-level.html` |
-| GSI / slope stability / Hoek–Brown | `geostrength.html` |
+
+| User wants…                                            | Send them to…                        |
+| ------------------------------------------------------ | ------------------------------------ |
+| Calculators / instruments / tools                      | `instruments.html`                   |
+| V-test / circular statistics / μ₀                      | `vtest-najd.html`                    |
+| Tilt level / bubble level / phone slope                | `najd-tilt-level.html`               |
+| GSI / slope stability / Hoek–Brown                     | `geostrength.html`                   |
 | Rock slope bolts / reinforcement / target FS after LEM | `rock-slope-reinforcement-najd.html` |
-| CBR / pavement / foundation design | `geo-pavement-toolkit.html` |
+| CBR / pavement / foundation design                     | `geo-pavement-toolkit.html`          |
+
 
 ---
 
@@ -70,15 +78,17 @@ Typical intents:
 
 These URLs still work but redirect — prefer the target path:
 
-| Old path | Use instead |
-|----------|-------------|
-| `Najd Roadmap v2.html` | `najd-roadmap.html` |
-| `Phase 1 (React).html` | `phase-1-papers.html` |
-| `Research Ideas.html` | `research-ideas.html` |
-| `Research Ideas (React).html` | `research-ideas-dev.html` (dev only) |
-| `Paper 1/drafts/p1/G -p1 - guide .html` | `paper-1-guide.html` |
+
+| Old path                                       | Use instead                          |
+| ---------------------------------------------- | ------------------------------------ |
+| `Najd Roadmap v2.html`                         | `najd-roadmap.html`                  |
+| `Phase 1 (React).html`                         | `phase-1-papers.html`                |
+| `Research Ideas.html`                          | `research-ideas.html`                |
+| `Research Ideas (React).html`                  | `research-ideas-dev.html` (dev only) |
+| `Paper 1/drafts/p1/G -p1 - guide .html`        | `paper-1-guide.html`                 |
 | `Sabtan Knowledge Base/profile-strategic.html` | `Sabtan Knowledge Base/profile.html` |
-| `Sabtan Knowledge Base/profile-matrix.html` | `Sabtan Knowledge Base/profile.html` |
+| `Sabtan Knowledge Base/profile-matrix.html`    | `Sabtan Knowledge Base/profile.html` |
+
 
 ---
 
@@ -99,26 +109,30 @@ Use optional fields on `navigate_to_page` (or put them in the path query string)
 
 ### Research / App Ideas (`research-ideas.html`)
 
-| Intent | Path or args |
-|--------|----------------|
-| Open blank **New idea** panel | `research-ideas.html?view=research&open=new` or `{ "path": "research-ideas.html?view=research", "open": "new" }` |
-| Open a draft after `prefill_idea_draft` | `{ "path": "research-ideas.html?view=research", "open": "<idea-id>" }` (usually automatic after prefill) |
+
+| Intent                                  | Path or args                                                                                                     |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Open blank **New idea** panel           | `research-ideas.html?view=research&open=new` or `{ "path": "research-ideas.html?view=research", "open": "new" }` |
+| Open a draft after `prefill_idea_draft` | `{ "path": "research-ideas.html?view=research", "open": "<idea-id>" }` (usually automatic after prefill)         |
+
 
 Categories: use `view=research` or `view=app`.
 
 ### Paper 1 guide sections (`paper-1-guide.html`)
 
-| Section | `section` slug |
-|---------|----------------|
-| Abstract | `abstract` |
-| Introduction | `introduction` (alias: `intro`) |
-| Geological Setting | `geological-setting` (alias: `setting`) |
-| Study Sites | `study-sites` |
-| Field Methodology | `field-methodology` |
+
+| Section             | `section` slug                                      |
+| ------------------- | --------------------------------------------------- |
+| Abstract            | `abstract`                                          |
+| Introduction        | `introduction` (alias: `intro`)                     |
+| Geological Setting  | `geological-setting` (alias: `setting`)             |
+| Study Sites         | `study-sites`                                       |
+| Field Methodology   | `field-methodology`                                 |
 | Statistical Methods | `statistical-methods` (aliases: `methods`, `stats`) |
-| Results | `results` |
-| Discussion | `discussion` |
-| Conclusions | `conclusions` |
+| Results             | `results`                                           |
+| Discussion          | `discussion`                                        |
+| Conclusions         | `conclusions`                                       |
+
 
 Example — open Statistical Methods:
 
@@ -132,19 +146,21 @@ Or path only: `paper-1-guide.html?section=results`
 
 ## Typical user intents → page
 
-| User wants… | Send them to… |
-|-------------|----------------|
-| Home / start | `index.html` |
-| KB entry / dashboard | `Sabtan Knowledge Base/index.html` |
-| Programme overview / roadmap | `najd-roadmap.html` |
-| Roadmap overview layer | `najd-roadmap.html?layer=overview` |
-| Phase I papers list | `phase-1-papers.html` |
-| Paper 1 guide / drafting help | `paper-1-guide.html` |
-| Capture a research paper idea | `research-ideas.html?view=research` |
-| Capture a vault/UI/app idea | `research-ideas.html?view=app` |
+
+| User wants…                                   | Send them to…                        |
+| --------------------------------------------- | ------------------------------------ |
+| Home / start                                  | `index.html`                         |
+| KB entry / dashboard                          | `Sabtan Knowledge Base/index.html`   |
+| Programme overview / roadmap                  | `najd-roadmap.html`                  |
+| Roadmap overview layer                        | `najd-roadmap.html?layer=overview`   |
+| Phase I papers list                           | `phase-1-papers.html`                |
+| Paper 1 guide / drafting help                 | `paper-1-guide.html`                 |
+| Capture a research paper idea                 | `research-ideas.html?view=research`  |
+| Capture a vault/UI/app idea                   | `research-ideas.html?view=app`       |
 | Prof. Sabtan profile / CV / executive summary | `Sabtan Knowledge Base/profile.html` |
-| Najd data dashboard | `Najd Fault System Dashboard.html` |
-| Geological calculators (any) | `instruments.html` |
+| Najd data dashboard                           | `Najd Fault System Dashboard.html`   |
+| Geological calculators (any)                  | `instruments.html`                   |
+
 
 ---
 
@@ -167,3 +183,4 @@ Paths are relative to the site root (`asabtan.sa`). Query strings are allowed. O
 
 - **AS** — Prof. Abdullah Sabtan (Geology)
 - **BS** — Dr. Bader Sabtan (Industrial Engineering / vault build)
+
