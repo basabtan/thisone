@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Executive Profile — Professor Abdullah A. Sabtan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0c1014;
+      --ink-muted: #2a3239;
+      --ink-faint: #4d5863;
+      --paper: #ffffff;
+      --paper-warm: #ebe6dc;
+      --accent: #5c4528;
+      --accent-light: #9a7b4f;
+      --line: #c4b8a6;
+      --border-strong: #8a7d6b;
+      --max: 72rem;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      font-size: 17px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "Source Sans 3", system-ui, sans-serif;
+      font-weight: 400;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .serif { font-family: "Cormorant Garamond", Georgia, serif; }
+
+    .vault-topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      background: rgba(255, 255, 255, 0.97);
+      border-bottom: 2px solid var(--border-strong);
+      backdrop-filter: blur(8px);
+    }
+
+    .vault-topbar a {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .vault-topbar a:hover { color: var(--ink); }
+
+    .vault-topbar span {
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      font-weight: 600;
+    }
+
+    body { padding-top: 52px; }
+
+    /* —— Header —— */
+    .site-header {
+      border-bottom: 2px solid var(--border-strong);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .site-header__inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .institution {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .nav {
+      display: flex;
+      gap: 1.75rem;
+      list-style: none;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .nav a {
+      color: var(--ink);
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav a:hover { color: var(--accent); }
+
+    /* —— Hero —— */
+    .hero {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 5rem 2rem 4rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 3rem;
+      align-items: end;
+    }
+
+    @media (max-width: 768px) {
+      .hero { grid-template-columns: 1fr; padding-top: 3rem; }
+      .nav { display: none; }
+    }
+
+    .hero__eyebrow {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 1rem;
+    }
+
+    .hero__name {
+      font-size: clamp(2.5rem, 5vw, 3.75rem);
+      font-weight: 500;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+
+    .hero__title {
+      font-size: 1.35rem;
+      font-style: italic;
+      color: var(--ink);
+      font-weight: 500;
+      margin-bottom: 1.75rem;
+    }
+
+    .hero__summary {
+      max-width: 38rem;
+      font-size: 1.05rem;
+      color: var(--ink-muted);
+      font-weight: 400;
+    }
+
+    .hero__stats {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-left: 3px solid var(--border-strong);
+      padding-left: 2rem;
+      min-width: 12rem;
+      background: var(--paper-warm);
+      padding: 1.5rem 2rem;
+      border: 2px solid var(--border-strong);
+    }
+
+    .stat {
+      padding: 1.25rem 0;
+      border-bottom: 2px solid var(--line);
+    }
+
+    .stat:last-child { border-bottom: none; }
+
+    .stat__value {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 2.25rem;
+      font-weight: 600;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .stat__label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-top: 0.35rem;
+    }
+
+    /* —— Sections —— */
+    section {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    section + section {
+      border-top: 2px solid var(--border-strong);
+    }
+
+    .section-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.75rem, 3vw, 2.25rem);
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 2.5rem;
+      letter-spacing: -0.01em;
+    }
+
+    /* —— Credentials —— */
+    .credentials {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .credential-card {
+      padding: 2rem;
+      background: var(--paper-warm);
+      border: 2px solid var(--border-strong);
+      box-shadow: 0 2px 0 rgba(12, 16, 20, 0.06);
+    }
+
+    .credential-card h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 0.75rem;
+    }
+
+    .credential-card p {
+      font-size: 0.95rem;
+      color: var(--ink-muted);
+      font-weight: 400;
+    }
+
+    .credential-card .period {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    /* —— Strengths grid —— */
+    .strengths {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2px;
+      background: var(--border-strong);
+      border: 2px solid var(--border-strong);
+    }
+
+    .strength {
+      background: var(--paper-warm);
+      padding: 2rem 1.75rem;
+    }
+
+    .strength h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      color: var(--ink);
+    }
+
+    .strength p {
+      font-size: 0.9rem;
+      color: var(--ink-muted);
+      font-weight: 400;
+      line-height: 1.55;
+    }
+
+    /* —— Outcomes —— */
+    .outcomes {
+      background: #060809;
+      color: var(--paper);
+      max-width: 100%;
+      padding: 5rem 2rem;
+    }
+
+    .outcomes__inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .outcomes .section-label { color: #e8c992; font-weight: 700; }
+
+    .outcomes .section-title { color: #ffffff; }
+
+    .outcomes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2.5rem;
+      margin-top: 1rem;
+    }
+
+    .outcome {
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .outcome h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.65rem;
+      color: #f0d4a8;
+    }
+
+    .outcome p {
+      font-size: 0.92rem;
+      color: rgba(255, 255, 255, 0.92);
+      line-height: 1.6;
+    }
+
+    .outcome ul {
+      list-style: none;
+      margin-top: 0.5rem;
+    }
+
+    .outcome li {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.88);
+      padding: 0.35rem 0;
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .outcome li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.85em;
+      width: 6px;
+      height: 2px;
+      background: #e8c992;
+    }
+
+    /* —— Vision 2030 —— */
+    .vision-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .vision-tag {
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      padding: 0.5rem 1rem;
+      border: 2px solid var(--border-strong);
+      color: var(--ink);
+      background: var(--paper-warm);
+    }
+
+    /* —— Differentiator chain —— */
+    .chain {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 0.25rem;
+      margin: 2rem 0;
+      font-size: 0.95rem;
+    }
+
+    .chain span {
+      padding: 0.4rem 0.85rem;
+      background: var(--paper-warm);
+      border: 2px solid var(--border-strong);
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .chain .arrow {
+      color: var(--accent);
+      font-weight: 700;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 1.1rem;
+      padding: 0;
+      background: none;
+      border: none;
+    }
+
+    .differentiator-quote {
+      font-size: 1.2rem;
+      font-style: italic;
+      color: var(--ink);
+      font-weight: 500;
+      max-width: 42rem;
+      margin-top: 1.5rem;
+      padding-left: 1.5rem;
+      border-left: 4px solid var(--accent);
+    }
+
+    /* —— Footer —— */
+    footer {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 3rem 2rem 4rem;
+      border-top: 2px solid var(--border-strong);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: gap;
+      gap: 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="vault-topbar" aria-label="Knowledge base">
+    <a href="index.html">← Knowledge Base</a>
+    <span>Executive Profile</span>
+  </nav>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <span class="institution">Saudi School of Mines</span>
+      <nav>
+        <ul class="nav">
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="#expertise">Expertise</a></li>
+          <li><a href="#outcomes">Outcomes</a></li>
+          <li><a href="#vision">Vision 2030</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="profile-name">
+      <div>
+        <p class="hero__eyebrow">Applied Geoscience · National Geological Strategy</p>
+        <h1 id="profile-name" class="hero__name serif">Professor Abdullah A. Sabtan</h1>
+        <p class="hero__title serif">Geological Systems Architect</p>
+        <p class="hero__summary">
+          Senior applied geoscientist integrating geology, hydrogeology, geotechnics, infrastructure,
+          hazards, and government requirements into practical frameworks—bridging four decades of
+          Saudi field experience with the next generation of mining and earth-science leadership
+          at the Saudi School of Mines.
+        </p>
+      </div>
+      <aside class="hero__stats" aria-label="Career highlights">
+        <div class="stat">
+          <div class="stat__value serif">47+</div>
+          <div class="stat__label">Years in Saudi Arabia</div>
+        </div>
+        <div class="stat">
+          <div class="stat__value serif">PhD</div>
+          <div class="stat__label">SD School of Mines &amp; Technology</div>
+        </div>
+        <div class="stat">
+          <div class="stat__value serif">SGS</div>
+          <div class="stat__label">National Consultant (2012–2017)</div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="experience" aria-labelledby="exp-title">
+      <p class="section-label">Career &amp; Credentials</p>
+      <h2 id="exp-title" class="section-title serif">Experience &amp; Positioning</h2>
+      <div class="credentials">
+        <article class="credential-card">
+          <p class="period">Current</p>
+          <h3 class="serif">Professor of Engineering &amp; Environmental Geology</h3>
+          <p>King Abdulaziz University — advancing applied geoscience education and research across engineering geology and environmental systems.</p>
+        </article>
+        <article class="credential-card">
+          <p class="period">2012 – 2017</p>
+          <h3 class="serif">Geological Engineer Consultant</h3>
+          <p>Saudi Geological Survey — national geological governance, applied decision-making, and government-level geological risk frameworks.</p>
+        </article>
+        <article class="credential-card">
+          <p class="period">Doctoral Training</p>
+          <h3 class="serif">PhD, Geological / Geophysical Engineering</h3>
+          <p>South Dakota School of Mines &amp; Technology — foundational training aligned with the mission and rigor of the Saudi School of Mines.</p>
+        </article>
+        <article class="credential-card">
+          <p class="period">Cross-Sector Bridge</p>
+          <h3 class="serif">Academia · Government · Industry</h3>
+          <p>Recognized for translating geological science into practical national solutions spanning infrastructure, water systems, geohazards, and mining.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="expertise" aria-labelledby="exp-expertise">
+      <p class="section-label">Core Strategic Strengths</p>
+      <h2 id="exp-expertise" class="section-title serif">Domains of Expertise</h2>
+      <div class="strengths">
+        <article class="strength">
+          <h3 class="serif">Geological Hazard Intelligence</h3>
+          <p>Sinkholes, karst systems, earth fissures, subsidence, terrain instability, and geological risk mapping.</p>
+        </article>
+        <article class="strength">
+          <h3 class="serif">Infrastructure Resilience</h3>
+          <p>Geotechnical assessment, expansive soils, foundation risks, dam investigations, and flood-risk evaluation.</p>
+        </article>
+        <article class="strength">
+          <h3 class="serif">Hydrogeology &amp; Water Security</h3>
+          <p>Aquifer sustainability, groundwater protection, contamination studies, and water stewardship.</p>
+        </article>
+        <article class="strength">
+          <h3 class="serif">Sabkha &amp; Coastal Geotechnics</h3>
+          <p>Coastal sabkha studies, saline soils, and Red Sea coastal infrastructure support.</p>
+        </article>
+        <article class="strength">
+          <h3 class="serif">Remote Sensing &amp; Intelligence</h3>
+          <p>GIS, remote sensing, hazard mapping, and geological monitoring systems.</p>
+        </article>
+        <article class="strength">
+          <h3 class="serif">Dam &amp; Flood Systems</h3>
+          <p>Reservoir modeling, flood hazard assessment, dam geology, and resilience planning.</p>
+        </article>
+        <article class="strength">
+          <h3 class="serif">Strategic Minerals &amp; Materials</h3>
+          <p>Radiation shielding materials, mineral valorization, and geological materials engineering.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="outcomes" id="outcomes" aria-labelledby="outcomes-title">
+      <div class="outcomes__inner">
+        <p class="section-label">Saudi School of Mines</p>
+        <h2 id="outcomes-title" class="section-title serif">Expected Contributions &amp; Outcomes</h2>
+        <div class="outcomes-grid">
+          <article class="outcome">
+            <h3 class="serif">Academic Leadership</h3>
+            <p>Mentor graduate researchers and shape curricula that connect classical geology with modern mining, geotechnics, and national resource strategy.</p>
+          </article>
+          <article class="outcome">
+            <h3 class="serif">Applied Research Programs</h3>
+            <p>Lead investigations in hazards, hydrogeology, and geotechnical systems directly relevant to Saudi terrain and Vision 2030 mining expansion.</p>
+          </article>
+          <article class="outcome">
+            <h3 class="serif">Industry &amp; Government Liaison</h3>
+            <p>Leverage SGS and cross-sector experience to align school research with national geological surveys, infrastructure agencies, and mineral developers.</p>
+          </article>
+          <article class="outcome">
+            <h3 class="serif">National Capability Building</h3>
+            <ul>
+              <li>Critical minerals and geological materials engineering</li>
+              <li>Geological risk reduction and hazard monitoring</li>
+              <li>Water security and aquifer stewardship frameworks</li>
+              <li>Infrastructure resilience for dams, coasts, and foundations</li>
+              <li>Decision-ready geological intelligence for policymakers</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="vision" aria-labelledby="vision-title">
+      <p class="section-label">National Alignment</p>
+      <h2 id="vision-title" class="section-title serif">Strategic Value to Saudi Arabia</h2>
+      <p style="color: var(--ink-muted); max-width: 40rem;">
+        Supports Vision 2030 priorities by connecting earth-science research to measurable national outcomes—
+        from mining sector growth to environmental sustainability and geological risk governance.
+      </p>
+      <div class="vision-list" role="list">
+        <span class="vision-tag" role="listitem">Mining sector expansion</span>
+        <span class="vision-tag" role="listitem">Critical minerals development</span>
+        <span class="vision-tag" role="listitem">Water security</span>
+        <span class="vision-tag" role="listitem">Infrastructure resilience</span>
+        <span class="vision-tag" role="listitem">Environmental sustainability</span>
+        <span class="vision-tag" role="listitem">Geological risk reduction</span>
+        <span class="vision-tag" role="listitem">National hazard monitoring</span>
+      </div>
+
+      <p class="section-label" style="margin-top: 3.5rem;">Unique Differentiator</p>
+      <h3 class="section-title serif" style="font-size: 1.5rem; margin-bottom: 1rem;">The Full Geological Chain</h3>
+      <p style="color: var(--ink-muted); max-width: 36rem; margin-bottom: 0.5rem;">
+        Most geologists specialize in one domain. Professor Sabtan operates across the integrated chain:
+      </p>
+      <div class="chain" aria-label="Integrated expertise chain">
+        <span>Geology</span><span class="arrow">→</span>
+        <span>Geotechnics</span><span class="arrow">→</span>
+        <span>Water</span><span class="arrow">→</span>
+        <span>Infrastructure</span><span class="arrow">→</span>
+        <span>Hazards</span><span class="arrow">→</span>
+        <span>Government</span><span class="arrow">→</span>
+        <span>Mining</span>
+      </div>
+      <blockquote class="differentiator-quote serif">
+        Transforming geological knowledge into national capability—where science meets stewardship,
+        and research serves the Kingdom's earth-resource future.
+      </blockquote>
+    </section>
+  </main>
+
+  <footer>
+    <span>Professor Abdullah A. Sabtan</span>
+    <span>Saudi School of Mines · Strategic Profile</span>
+  </footer>
+
+</body>
+</html>

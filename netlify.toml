@@ -1,0 +1,36 @@
+# Najd Research Vault — static site (no build step)
+[build]
+  publish = "."
+  command = "echo Static site — no build"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Legacy bookmark redirects (see PAGES.md)
+[[redirects]]
+  from = "/Research Ideas.html"
+  to = "/research-ideas.html"
+  status = 301
+
+[[redirects]]
+  from = "/Research Ideas - standalone.html"
+  to = "/research-ideas.html"
+  status = 301
+
+[[redirects]]
+  from = "/Research Ideas (React).html"
+  to = "/research-ideas-dev.html"
+  status = 301
+
+[[redirects]]
+  from = "/Phase 1 (React).html"
+  to = "/phase-1-papers.html"
+  status = 301
+
+[[redirects]]
+  from = "/Najd Roadmap v2.html"
+  to = "/najd-roadmap.html"
+  status = 301
+
+# SPA-style fallback not needed — every route is a real HTML file

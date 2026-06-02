@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sabtan Knowledge Base</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ivory: #fbf7ef;
+      --paper: #fffdf8;
+      --graphite: #232421;
+      --muted: #4a453c;
+      --soft: #8a8274;
+      --line: #c9baa4;
+      --blue: #2f5367;
+      --blue-dk: #1e3a4a;
+      --copper: #a5643a;
+    --gold: #b89344;
+    --green: #496f61;
+  }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--graphite);
+      font-family: "Lora", serif;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(199, 167, 106, 0.2), transparent 38%),
+        radial-gradient(circle at 85% 80%, rgba(47, 83, 103, 0.12), transparent 42%),
+        linear-gradient(160deg, #fffaf0 0%, var(--ivory) 50%, #f1eadb 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.1;
+      background-image: repeating-linear-gradient(
+        145deg,
+        transparent 0 22px,
+        rgba(47, 83, 103, 0.08) 23px,
+        transparent 24px
+      );
+    }
+
+    .welcome {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 40px 24px 56px;
+      max-width: 1100px;
+      width: 100%;
+      overflow: visible;
+    }
+
+    .prof-name {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(17px, 2.8vw, 22px);
+      font-style: italic;
+      color: var(--muted);
+      margin-bottom: 18px;
+      line-height: 1.35;
+    }
+
+    .title {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(48px, 10vw, 72px);
+      font-weight: 700;
+      line-height: 1.04;
+      color: #1a1c19;
+      margin-bottom: 14px;
+    }
+
+    .tagline {
+      font-size: clamp(16px, 2.4vw, 19px);
+      color: var(--soft);
+      line-height: 1.5;
+      max-width: 480px;
+      margin: 0 auto 40px;
+      font-style: italic;
+    }
+
+    .divider {
+      width: 56px;
+      height: 2px;
+      margin: 0 auto 40px;
+      background: linear-gradient(90deg, var(--copper), var(--gold));
+      border-radius: 2px;
+    }
+
+    .hub {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hub-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: rgba(40, 30, 15, 0.28);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+      backdrop-filter: blur(4px);
+    }
+
+    .hub-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .hub-stage {
+      position: relative;
+      z-index: 20;
+      width: min(1100px, 98vw);
+      min-height: 136px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: min-height 0.5s cubic-bezier(0.32, 0.72, 0.28, 1);
+    }
+
+    .hub-center {
+      position: relative;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .hub.open .hub-stage {
+      justify-content: flex-start;
+      padding-top: 8px;
+    }
+
+    .hub.open:not(.profile-mode):not(.ideas-mode) .hub-stage {
+      min-height: 300px;
+      gap: 52px;
+    }
+
+    .hub.open.profile-mode .hub-stage,
+    .hub.open.ideas-mode .hub-stage {
+      min-height: 380px;
+      gap: 28px;
+    }
+
+    .hub.open.profile-mode .hub-options,
+    .hub.open.ideas-mode .hub-options {
+      position: relative;
+      inset: auto;
+      width: 100%;
+      flex: 0 0 auto;
+      pointer-events: auto;
+    }
+
+    .hub-main.hub-disc {
+      position: relative;
+      flex-shrink: 0;
+      cursor: pointer;
+      --ring: var(--graphite);
+    }
+
+    .hub-main.hub-disc .hub-icon-plus {
+      transform-origin: center;
+    }
+
+    .hub.open .hub-main.hub-disc .hub-icon-plus {
+      transform: rotate(45deg);
+    }
+
+    @keyframes hub-plus-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes hub-plus-spin-open {
+      from { transform: rotate(45deg); }
+      to { transform: rotate(405deg); }
+    }
+
+    .hub-main.hub-disc:hover {
+      color: var(--graphite);
+      filter: brightness(1.06);
+      box-shadow:
+        0 0 0 1px rgba(255, 252, 245, 0.9),
+        0 0 14px rgba(255, 248, 230, 0.95),
+        0 0 28px rgba(255, 240, 205, 0.7),
+        0 0 44px rgba(255, 230, 175, 0.45),
+        0 10px 28px rgba(55, 45, 30, 0.16),
+        inset 0 2px 8px rgba(255, 255, 255, 0.55),
+        inset 0 -6px 14px rgba(35, 36, 33, 0.12);
+    }
+
+    .hub-main.hub-disc:not(.open-state):hover .hub-icon-plus {
+      animation: hub-plus-spin 0.42s cubic-bezier(0.45, 0.05, 0.25, 1) 1;
+    }
+
+    .hub.open .hub-main.hub-disc:hover .hub-icon-plus {
+      animation: hub-plus-spin-open 0.42s cubic-bezier(0.45, 0.05, 0.25, 1) 1;
+    }
+
+    .hub-options {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .hub.open .hub-options {
+      pointer-events: auto;
+    }
+
+    .hub-disc-field {
+      position: relative;
+      left: auto;
+      top: auto;
+      transform: none;
+      width: min(980px, 94vw);
+      min-height: 130px;
+      margin: 0 auto;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.38s ease;
+    }
+
+    .hub.open:not(.profile-mode):not(.ideas-mode) .hub-disc-field {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .hub-disc-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(36px, 6vw, 72px);
+      padding: 4px 16px 0;
+    }
+
+    .hub-util-wrap {
+      position: relative;
+      z-index: 51;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(12px) scale(0.92);
+      transition:
+        opacity 0.35s ease,
+        visibility 0.35s ease,
+        transform 0.4s cubic-bezier(0.32, 0.72, 0.28, 1);
+    }
+
+    .hub.open:not(.profile-mode):not(.ideas-mode) .hub-util-wrap {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
+    .hub-util {
+      width: 100px;
+      height: 100px;
+      --ring: #4a453c;
+    }
+
+    .hub-util .opt-icon {
+      width: 26px;
+      height: 26px;
+    }
+
+    .hub-util .opt-title {
+      font-size: 14px;
+    }
+
+    .hub-disc {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 136px;
+      height: 136px;
+      min-width: 0;
+      padding: 12px;
+      border: 7px solid var(--ring, var(--graphite));
+      border-radius: 50%;
+      color: var(--graphite);
+      font-family: "Lora", serif;
+      font-size: 16px;
+      font-style: italic;
+      font-weight: 600;
+      text-decoration: none;
+      text-align: center;
+      overflow: hidden;
+      --metal-hi: #fffdf8;
+      --metal-mid: #ece3d4;
+      --metal-lo: #cfc0a8;
+      --metal-sh: #9a8d7a;
+      background:
+        radial-gradient(circle at 30% 22%, var(--metal-hi) 0%, transparent 46%),
+        radial-gradient(circle at 72% 78%, var(--metal-sh) 0%, transparent 52%),
+        repeating-linear-gradient(
+          118deg,
+          transparent 0 3px,
+          rgba(255, 255, 255, 0.07) 3px 4px
+        ),
+        linear-gradient(152deg, var(--metal-hi) 0%, var(--metal-mid) 42%, var(--metal-lo) 100%);
+      box-shadow:
+        0 10px 28px rgba(55, 45, 30, 0.16),
+        inset 0 2px 8px rgba(255, 255, 255, 0.55),
+        inset 0 -6px 14px rgba(35, 36, 33, 0.12);
+      transition:
+        box-shadow 0.35s ease,
+        filter 0.35s ease,
+        opacity 0.34s ease;
+    }
+
+    button.hub-disc {
+      cursor: pointer;
+    }
+
+    .hub-disc::after {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      pointer-events: none;
+    }
+
+    .hub-disc:hover {
+      color: var(--graphite);
+      filter: brightness(1.1);
+      box-shadow:
+        0 0 20px rgba(255, 250, 235, 0.85),
+        0 0 40px rgba(255, 245, 220, 0.45),
+        0 14px 32px rgba(55, 45, 30, 0.18),
+        inset 0 3px 14px rgba(255, 255, 255, 0.8),
+        inset 0 -4px 10px rgba(35, 36, 33, 0.08);
+    }
+
+    .hub-main.hub-disc:hover .opt-icon {
+      opacity: 0.72;
+      filter: none;
+    }
+
+    .hub-option.hub-disc {
+      position: relative;
+      left: auto;
+      top: auto;
+      flex-shrink: 0;
+      cursor: pointer;
+      transform: scale(0.2);
+      opacity: 0;
+      transition:
+        transform 0.52s cubic-bezier(0.32, 0.72, 0.28, 1),
+        opacity 0.34s ease,
+        box-shadow 0.35s ease,
+        filter 0.35s ease;
+    }
+
+    .hub-option.hub-disc.is-open {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .hub-option.hub-disc.is-custom {
+      --ring: #3d5248;
+    }
+
+    .opt-label {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .opt-icon {
+      width: 24px;
+      height: 24px;
+      opacity: 0.72;
+      transition: opacity 0.35s ease, filter 0.35s ease;
+    }
+
+    .opt-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .hub-option.najd { --ring: #1e3a4a; }
+    .hub-option.profile { --ring: #5c3820; }
+    .hub-option.ideas { --ring: #6b5524; }
+
+    .hub-disc:hover .opt-icon {
+      opacity: 1;
+      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.9));
+    }
+
+    .hub-page-picker {
+      position: absolute;
+      left: 50%;
+      top: calc(100% + 12px);
+      width: min(320px, 88vw);
+      max-height: min(360px, 52vh);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 253, 248, 0.98);
+      box-shadow: 0 18px 48px rgba(55, 45, 30, 0.2);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(-50%) translateY(-8px) scale(0.98);
+      transition:
+        opacity 0.28s ease,
+        transform 0.28s ease,
+        visibility 0.28s;
+      z-index: 60;
+    }
+
+    .hub-page-picker.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+
+    .picker-head {
+      padding: 12px 14px 10px;
+      font-family: "Playfair Display", serif;
+      font-size: 15px;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(201, 186, 164, 0.55);
+      text-align: left;
+    }
+
+    .picker-list {
+      list-style: none;
+      overflow-y: auto;
+      padding: 6px;
+    }
+
+    .picker-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--graphite);
+      font-family: "Lora", serif;
+      font-size: 14px;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .picker-item:hover {
+      background: rgba(47, 83, 103, 0.08);
+    }
+
+    .picker-item.is-active {
+      background: rgba(47, 83, 103, 0.12);
+      font-weight: 600;
+    }
+
+    .picker-item.is-core {
+      opacity: 0.55;
+      cursor: default;
+    }
+
+    .picker-item.is-core:hover {
+      background: transparent;
+    }
+
+    .picker-check {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--line);
+      border-radius: 4px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .picker-item.is-active .picker-check {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .picker-label {
+      flex: 1;
+      line-height: 1.25;
+    }
+
+    .picker-hint {
+      display: block;
+      font-size: 11px;
+      color: var(--soft);
+      font-style: italic;
+      margin-top: 2px;
+    }
+
+    .hub.open.profile-mode .hub-disc-field {
+      display: none;
+    }
+
+    .hub.open.ideas-mode .hub-disc-field {
+      display: none;
+    }
+
+    .hub.open:not(.profile-mode):not(.ideas-mode) .hub-options {
+      position: relative;
+      inset: auto;
+      width: 100%;
+      flex: 0 0 auto;
+    }
+
+    .hub-profile-panel {
+      display: none;
+      position: relative;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: min(100%, 320px);
+      margin: 0 auto;
+      z-index: 35;
+    }
+
+    .hub.open.profile-mode .hub-profile-panel {
+      display: flex;
+    }
+
+    .hub-ideas-panel {
+      display: none;
+      position: relative;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: min(100%, 320px);
+      margin: 0 auto;
+      z-index: 35;
+    }
+
+    .hub.open.ideas-mode .hub-ideas-panel {
+      display: flex;
+    }
+
+    .hub-sub-option.ideas-research { border-color: var(--blue); }
+    .hub-sub-option.ideas-research:hover { background: var(--blue); }
+    .hub-sub-option.ideas-app { border-color: var(--green); }
+    .hub-sub-option.ideas-app:hover { background: var(--green); }
+
+    .prof-back {
+      border: none;
+      background: none;
+      font-family: "Lora", serif;
+      font-size: 13px;
+      font-style: italic;
+      color: var(--soft);
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+
+    .prof-back:hover { color: var(--graphite); }
+
+    .hub-sub-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 260px;
+      justify-content: center;
+      padding: 16px 28px;
+      border: 2px solid var(--copper);
+      border-radius: 999px;
+      background: rgba(255, 253, 248, 0.98);
+      color: var(--graphite);
+      font-family: "Lora", serif;
+      font-size: 17px;
+      font-style: italic;
+      font-weight: 500;
+      text-decoration: none;
+      box-shadow: 0 8px 22px rgba(55, 45, 30, 0.1);
+      transition: transform 0.2s, background 0.2s, color 0.2s;
+    }
+
+    .hub-sub-option:hover {
+      background: var(--copper);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .hub-sub-option .sub-num {
+      font-style: normal;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.65;
+    }
+
+    .link-arrow {
+      font-style: normal;
+      opacity: 0.55;
+      font-size: 18px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .foot {
+      margin-top: 64px;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--soft);
+      font-weight: 600;
+    }
+
+    @media (max-width: 640px) {
+      .hub.open:not(.profile-mode):not(.ideas-mode) .hub-stage {
+        min-height: 360px;
+      }
+
+      .hub.open.profile-mode .hub-stage,
+      .hub.open.ideas-mode .hub-stage {
+        min-height: 400px;
+      }
+
+      .hub-disc-row {
+        gap: 28px;
+        padding: 4px 8px 0;
+      }
+
+      .hub-util-wrap {
+        gap: 0;
+      }
+
+      .hub-page-picker {
+        width: min(300px, 92vw);
+      }
+
+      .hub-disc,
+      .hub-option.hub-disc {
+        width: 124px;
+        height: 124px;
+      }
+
+      .hub-util {
+        width: 92px;
+        height: 92px;
+      }
+
+      .opt-title { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="welcome">
+    <p class="prof-name">Professor Abdullah&nbsp;A.&nbsp;Sabtan</p>
+    <h1 class="title">Knowledge Base</h1>
+    <p class="tagline">Research programmes · projects · strategic profile</p>
+    <div class="divider" aria-hidden="true"></div>
+
+    <div class="hub" id="hub">
+      <div class="hub-backdrop" id="hub-backdrop" aria-hidden="true"></div>
+      <div class="hub-stage">
+        <div class="hub-center">
+          <div class="hub-util-wrap" id="hub-util-wrap">
+            <button type="button" class="hub-disc hub-util" id="hub-util-btn" aria-expanded="false" aria-controls="hub-page-picker">
+              <span class="opt-label">
+                <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="4" y="4" width="7" height="7" rx="1"/>
+                  <rect x="13" y="4" width="7" height="7" rx="1"/>
+                  <rect x="4" y="13" width="7" height="7" rx="1"/>
+                  <path d="M13 16h7"/>
+                  <path d="M16.5 13v7"/>
+                </svg>
+                <span class="opt-title">Add</span>
+              </span>
+            </button>
+            <div class="hub-page-picker" id="hub-page-picker" hidden>
+              <div class="picker-head">Add page shortcut</div>
+              <ul class="picker-list" id="hub-picker-list"></ul>
+            </div>
+          </div>
+          <button type="button" class="hub-disc hub-main" id="hub-main" aria-expanded="false" aria-controls="hub-menu">
+            <span class="opt-label">
+              <svg class="opt-icon hub-icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+                <path d="M12 5v14"/>
+                <path d="M5 12h14"/>
+              </svg>
+              <span class="hub-label opt-title">Explore</span>
+            </span>
+          </button>
+        </div>
+        <nav class="hub-options" id="hub-menu" aria-label="Explore options">
+          <div class="hub-disc-field" id="hub-disc-field">
+            <div class="hub-disc-row" id="hub-disc-row">
+              <a class="hub-disc hub-option najd is-core" href="najd-roadmap.html" data-page-id="najd">
+                <span class="opt-label">
+                  <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 17 L9 11 L14 15 L20 7"/>
+                    <path d="M4 21 L10 15 L15 19 L20 13" opacity="0.55"/>
+                  </svg>
+                  <span class="opt-title">Najd</span>
+                </span>
+              </a>
+              <button type="button" class="hub-disc hub-option profile is-core" id="hub-profile-btn" data-page-id="profile">
+                <span class="opt-label">
+                  <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="8" r="3.5"/>
+                    <path d="M5.5 20c0-3.2 2.8-5.5 6.5-5.5s6.5 2.3 6.5 5.5"/>
+                  </svg>
+                  <span class="opt-title">Profile</span>
+                </span>
+              </button>
+              <button type="button" class="hub-disc hub-option ideas is-core" id="hub-ideas-btn" data-page-id="ideas">
+                <span class="opt-label">
+                  <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 18h6"/>
+                    <path d="M10 21h4"/>
+                    <path d="M12 3a5.5 5.5 0 0 0-2.8 10.2c.6.3 1 .9 1 1.6V16h3.6v-1.2c0-.7.4-1.3 1-1.6A5.5 5.5 0 0 0 12 3z"/>
+                  </svg>
+                  <span class="opt-title">Ideas</span>
+                </span>
+              </button>
+            </div>
+          </div>
+          <div class="hub-profile-panel" id="hub-profile-panel" hidden>
+            <button type="button" class="prof-back" id="hub-profile-back">&#8592; Back</button>
+            <a class="hub-sub-option" href="Sabtan Knowledge Base/profile-matrix.html">
+              <span class="sub-num">Option 1</span> Executive Matrix <span class="link-arrow">&#8594;</span>
+            </a>
+            <a class="hub-sub-option" href="Sabtan Knowledge Base/profile-strategic.html">
+              <span class="sub-num">Option 2</span> Strategic Profile <span class="link-arrow">&#8594;</span>
+            </a>
+          </div>
+          <div class="hub-ideas-panel" id="hub-ideas-panel" hidden>
+            <button type="button" class="prof-back" id="hub-ideas-back">&#8592; Back</button>
+            <a class="hub-sub-option ideas-research" href="research-ideas.html?view=research">
+              <span class="sub-num">Option 1</span> Research Ideas <span class="link-arrow">&#8594;</span>
+            </a>
+            <a class="hub-sub-option ideas-app" href="research-ideas.html?view=app">
+              <span class="sub-num">Option 2</span> App Ideas <span class="link-arrow">&#8594;</span>
+            </a>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <p class="foot">King Abdulaziz University · Saudi School of Mines</p>
+  </main>
+
+  <script>
+  (function initHub() {
+    var hub = document.getElementById("hub");
+    var btn = document.getElementById("hub-main");
+    var backdrop = document.getElementById("hub-backdrop");
+    var discRow = document.getElementById("hub-disc-row");
+    var profileBtn = document.getElementById("hub-profile-btn");
+    var profilePanel = document.getElementById("hub-profile-panel");
+    var profileBack = document.getElementById("hub-profile-back");
+    var ideasBtn = document.getElementById("hub-ideas-btn");
+    var ideasPanel = document.getElementById("hub-ideas-panel");
+    var ideasBack = document.getElementById("hub-ideas-back");
+    var utilBtn = document.getElementById("hub-util-btn");
+    var picker = document.getElementById("hub-page-picker");
+    var pickerList = document.getElementById("hub-picker-list");
+    var SHORTCUT_KEY = "sabtan-hub-shortcuts";
+    var CORE_IDS = ["najd", "profile", "ideas"];
+
+    var HUB_PAGES = [
+      { id: "najd", title: "Najd", label: "Najd", hint: "Programme roadmap", href: "najd-roadmap.html", core: true },
+      { id: "profile", title: "Profile", label: "Profile", hint: "Executive profile options", href: "", core: true },
+      { id: "ideas", title: "Ideas", label: "Ideas", hint: "Research and app ideas", href: "research-ideas.html?view=research", core: true },
+      { id: "kb-hub", title: "Knowledge Base Hub", label: "Hub", hint: "Full dashboard", href: "Sabtan Knowledge Base/index.html" },
+      { id: "roadmap", title: "Programme Roadmap", label: "Roadmap", hint: "Phases I–III", href: "najd-roadmap.html" },
+      { id: "phase1", title: "Phase I Papers", label: "Phase I", hint: "Paper cards & author view", href: "phase-1-papers.html" },
+      { id: "dashboard", title: "Structural Dashboard", label: "Dashboard", hint: "Slope data & analytics", href: "Najd Fault System Dashboard.html" },
+      { id: "ideas-dev", title: "Research Ideas (Dev)", label: "Ideas Dev", hint: "Editable React build", href: "research-ideas-dev.html" },
+      { id: "prof-strategic", title: "Strategic Profile", label: "Strategic", hint: "Executive positioning", href: "Sabtan Knowledge Base/profile-strategic.html" },
+      { id: "prof-matrix", title: "Executive Matrix", label: "Matrix", hint: "Leadership matrix", href: "Sabtan Knowledge Base/profile-matrix.html" },
+      { id: "prof-main", title: "Profile Overview", label: "Prof.", hint: "Main profile page", href: "Sabtan Knowledge Base/profile.html" },
+      { id: "p1-guide", title: "Paper 1 — Author Guide", label: "P1 Guide", hint: "Visual drafting guide", href: "Paper 1/drafts/p1/G -p1 - guide .html" },
+      { id: "p1-companion", title: "Paper 1 — Companion", label: "P1 Notes", hint: "Reference and notes", href: "Paper 1/drafts/p1/p - guide .html" },
+      { id: "archive", title: "Earlier Overview", label: "Archive", hint: "Archive programme view", href: "najd1.html" }
+    ];
+
+    if (!hub || !btn || !discRow) return;
+
+    var openTimers = [];
+
+    function pageById(id) {
+      for (var i = 0; i < HUB_PAGES.length; i++) {
+        if (HUB_PAGES[i].id === id) return HUB_PAGES[i];
+      }
+      return null;
+    }
+
+    function readShortcuts() {
+      try {
+        var raw = localStorage.getItem(SHORTCUT_KEY);
+        var arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr.filter(function (id) {
+          return CORE_IDS.indexOf(id) === -1 && pageById(id);
+        }) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function writeShortcuts(ids) {
+      localStorage.setItem(SHORTCUT_KEY, JSON.stringify(ids));
+    }
+
+    function linkIconSvg() {
+      return (
+        '<svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<path d="M14 4h6v6"/><path d="M10 14L20 4"/><path d="M5 8V5h3"/><path d="M5 19h14"/>' +
+        "</svg>"
+      );
+    }
+
+    function createShortcutEl(page) {
+      var el = document.createElement("a");
+      el.className = "hub-disc hub-option is-custom";
+      el.href = page.href;
+      el.dataset.pageId = page.id;
+      el.innerHTML =
+        '<span class="opt-label">' +
+        linkIconSvg() +
+        '<span class="opt-title">' + page.label + "</span></span>";
+      return el;
+    }
+
+    function renderShortcuts() {
+      var existing = discRow.querySelectorAll(".hub-option.is-custom");
+      for (var i = 0; i < existing.length; i++) existing[i].remove();
+
+      readShortcuts().forEach(function (id) {
+        var page = pageById(id);
+        if (!page || !page.href) return;
+        discRow.appendChild(createShortcutEl(page));
+      });
+
+      if (hub.classList.contains("open") && !hub.classList.contains("profile-mode")) {
+        animateDiscsIn();
+      }
+    }
+
+    function allDiscs() {
+      return discRow.querySelectorAll(".hub-option");
+    }
+
+    function animateDiscsIn() {
+      openTimers.forEach(clearTimeout);
+      openTimers = [];
+      var discs = allDiscs();
+      discs.forEach(function (el, i) {
+        el.classList.remove("is-open");
+        var t = setTimeout(function () {
+          el.classList.add("is-open");
+        }, 50 + i * 55);
+        openTimers.push(t);
+      });
+    }
+
+    function resetDiscs() {
+      openTimers.forEach(clearTimeout);
+      openTimers = [];
+      allDiscs().forEach(function (el) {
+        el.classList.remove("is-open");
+      });
+    }
+
+    function setPickerOpen(open) {
+      if (!picker || !utilBtn) return;
+      picker.hidden = !open;
+      picker.classList.toggle("open", open);
+      utilBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+
+    function renderPicker() {
+      if (!pickerList) return;
+      pickerList.innerHTML = "";
+      var shortcuts = readShortcuts();
+
+      HUB_PAGES.forEach(function (page) {
+        var li = document.createElement("li");
+        var isCore = !!page.core;
+        var isActive = isCore || shortcuts.indexOf(page.id) !== -1;
+        var btnPick = document.createElement("button");
+        btnPick.type = "button";
+        btnPick.className = "picker-item" + (isActive ? " is-active" : "") + (isCore ? " is-core" : "");
+        btnPick.innerHTML =
+          '<span class="picker-check" aria-hidden="true">' + (isActive ? "&#10003;" : "") + "</span>" +
+          '<span class="picker-label">' + page.title +
+          (page.hint ? '<span class="picker-hint">' + page.hint + "</span>" : "") +
+          "</span>";
+
+        if (!isCore) {
+          btnPick.addEventListener("click", function () {
+            var cur = readShortcuts();
+            var idx = cur.indexOf(page.id);
+            if (idx === -1) cur.push(page.id);
+            else cur.splice(idx, 1);
+            writeShortcuts(cur);
+            renderShortcuts();
+            renderPicker();
+          });
+        }
+
+        li.appendChild(btnPick);
+        pickerList.appendChild(li);
+      });
+    }
+
+    function setProfileMode(on) {
+      hub.classList.toggle("profile-mode", on);
+      if (profilePanel) profilePanel.hidden = !on;
+      if (on) {
+        setIdeasMode(false);
+        setPickerOpen(false);
+      }
+    }
+
+    function setIdeasMode(on) {
+      hub.classList.toggle("ideas-mode", on);
+      if (ideasPanel) ideasPanel.hidden = !on;
+      if (on) {
+        setProfileMode(false);
+        setPickerOpen(false);
+      }
+    }
+
+    function setOpen(open) {
+      hub.classList.toggle("open", open);
+      btn.classList.toggle("open-state", open);
+      backdrop.classList.toggle("open", open);
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      backdrop.setAttribute("aria-hidden", open ? "false" : "true");
+      btn.querySelector(".hub-label").textContent = open ? "Close" : "Explore";
+      if (open) {
+        renderShortcuts();
+        animateDiscsIn();
+      } else {
+        resetDiscs();
+        setProfileMode(false);
+        setIdeasMode(false);
+        setPickerOpen(false);
+      }
+    }
+
+    btn.addEventListener("click", function () {
+      setOpen(!hub.classList.contains("open"));
+    });
+    backdrop.addEventListener("click", function () {
+      setOpen(false);
+    });
+
+    if (utilBtn) {
+      utilBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var next = picker.hidden;
+        if (next) renderPicker();
+        setPickerOpen(next);
+      });
+    }
+
+    if (profileBtn) {
+      profileBtn.addEventListener("click", function () {
+        if (!hub.classList.contains("open")) setOpen(true);
+        setProfileMode(true);
+      });
+    }
+    if (profileBack) {
+      profileBack.addEventListener("click", function () {
+        setProfileMode(false);
+      });
+    }
+
+    if (ideasBtn) {
+      ideasBtn.addEventListener("click", function () {
+        if (!hub.classList.contains("open")) setOpen(true);
+        setIdeasMode(true);
+      });
+    }
+    if (ideasBack) {
+      ideasBack.addEventListener("click", function () {
+        setIdeasMode(false);
+      });
+    }
+
+    document.addEventListener("click", function (e) {
+      if (!picker || picker.hidden) return;
+      if (picker.contains(e.target) || (utilBtn && utilBtn.contains(e.target))) return;
+      setPickerOpen(false);
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape" || !hub.classList.contains("open")) return;
+      if (!picker.hidden) {
+        setPickerOpen(false);
+        return;
+      }
+      if (hub.classList.contains("profile-mode")) setProfileMode(false);
+      else if (hub.classList.contains("ideas-mode")) setIdeasMode(false);
+      else setOpen(false);
+    });
+
+    renderShortcuts();
+  })();
+  </script>
+  <script src="/shared/assistant-chat.js"></script>
+</body>
+</html>

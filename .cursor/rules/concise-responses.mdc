@@ -1,0 +1,10 @@
+---
+description: Prefer minimal bullet/table answers; avoid paragraphs unless necessary
+alwaysApply: true
+---
+
+# Concise responses
+
+- Default to **short bullets** or **tables**; skip intro/outro filler.
+- Use paragraphs only when bullets/tables would be unclear (nuance, narrative, legal tone).
+- Keep code citations and links when they aid navigation; trim prose around them.

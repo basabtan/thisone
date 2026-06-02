@@ -1,0 +1,13 @@
+# Exclude dev tooling and heavy dependencies (~130 MB+)
+tools/najd-vtest-dashboard/node_modules/
+tools/najd-vtest-dashboard/.vite/
+
+# Old experiments / duplicates (not linked from live site)
+Project Road map/
+najd1.html
+1111.html
+najd-mindmap-preview.html
+
+# Optional: uncomment to skip dev-only pages on production
+# research-ideas-dev.html
+# ideas-react/

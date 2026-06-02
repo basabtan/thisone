@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Paper 1 – Bimodal Joint Population Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #f5f5f4;
+      --surface: #ffffff;
+      --border: #e0e0dd;
+      --border-strong: #c7c7c2;
+      --text: #1f2933;
+      --text-muted: #6b7280;
+      --text-faint: #9ca3af;
+      --accent: #1d4ed8;      /* deep blue */
+      --accent-soft: #dbeafe; /* pale blue */
+      --accent-alt: #b45309;  /* warm brown */
+      --chip-bg: #f3f4f6;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --shadow-soft: 0 1px 3px rgba(15, 23, 42, 0.04),
+                     0 4px 12px rgba(15, 23, 42, 0.04);
+      --mono: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--body);
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.6;
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 40px;
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-bottom: 18px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+
+    header .subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    header .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--text-faint);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--chip-bg);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .tag-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .strapline {
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .strapline strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Cards & details */
+    details {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 10px;
+      padding: 0;
+    }
+
+    summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: var(--radius);
+      background: linear-gradient(to right, #f9fafb, #f3f4f6);
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .summary-title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .summary-title span:first-child {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .summary-title span:last-child {
+      font-size: 12px;
+      color: var(--text-faint);
+    }
+
+    .summary-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      background: #f9fafb;
+    }
+
+    details[open] .summary-icon {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .card-body {
+      padding: 10px 16px 14px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .card-body ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .card-body li {
+      margin-bottom: 4px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--text-faint);
+    }
+
+    .chip {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .chip-alt {
+      background: #fef3c7;
+      color: var(--accent-alt);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #ecfdf3;
+      color: #166534;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #16a34a;
+    }
+
+    footer {
+      margin-top: 24px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-faint);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 24px 14px 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Paper 1 – Bimodal Joint Population Guide</h1>
+      <p class="subtitle">From field joints to a statistically defensible Najd / Red Sea structural signal</p>
+      <div class="meta">
+        <span class="tag">
+          <span class="tag-dot"></span>
+          <span>Bimodal orientation · Circular statistics</span>
+        </span>
+        <span>Draft for internal planning • Makkah region, Saudi Arabia</span>
+      </div>
+    </header>
+
+    <p class="strapline">
+      This guide outlines the structure, methods, and key messages of <strong>Paper 1</strong>, which statistically characterises co‑existing Najd (NW–SE) and Red Sea (NE–SW) joint families at five road‑cut sites using circular statistics and a simple bimodal classification. [file:64][file:65][web:82]
+    </p>
+
+    <!-- Card 1 -->
+    <details open>
+      <summary>
+        <div class="summary-title">
+          <span>Section 1</span>
+          <span>Introduction – problem, gap, and objectives</span>
+        </div>
+        <div class="summary-icon">1</div>
+      </summary>
+      <div class="card-body">
+        <ul>
+          <li>Introduce the Najd Shear System (NW–SE) and Red Sea rift (NE–SW) as the dominant structural frameworks in western Saudi Arabia. [web:47][web:58][web:53]</li>
+          <li>Highlight existing qualitative statements that these structures control rock slopes and road‑cut stability, but note the lack of quantitative joint‑orientation datasets usable in engineering design. [file:65][web:29][web:74]</li>
+          <li>State three objectives:
+            <ul>
+              <li>Test whether joint orientations at five Najd‑affected road‑cut sites are significantly non‑uniform. [file:64][web:82]</li>
+              <li>Determine whether they form a bimodal pattern consistent with Najd and Red Sea families. [file:64][file:65][web:82][web:91]</li>
+              <li>Quantify the proportion of joints assigned to Najd, Red Sea, and Other classes at each site. [file:64][file:65]</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </details>
+
+    <!-- Card 2 -->
+    <details>
+      <summary>
+        <div class="summary-title">
+          <span>Section 2</span>
+          <span>Geological and engineering setting</span>
+        </div>
+        <div class="summary-icon">2</div>
+      </summary>
+      <div class="card-body">
+        <ul>
+          <li>Describe the five site locations in the Makkah region, western Arabian Shield (map figure). [file:65][web:47][web:58]</li>
+          <li>Summarise lithology (granodiorite and related igneous rocks) and known Najd shear fabrics and Red Sea‑related faults. [file:65][web:47][web:61]</li>
+          <li>Explain the engineering context: steep road cuts where joint orientation strongly influences rock‑slope stability and rockfall hazard. [file:65][web:29][web:74]</li>
+        </ul>
+        <div class="chip-row">
+          <span class="chip">Map + simplified geology</span>
+          <span class="chip chip-alt">Road‑cut context</span>
+        </div>
+      </div>
+    </details>
+
+    <!-- Card 3 -->
+    <details>
+      <summary>
+        <div class="summary-title">
+          <span>Section 3</span>
+          <span>Data and methods – circular and bimodal analysis</span>
+        </div>
+        <div class="summary-icon">3</div>
+      </summary>
+      <div class="card-body">
+        <ul>
+          <li>Data:
+            <ul>
+              <li>Five sites, ~100 joint (or slope) dip‑direction measurements per site; dip angles measured. [file:64][file:65]</li>
+              <li>Standard compass‑clinometer methods and recording in 0–360° azimuth. </li>
+            </ul>
+          </li>
+          <li>Circular statistics:
+            <ul>
+              <li>Compute mean dip direction, resultant length \(R\), and circular variance for each site. [file:64][web:82][web:89]</li>
+              <li>Apply Rayleigh test to assess non‑uniformity (uniform vs clustered). [file:64][web:82]</li>
+            </ul>
+          </li>
+          <li>Bimodal classification:
+            <ul>
+              <li>Define Najd windows (e.g., 310–340° and 130–160° rotated by 180°). [file:64][file:65]</li>
+              <li>Define Red Sea windows (e.g., 40–70° and 220–250°). [file:64][file:65]</li>
+              <li>Assign each measurement:
+                <ul>
+                  <li>Najd if within Najd window(s).</li>
+                  <li>Red Sea if within Red Sea window(s).</li>
+                  <li>Other otherwise. [file:64][file:65]</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>Visualisation: rose diagrams and mean‑vector compass plots generated for each site. [file:64][web:70]</li>
+        </ul>
+      </div>
+    </details>
+
+    <!-- Card 4 -->
+    <details>
+      <summary>
+        <div class="summary-title">
+          <span>Section 4</span>
+          <span>Results – clustering and bimodal composition</span>
+        </div>
+        <div class="summary-icon">4</div>
+      </summary>
+      <div class="card-body">
+        <ul>
+          <li>Non‑uniformity:
+            <ul>
+              <li>Four of five sites show significant clustering (Rayleigh \(p &lt; 0.05\)); site 3 has strongest clustering (\(R \approx 0.735\)); site 5 is close to uniform (\(R \approx 0.14\)). [file:64]</li>
+            </ul>
+          </li>
+          <li>Bimodal composition by site (example values):
+            <ul>
+              <li>Site 1: Najd 28%, Red Sea 30%, Other 42%.</li>
+              <li>Site 2: Najd 50%, Red Sea 18%, Other 32%.</li>
+              <li>Site 3: Najd 38%, Red Sea 12%, Other 50%.</li>
+              <li>Site 4: Najd 26%, Red Sea 27%, Other 47%.</li>
+              <li>Site 5: Najd 32%, Red Sea 8%, Other 60%. [file:64]</li>
+            </ul>
+          </li>
+          <li>Figures:
+            <ul>
+              <li>Panel of rose diagrams for all sites.</li>
+              <li>Mean‑vector compass plot of site means.</li>
+              <li>Stacked bar chart of Najd / Red Sea / Other by site. [file:64]</li>
+            </ul>
+          </li>
+          <li>One summary table listing N, mean direction, \(R\), Rayleigh \(p\), %Najd, %Red Sea, %Other per site. [file:64]</li>
+        </ul>
+        <div class="pill">
+          <span class="pill-dot"></span>
+          <span>Headline: bimodal Najd / Red Sea joint families present at all five sites</span>
+        </div>
+      </div>
+    </details>
+
+    <!-- Card 5 -->
+    <details>
+      <summary>
+        <div class="summary-title">
+          <span>Section 5</span>
+          <span>Discussion – structural interpretation and implications</span>
+        </div>
+        <div class="summary-icon">5</div>
+      </summary>
+      <div class="card-body">
+        <ul>
+          <li>Structural interpretation:
+            <ul>
+              <li>Joint sets align with both Najd (NW–SE) and Red Sea (NE–SW) trends, consistent with regional models of Red Sea reactivation of Najd fabrics. [file:65][web:42][web:44][web:53]</li>
+              <li>Differences between sites (Najd‑dominated, Red Sea‑dominated, mixed) reflect local variations in reactivation, overprinting, and proximity to major shear/fault zones. [file:64][file:65][web:47][web:58]</li>
+            </ul>
+          </li>
+          <li>“Other” population:
+            <ul>
+              <li>30–60% of joints fall outside strict Najd/Red Sea windows; likely represent other Precambrian shear systems, bedding/foliation trends, and geomorphic controls. [file:64][file:65][web:58][web:61][web:49]</li>
+            </ul>
+          </li>
+          <li>Engineering implications:
+            <ul>
+              <li>Confirms that rock slopes at these road cuts are structurally controlled, not random. [file:64][web:70]</li>
+              <li>Provides the quantitative foundation for the Najd Intensity Index and design‑oriented work in subsequent papers. [file:65][web:87]</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </details>
+
+    <!-- Card 6 -->
+    <details>
+      <summary>
+        <div class="summary-title">
+          <span>Section 6</span>
+          <span>Conclusions – concise messages</span>
+        </div>
+        <div class="summary-icon">6</div>
+      </summary>
+      <div class="card-body">
+        <ul>
+          <li>Joint orientations at four out of five Najd‑affected road‑cut sites are significantly clustered and bimodal. [file:64]</li>
+          <li>Najd and Red Sea joint families co‑exist at all sites with site‑specific proportions. [file:64][file:65]</li>
+          <li>A substantial residual “Other” category highlights additional structural and geomorphic controls, motivating broader structural classification in future work. [file:64][file:65][web:58][web:61]</li>
+        </ul>
+      </div>
+    </details>
+
+    <footer>
+      <span>Draft guide for internal use – update values as analyses are refined.</span>
+      <span>Based on Najd Fault System circular-statistics dashboard and site files. [file:64][file:65]</span>
+    </footer>
+  </div>
+</body>
+</html>

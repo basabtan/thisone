@@ -1,0 +1,2516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Najd Fault System — Research Programme</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/shared/nav-strip.css"/>
+  <style>
+    :root{
+      --ivory:#fbf7ef;--paper:#fffdf8;--paper2:#f5efe3;
+      --graphite:#232421;--muted:#4a453c;--soft:#bdb3a0;--line:#ded4c1;
+      --blue:#2f5367;--blue-dk:#1e3a4a;
+      --copper:#a5643a;--copper-dk:#7d4a28;
+      --gold:#b89344;--green:#496f61;
+      --shadow:0 18px 45px rgba(55,45,30,0.11);--radius:22px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;padding-bottom:88px;color:var(--graphite);font-family:'Lora',serif;
+      background:radial-gradient(circle at top left,rgba(199,167,106,0.22),transparent 32%),
+        linear-gradient(135deg,#fffaf0 0%,var(--ivory) 46%,#f1eadb 100%);}
+    body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.13;
+      background-image:repeating-linear-gradient(145deg,transparent 0 18px,rgba(47,83,103,.10) 19px,transparent 20px),
+        radial-gradient(circle at 78% 12%,rgba(165,100,58,.18),transparent 24%);mix-blend-mode:multiply;}
+
+    /* layers */
+    .layer{display:none;position:relative;z-index:1}
+    .layer.active{display:block;animation:layerIn .4s ease}
+    @keyframes layerIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+    /* topbar */
+    #topbar{position:fixed;top:0;left:0;right:0;z-index:900;height:58px;
+      display:flex;align-items:center;justify-content:space-between;padding:0 36px;
+      background:rgba(251,247,239,0.97);backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--line);box-shadow:0 2px 16px rgba(55,45,30,0.09);}
+    #topbar.hidden{display:none}
+    .topbar-brand{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;
+      color:var(--graphite);cursor:pointer;letter-spacing:.01em}
+    .topbar-brand:hover{color:var(--blue)}
+    .topbar-center{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-style:italic}
+    .topbar-right{display:flex;align-items:center;gap:10px}
+
+    .nav-btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-style:italic;
+      font-family:'Lora',serif;padding:8px 20px;border-radius:999px;cursor:pointer;transition:all .2s;border:none;}
+    .nav-btn.back{background:var(--blue);color:#fffaf0}
+    .nav-btn.back:hover{background:var(--blue-dk)}
+    .nav-btn.forward{background:var(--copper);color:#fffaf0}
+    .nav-btn.forward:hover{background:var(--copper-dk)}
+
+    /* zoom */
+    .zoom-ctrl{position:fixed;bottom:28px;right:28px;z-index:800;
+      display:flex;align-items:center;gap:6px;background:rgba(255,253,248,0.97);
+      border:1px solid var(--line);border-radius:999px;padding:7px 16px;font-family:'Lora',serif;
+      box-shadow:0 4px 18px rgba(55,45,30,0.12);}
+    .zoom-ctrl button{background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted);padding:0 3px;line-height:1;transition:color .15s}
+    .zoom-ctrl button:hover{color:var(--graphite)}
+    .z-pct{min-width:40px;text-align:center;font-size:12px;font-style:italic;color:var(--muted)}
+    .z-sep{width:1px;height:16px;background:var(--line);margin:0 3px}
+    .z-reset{font-size:11px;font-style:italic;cursor:pointer;color:var(--soft);transition:color .15s}
+    .z-reset:hover{color:var(--muted)}
+
+    /* ── LANDING ── */
+    .landing-wrap{max-width:860px;margin:0 auto;padding:80px 40px 100px}
+    .landing-kicker{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--copper);font-weight:600;margin-bottom:20px}
+    .landing-title{font-family:'Playfair Display',serif;font-size:clamp(32px,5vw,58px);line-height:1.05;color:#1a1c19;font-weight:700;margin-bottom:8px}
+    .landing-sub{font-family:'Playfair Display',serif;font-size:clamp(16px,2vw,22px);font-style:italic;color:var(--muted);margin-bottom:36px;font-weight:400}
+    .landing-divider{width:64px;height:2px;background:linear-gradient(90deg,var(--copper),var(--gold));border-radius:2px;margin-bottom:36px}
+    .landing-abstract{font-size:16px;line-height:1.85;color:var(--muted);max-width:680px;margin-bottom:40px}
+    .landing-abstract strong{color:var(--graphite);font-weight:600}
+    .landing-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:40px;max-width:600px}
+    .stat-box{background:rgba(255,253,248,0.7);border:1px solid var(--line);border-radius:14px;
+      padding:16px 14px;text-align:center;
+      box-shadow:0 6px 24px rgba(55,45,30,0.13),0 1.5px 4px rgba(55,45,30,0.07);}
+    .stat-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--blue);line-height:1}
+    .stat-lbl{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--soft);margin-top:5px}
+    .landing-team{display:flex;align-items:center;gap:20px;margin-bottom:32px;flex-wrap:wrap}
+    .team-person{display:flex;align-items:center;gap:12px}
+    .team-ini{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+    .ini-teal{background:#E1F5EE;color:#085041;border:2px solid #0F6E56}
+    .ini-amber{background:#FAEEDA;color:#633806;border:2px solid #854F0B}
+    .team-name{font-size:14px;font-weight:600;color:var(--graphite)}
+    .team-role{font-size:11px;color:var(--muted);font-style:italic;margin-top:1px}
+    .team-sep{width:1px;height:36px;background:var(--line)}
+    .landing-note{background:rgba(255,253,248,0.7);border:1px solid var(--line);border-left:4px solid var(--copper);
+      border-radius:0 14px 14px 0;padding:18px 22px;margin-bottom:44px;max-width:680px;
+      box-shadow:0 4px 14px rgba(55,45,30,0.06);}
+    .note-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--copper);margin-bottom:8px;font-weight:600}
+    .note-text{font-size:14px;line-height:1.75;color:var(--muted);font-style:italic}
+    .landing-cta{display:inline-flex;align-items:center;gap:10px;font-size:15px;font-style:italic;font-family:'Lora',serif;
+      padding:14px 32px;border-radius:999px;cursor:pointer;background:var(--blue);color:#fffaf0;border:none;
+      box-shadow:0 6px 24px rgba(47,83,103,0.28);transition:all .25s;}
+    .landing-cta:hover{background:var(--blue-dk);transform:translateY(-1px);box-shadow:0 10px 32px rgba(47,83,103,0.32)}
+    .landing-cta .arrow{font-style:normal;transition:transform .2s}
+    .landing-cta:hover .arrow{transform:translateX(4px)}
+    .landing-cta-ghost{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-style:italic;font-family:'Lora',serif;
+      padding:9px 22px;border-radius:999px;cursor:pointer;background:transparent;color:var(--blue);
+      border:1.5px solid var(--blue);transition:all .2s;margin-bottom:44px;
+      position:relative;overflow:hidden;}
+    .landing-cta-ghost:hover{background:rgba(47,83,103,0.07)}
+    .landing-cta-ghost::after{
+      content:"";position:absolute;top:-20%;left:-80%;width:55%;height:140%;
+      background:linear-gradient(105deg,transparent 20%,rgba(47,83,103,0.08) 40%,rgba(47,83,103,0.30) 50%,rgba(47,83,103,0.08) 60%,transparent 80%);
+      transform:skewX(-18deg);
+      animation:swordGlare 4s 2s cubic-bezier(0.4,0,0.6,1) infinite;
+      pointer-events:none;
+    }
+    .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:0 0 48px;
+      background:rgba(255,253,248,0.55);border:1px solid var(--line);border-radius:999px;
+      padding:7px;box-shadow:var(--shadow);}
+    .flow span{text-align:center;font-size:10px;letter-spacing:.07em;text-transform:uppercase;
+      color:var(--muted);border-radius:999px;padding:8px 4px;
+      background:rgba(255,255,255,0.5);border:1px solid rgba(222,212,193,0.6);white-space:nowrap;}
+
+    /* ── OVERVIEW ── */
+    .ov-wrap{max-width:980px;margin:0 auto;padding:88px 40px 100px}
+    .ov-header{margin-bottom:40px}
+    .ov-kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--copper);font-weight:600;margin-bottom:10px}
+    .ov-title{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--graphite);margin-bottom:8px}
+    .ov-sub{font-size:15px;font-style:italic;color:var(--muted);line-height:1.7}
+    .phase{position:relative;margin:22px 0;border-radius:var(--radius);overflow:hidden;
+      background:rgba(255,253,248,0.84);border:1px solid var(--line);box-shadow:var(--shadow);transition:box-shadow .2s;}
+    .phase:hover{box-shadow:0 22px 55px rgba(55,45,30,0.14)}
+    .phase::before{content:"";position:absolute;inset:0;opacity:.09;pointer-events:none;
+      background:linear-gradient(115deg,transparent 0 50%,currentColor 50.3% 51%,transparent 51.3%),
+        repeating-linear-gradient(8deg,transparent 0 30px,currentColor 31px,transparent 32px);}
+    .phase.one{color:var(--blue)}.phase.two{color:var(--copper)}.phase.three{color:var(--gold)}
+    .phase-head{position:relative;display:grid;grid-template-columns:120px 1fr auto;gap:18px;align-items:center;
+      padding:24px 28px 18px;border-bottom:1px solid rgba(222,212,193,0.8);}
+    .phase-no{font-family:'Playfair Display',serif;font-size:48px;line-height:1;opacity:.9}
+    .phase-title{font-family:'Playfair Display',serif;font-size:22px;margin:0 0 5px;color:var(--graphite)}
+    .phase-desc{color:var(--muted);font-size:13px;line-height:1.6;font-style:italic;margin:0}
+    .time-badge{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+      border:1px solid var(--line);border-radius:999px;padding:8px 14px;background:rgba(255,255,255,0.5);white-space:nowrap;}
+    .phase-papers{padding:16px 22px 8px;display:grid;gap:10px}
+    .paper-row{background:rgba(255,255,255,0.6);border:1px solid rgba(222,212,193,0.85);border-radius:14px;
+      overflow:hidden;transition:transform .2s,border-color .2s,background .2s;}
+    .paper-row:hover{transform:translateY(-1px);border-color:currentColor;background:rgba(255,255,255,0.88)}
+    .pr-top{padding:14px 18px;cursor:pointer;display:grid;grid-template-columns:80px 1fr 28px;gap:12px;align-items:center;}
+    .pr-num{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:currentColor}
+    .pr-title{font-size:14px;color:var(--graphite);font-weight:500;line-height:1.45;margin:0 0 6px}
+    .pr-tags{display:flex;flex-wrap:wrap;gap:5px}
+    .tag{font-size:10px;padding:2px 9px;border-radius:999px;background:rgba(255,255,255,0.55);border:1px solid var(--line);color:var(--muted);font-style:italic}
+    .chev{font-size:18px;color:var(--soft);transition:transform .25s;text-align:center}
+    .paper-row.open .chev{transform:rotate(180deg)}
+    .pr-body{display:none;border-top:1px solid rgba(222,212,193,0.7);padding:16px 20px 18px;}
+    .paper-row.open .pr-body{display:block}
+    .detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 14px;margin-bottom:12px}
+    .d-label{font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--soft);margin-bottom:3px}
+    .d-val{font-size:12px;color:var(--graphite);font-weight:500;line-height:1.4}
+    .body-text{font-size:13px;line-height:1.7;color:var(--muted);margin-bottom:10px}
+    .dependency{font-size:11px;font-style:italic;color:var(--soft);border-top:1px solid var(--line);padding-top:8px;margin-bottom:12px}
+    .pr-detail-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-style:italic;
+      font-family:'Lora',serif;padding:6px 16px;border-radius:999px;cursor:pointer;
+      background:var(--blue);color:#fffaf0;border:none;margin-top:4px;transition:all .2s;}
+    .pr-detail-link:hover{background:var(--blue-dk);transform:translateY(-1px)}
+    .pr-detail-link.copper{background:var(--copper)}
+    .pr-detail-link.copper:hover{background:var(--copper-dk)}
+    .pr-detail-link.gold{background:var(--gold);color:var(--graphite)}
+    .pr-detail-link.gold:hover{background:#9a7a38}
+    .phase-footer{padding:12px 22px 20px;display:flex;justify-content:flex-end}
+    .explore-btn{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-style:italic;
+      font-family:'Lora',serif;padding:9px 22px;border-radius:999px;cursor:pointer;transition:all .2s;border:none;}
+    .explore-btn.ready{background:var(--blue);color:#fffaf0;box-shadow:0 4px 16px rgba(47,83,103,0.2)}
+    .explore-btn.ready:hover{background:var(--blue-dk);transform:translateY(-1px)}
+    .explore-btn.copper{background:var(--copper);color:#fffaf0;box-shadow:0 4px 16px rgba(133,79,11,0.2)}
+    .explore-btn.copper:hover{background:var(--copper-dk);transform:translateY(-1px)}
+    .explore-btn.gold{background:var(--gold);color:var(--graphite);box-shadow:0 4px 16px rgba(184,147,68,0.2)}
+    .explore-btn.gold:hover{background:#9a7a38;color:#fffaf0;transform:translateY(-1px)}
+    .explore-btn .arrow{font-style:normal;transition:transform .2s}
+    .explore-btn:hover .arrow{transform:translateX(3px)}
+    .outcome{margin:34px 0 0;padding:26px 30px;border-radius:var(--radius);
+      background:linear-gradient(135deg,#2f5367,#283a43);color:#fffaf0;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+    .outcome::after{content:"";position:absolute;right:-60px;top:-70px;width:210px;height:210px;
+      border:1px solid rgba(255,255,255,0.18);border-radius:50%;
+      box-shadow:0 0 0 18px rgba(255,255,255,0.03),0 0 0 42px rgba(255,255,255,0.02);}
+    .outcome-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#d9c490;margin-bottom:10px}
+    .outcome-text{font-family:'Playfair Display',serif;font-size:22px;line-height:1.4;max-width:760px}
+
+    /* ── SHARED PHASE DETAIL ── */
+    .phx-wrap{max-width:900px;margin:0 auto;padding:88px 40px 100px}
+    .phx-hero{background:rgba(255,253,248,0.75);border:1px solid var(--line);border-radius:var(--radius);
+      padding:28px 32px;margin-bottom:30px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+    .phx-hero.blue{border-left:5px solid var(--blue)}
+    .phx-hero.copper{border-left:5px solid var(--copper)}
+    .phx-hero.gold{border-left:5px solid var(--gold)}
+    .phx-watermark{position:absolute;right:28px;top:50%;transform:translateY(-50%);
+      font-family:'Playfair Display',serif;font-size:120px;font-weight:700;opacity:.06;line-height:1;pointer-events:none;}
+    .phx-watermark.blue{color:var(--blue)}.phx-watermark.copper{color:var(--copper)}.phx-watermark.gold{color:var(--gold)}
+    .phx-kicker{font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;margin-bottom:8px}
+    .phx-kicker.blue{color:var(--blue)}.phx-kicker.copper{color:var(--copper)}.phx-kicker.gold{color:var(--gold)}
+    .phx-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--graphite);margin-bottom:10px}
+    .phx-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+    .badge{font-size:11px;font-style:italic;color:var(--muted);padding:4px 12px;border-radius:999px;background:rgba(255,255,255,0.55);border:1px solid var(--line)}
+    .phx-desc{font-size:14px;line-height:1.8;color:var(--muted);max-width:680px;font-style:italic}
+
+    /* author filter */
+    .author-filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:26px;flex-wrap:wrap;}
+    .af-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);font-style:italic}
+    .af-btn{display:flex;align-items:center;gap:10px;padding:8px 16px 8px 8px;border-radius:999px;
+      border:1px solid var(--line);cursor:pointer;background:rgba(255,255,255,0.55);transition:all .2s;font-family:'Lora',serif;}
+    .af-btn:hover{border-color:var(--soft)}
+    .af-btn.active-teal{background:#E1F5EE;border-color:#0F6E56}
+    .af-btn.active-amber{background:#FAEEDA;border-color:#854F0B}
+    .af-btn.inactive{opacity:.28}
+    .af-ini{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+    .af-name{font-size:12px;font-style:italic;color:var(--muted)}
+    .af-btn.active-teal .af-name{color:#085041}
+    .af-btn.active-amber .af-name{color:#633806}
+
+    /* paper cards */
+    .phx-papers{display:flex;flex-direction:column;gap:18px}
+    .paper-card{background:rgba(255,253,248,0.80);border:1px solid var(--line);border-radius:var(--radius);
+      overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .2s;}
+    .paper-card:hover{box-shadow:0 22px 55px rgba(55,45,30,0.13)}
+    .paper-card.blue{border-left:5px solid var(--blue)}
+    .paper-card.copper{border-left:5px solid var(--copper)}
+    .paper-card.gold{border-left:5px solid var(--gold)}
+    .pc-top{padding:18px 22px;cursor:pointer;display:grid;grid-template-columns:90px 1fr 28px;gap:14px;align-items:center;}
+    .pc-num{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+    .pc-num.blue{color:var(--blue)}.pc-num.copper{color:var(--copper)}.pc-num.gold{color:var(--gold)}
+    .pc-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--graphite);margin:0 0 8px;line-height:1.35}
+    .pc-tags{display:flex;flex-wrap:wrap;gap:5px}
+    .pc-chev{font-size:18px;color:var(--soft);transition:transform .25s;text-align:center}
+    .paper-card.open .pc-chev{transform:rotate(180deg)}
+    .pc-body{display:none;border-top:1px solid var(--line);padding:20px 24px}
+    .paper-card.open .pc-body{display:block}
+    .pc-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 16px;margin-bottom:16px}
+    .pc-meta-label{font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--soft);margin-bottom:4px}
+    .pc-meta-val{font-size:13px;color:var(--graphite);font-weight:500;line-height:1.4}
+    .journal-wrap{position:relative;display:inline-block}
+    .journal-wrap .pc-meta-val{cursor:help;border-bottom:1px dashed var(--line)}
+    .tip-box{display:none;position:absolute;bottom:calc(100% + 8px);left:0;
+      background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:11px 14px;
+      min-width:220px;max-width:270px;font-size:12px;font-style:normal;color:var(--graphite);
+      line-height:1.6;z-index:200;pointer-events:none;box-shadow:var(--shadow);white-space:normal;}
+    .tip-box.right{left:auto;right:0}
+    .journal-wrap:hover .tip-box{display:block}
+    .tip-title{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin-bottom:5px;font-weight:600}
+    .tip-alt{font-size:11px;font-style:italic;color:var(--muted);padding:3px 0;border-top:1px solid var(--line)}
+    .tip-alt:first-of-type{margin-top:4px}
+    .pc-divider{height:1px;background:var(--line);margin:14px 0}
+    .pc-desc{font-size:14px;line-height:1.8;color:var(--muted);font-style:italic;margin-bottom:16px}
+    .pc-status{font-size:12px;font-style:italic;color:var(--soft);padding:10px 14px;
+      background:rgba(255,255,255,0.4);border:1px solid var(--line);border-radius:10px;margin-bottom:14px;}
+    .pc-ask-btn{font-size:12px;font-style:italic;font-family:'Lora',serif;padding:6px 16px;border-radius:999px;
+      cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--muted);transition:all .15s;}
+    .pc-ask-btn:hover{background:rgba(255,255,255,0.6);color:var(--graphite);border-color:var(--soft)}
+
+    /* author cols */
+    .author-section-header{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);font-weight:600;margin:18px 0 10px}
+    .author-cols{display:flex;gap:16px;transition:gap .4s ease}
+    .author-cols.show-AS,.author-cols.show-BS{gap:0}
+    .author-col{flex:1;min-width:0;overflow:hidden;background:rgba(255,255,255,0.5);border:1px solid var(--line);
+      border-radius:16px;padding:16px 18px;transition:opacity .35s ease,flex .4s ease,padding .35s ease,border .35s;}
+    .author-col.collapsed{flex:0 0 0 !important;opacity:0;padding-left:0;padding-right:0;border-width:0;overflow:hidden;}
+    .author-cols.show-AS .col-AS,.author-cols.show-BS .col-BS{flex:1}
+    .ac-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;cursor:pointer;padding-bottom:10px;border-bottom:1px solid var(--line);}
+    .ac-ini{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+    .ac-name{font-size:13px;font-weight:600;color:var(--graphite);line-height:1.3}
+    .ac-role{font-size:11px;color:var(--muted);font-style:italic;margin-top:1px}
+    .ac-toggle{margin-left:auto;font-size:11px;font-style:italic;color:var(--soft)}
+    .ac-items{list-style:none;display:flex;flex-direction:column;gap:8px}
+    .ac-item{display:flex;align-items:flex-start;gap:9px;font-size:13px;line-height:1.65;color:var(--muted);
+      padding:8px 10px;background:rgba(255,255,255,0.4);border-radius:10px;border:1px solid rgba(222,212,193,0.6);}
+    .ac-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px}
+    .dot-teal{background:#0F6E56}.dot-amber{background:#854F0B}
+    .ac-pending{font-size:12px;font-style:italic;color:var(--soft);padding:12px;
+      background:rgba(255,255,255,0.3);border-radius:10px;border:1px dashed var(--line);text-align:center;}
+
+    /* tags */
+    .detail-tags-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+    .dtag{font-size:11px;padding:3px 11px;border-radius:999px;font-style:italic;color:var(--muted);
+      background:rgba(255,255,255,0.55);border:1px solid var(--line);display:inline-flex;align-items:center;
+      gap:5px;position:relative;cursor:default;transition:opacity .25s,background .25s,border-color .25s;}
+    .dtag-ini{width:15px;height:15px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:7px;font-weight:700}
+    .dtag-teal{background:#E1F5EE;color:#085041;border:1px solid #0F6E56}
+    .dtag-amber{background:#FAEEDA;color:#633806;border:1px solid #854F0B}
+    .dtag[data-author="AS"].hi{background:#E1F5EE;border-color:#0F6E56;color:#085041}
+    .dtag[data-author="BS"].hi{background:#FAEEDA;border-color:#854F0B;color:#633806}
+    .dtag[data-author].dim{opacity:.14}
+    .dtag:hover .tip-box{display:block}
+
+    .phx-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:48px;padding-top:24px;border-top:1px solid var(--line)}
+    .phx-hint{font-size:12px;font-style:italic;color:var(--soft)}
+
+    /* pending notice */
+    .pending-notice{
+      background:rgba(255,253,248,0.6);border:1px dashed var(--line);border-radius:var(--radius);
+      padding:32px;text-align:center;margin:20px 0;
+    }
+    .pending-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--muted);margin-bottom:8px}
+    .pending-sub{font-size:13px;font-style:italic;color:var(--soft);line-height:1.6}
+
+    /* ── Paper-label font boost: all phase layers + overview ── */
+    #layer-overview .pr-num,
+    #layer-phase1 .pc-num,
+    #layer-phase1 .pr-num,
+    #layer-phase2 .pc-num,
+    #layer-phase3 .pc-num,
+    #layer-phase2 .pr-num,
+    #layer-phase3 .pr-num {
+      font-size: 15px;
+      letter-spacing: .10em;
+    }
+
+    /* ── Sword-glare CTA button ── */
+    .landing-cta {
+      position: relative;
+      overflow: hidden;
+    }
+    .landing-cta::after {
+      content: "";
+      position: absolute;
+      top: -20%;
+      left: -80%;
+      width: 55%;
+      height: 140%;
+      background: linear-gradient(
+        105deg,
+        transparent 20%,
+        rgba(255,255,255,0.18) 40%,
+        rgba(255,255,255,0.72) 50%,
+        rgba(255,255,255,0.18) 60%,
+        transparent 80%
+      );
+      transform: skewX(-18deg);
+      animation: swordGlare 4s cubic-bezier(0.4,0,0.6,1) infinite;
+      pointer-events: none;
+    }
+    @keyframes swordGlare {
+      0%   { left: -80%;  opacity: 0; }
+      6%   { opacity: 1; }
+      22%  { left: 130%;  opacity: 0; }
+      100% { left: 130%;  opacity: 0; }
+    }
+
+    /* ── Clickable flow strip ── */
+    .flow { cursor: default; }
+    .flow-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center;
+      font-size: 10px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 9px 4px 6px;
+      background: rgba(255,255,255,0.5);
+      border: 1px solid rgba(222,212,193,0.6);
+      cursor: pointer;
+      transition: background .2s, border-color .2s, color .2s, transform .18s, box-shadow .18s;
+      white-space: nowrap;
+      font-family: 'Lora', serif;
+      font-style: normal;
+      position: relative;
+    }
+    .flow-step:hover {
+      background: rgba(47,83,103,0.10);
+      border-color: var(--blue);
+      color: var(--blue);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(47,83,103,0.14);
+    }
+    .flow-step:active { transform: translateY(0); }
+
+    /* tooltip on hover */
+    .flow-step-tip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 7px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 5px 9px;
+      font-size: 10px;
+      font-style: italic;
+      color: var(--muted);
+      line-height: 1.4;
+      width: max-content;
+      max-width: 110px;
+      white-space: normal;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(55,45,30,0.10);
+      z-index: 300;
+      pointer-events: none;
+    }
+    .flow-step-tip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: var(--line);
+    }
+    .flow-step:hover .flow-step-tip { display: block; }
+
+    /* ── PAPER 1 GUIDE ── */
+    .guide-wrap{max-width:860px;margin:0 auto;padding:88px 40px 100px}
+    .guide-hero{margin-bottom:28px}
+    .guide-kicker{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:10px}
+    .guide-title{font-family:'Playfair Display',serif;font-size:clamp(20px,3.2vw,32px);font-weight:700;color:var(--graphite);line-height:1.15;margin-bottom:6px}
+    .guide-sub{font-size:13px;font-style:italic;color:var(--muted)}
+    .scope-card{background:rgba(255,253,248,0.82);border:1px solid var(--line);border-left:5px solid var(--blue);
+      border-radius:0 var(--radius) var(--radius) 0;padding:22px 26px;margin:0 0 30px;box-shadow:var(--shadow);}
+    .scope-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:14px}
+    .scope-cols{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+    .scope-col-label{font-size:10px;letter-spacing:.10em;text-transform:uppercase;font-weight:600;margin-bottom:10px}
+    .scope-in .scope-col-label{color:var(--green)}.scope-out .scope-col-label{color:var(--copper)}
+    .scope-list{list-style:none;display:flex;flex-direction:column;gap:7px}
+    .scope-list li{font-size:13px;line-height:1.6;color:var(--muted);display:flex;align-items:flex-start;gap:8px}
+    .scope-list li::before{content:"";width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:6px}
+    .scope-in li::before{background:var(--green)}.scope-out li::before{background:var(--copper);opacity:.6}
+    .g-block{margin-bottom:26px}
+    .g-block-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);
+      font-weight:600;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+    .g-stats{display:flex;gap:10px;flex-wrap:wrap}
+    .g-stat{background:rgba(255,253,248,0.72);border:1px solid var(--line);border-radius:12px;
+      padding:14px 18px;text-align:center;flex:1;min-width:90px;box-shadow:0 3px 12px rgba(55,45,30,0.06)}
+    .g-stat-num{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--blue);line-height:1}
+    .g-stat-lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);margin-top:4px}
+    .section-list{display:flex;flex-direction:column;gap:9px}
+    .section-item{display:grid;grid-template-columns:32px 1fr;gap:14px;align-items:start;
+      background:rgba(255,253,248,0.65);border:1px solid var(--line);border-radius:14px;
+      padding:14px 18px;box-shadow:0 2px 8px rgba(55,45,30,0.05);}
+    .sec-num{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--blue);opacity:.32;line-height:1;padding-top:1px}
+    .sec-title{font-size:13px;font-weight:600;color:var(--graphite);margin-bottom:5px}
+    .sec-desc{font-size:12px;line-height:1.72;color:var(--muted)}
+    .sec-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+    .sec-tag{font-size:10px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.6);border:1px solid var(--line);color:var(--soft);font-style:italic}
+    .methods-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .method-card{background:rgba(255,253,248,0.70);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 2px 8px rgba(55,45,30,0.05);}
+    .method-name{font-size:12px;font-weight:600;color:var(--graphite);margin-bottom:3px}
+    .method-role{font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--copper);margin-bottom:8px}
+    .method-desc{font-size:12px;line-height:1.7;color:var(--muted)}
+    .method-note{font-size:11px;font-style:italic;color:var(--blue);margin-top:7px;padding-top:7px;border-top:1px solid var(--line)}
+    .findings-table{width:100%;border-collapse:separate;border-spacing:0;border-radius:14px;overflow:hidden;border:1px solid var(--line);font-size:12px;box-shadow:0 2px 8px rgba(55,45,30,0.05)}
+    .findings-table th{background:rgba(47,83,103,0.07);padding:9px 14px;text-align:left;font-size:9px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line)}
+    .findings-table td{padding:9px 14px;color:var(--graphite);border-bottom:1px solid rgba(222,212,193,0.5);background:rgba(255,253,248,0.6)}
+    .findings-table tr:last-child td{border-bottom:none}
+    .td-hi{color:var(--blue);font-weight:600}.td-flag{font-size:10px;font-style:italic;color:var(--copper);margin-left:5px}
+    .fig-list{display:flex;flex-direction:column;gap:8px}
+    .fig-item{display:flex;align-items:flex-start;gap:12px;background:rgba(255,253,248,0.65);border:1px solid var(--line);border-radius:12px;padding:12px 16px;box-shadow:0 2px 6px rgba(55,45,30,0.04)}
+    .fig-num{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--copper);opacity:.55;flex-shrink:0;width:22px;margin-top:1px}
+    .fig-title{font-size:12px;font-weight:600;color:var(--graphite);margin-bottom:3px}
+    .fig-desc{font-size:12px;color:var(--muted);line-height:1.65}
+    .guide-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:48px;padding-top:24px;border-top:1px solid var(--line)}
+    .guide-note-text{font-size:12px;font-style:italic;color:var(--soft)}
+  </style>
+</head>
+<body>
+
+<div id="topbar" class="hidden">
+  <a class="topbar-brand" href="Sabtan Knowledge Base/index.html" style="text-decoration:none">Sabtan Knowledge Base</a>
+  <span class="topbar-brand" onclick="goTo('landing')" style="font-size:12px;font-weight:400;margin-left:14px;opacity:.85">· Najd Roadmap</span>
+  <span class="topbar-center" id="topbar-center"></span>
+  <div class="topbar-right" id="topbar-right"></div>
+</div>
+
+
+<div class="zoom-ctrl">
+  <button onclick="adjustZoom(-10)">&#8722;</button>
+  <span class="z-pct" id="zoom-pct">100%</span>
+  <button onclick="adjustZoom(10)">&#43;</button>
+  <div class="z-sep"></div>
+  <span class="z-reset" onclick="resetZoom()">reset</span>
+</div>
+
+
+<!-- ══ LAYER 1: LANDING ══ -->
+<div class="layer active" id="layer-landing">
+  <div class="landing-wrap">
+    <a href="Sabtan Knowledge Base/index.html" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-style:italic;color:var(--blue);text-decoration:none;margin-bottom:18px;font-family:'Lora',serif">&#8592; Sabtan Knowledge Base</a>
+    <div class="landing-kicker">Makkah Region &middot; Western Saudi Arabia</div>
+    <h1 class="landing-title">Najd Fault System<br>&amp; Infrastructure Risk</h1>
+    <p class="landing-sub">A Five-Paper Research Programme</p>
+    <div class="landing-divider"></div>
+    <p class="landing-abstract">
+      The Najd Fault System &mdash; the world's largest Proterozoic shear zone &mdash; runs NW&ndash;SE across western Saudi Arabia and directly controls the rock mass quality, joint fabric, and slope stability of every road cut in the region. Despite this, <strong>no quantitative framework</strong> currently exists to convert Najd structural observations into engineering-grade design parameters before a single borehole is drilled.<br><br>
+      This five-paper programme, led by <strong>Prof. Abdullah Sabtan</strong> and <strong>Dr. Bader Sabtan</strong>, establishes that framework &mdash; from field measurement to a published regional guidance standard for KSA infrastructure.
+    </p>
+    <div class="landing-stats">
+      <div class="stat-box"><div class="stat-num">5</div><div class="stat-lbl">Papers</div></div>
+      <div class="stat-box"><div class="stat-num">18</div><div class="stat-lbl">Months</div></div>
+      <div class="stat-box"><div class="stat-num">330</div><div class="stat-lbl">Joints</div></div>
+      <div class="stat-box"><div class="stat-num">5</div><div class="stat-lbl">Sites</div></div>
+    </div>
+    <div class="landing-team">
+      <div class="team-person">
+        <div class="team-ini ini-teal">AS</div>
+        <div><div class="team-name">Prof. Abdullah Sabtan</div><div class="team-role">Geological interpretation &amp; field data</div></div>
+      </div>
+      <div class="team-sep"></div>
+      <div class="team-person">
+        <div class="team-ini ini-amber">BS</div>
+        <div><div class="team-name">Dr. Bader Sabtan</div><div class="team-role">Quantitative framework &amp; IE methods</div></div>
+      </div>
+    </div>
+    <!-- CTA placed early — visible without scrolling -->
+    <button class="landing-cta-ghost" onclick="goTo('overview')">Open Research Roadmap <span>&#8594;</span></button>
+    <div class="landing-note">
+      <div class="note-label">Programme note</div>
+      <div class="note-text">This interactive document is a living research roadmap. Each phase is backed by field data already collected at five granodiorite outcrops in the Makkah region. Papers 1 and 2 can proceed to submission immediately using existing measurements. Phases II and III follow sequentially, with the final paper targeting adoption into Saudi engineering standards.</div>
+    </div>
+    <div class="flow" style="max-width:680px;margin-bottom:44px">
+      <button class="flow-step" onclick="flowGoTo('phase1','pc1')">
+        Field Data
+        <span class="flow-step-tip">Joint mapping &amp; field measurements</span>
+      </button>
+      <button class="flow-step" onclick="flowGoTo('phase1','pc1')">
+        Circular Stats
+        <span class="flow-step-tip">Rayleigh &amp; V-test on joint families</span>
+      </button>
+      <button class="flow-step" onclick="flowGoTo('phase1','pc2')">
+        NII Index
+        <span class="flow-step-tip">Najd Intensity Index &rarr; GSI/RMR</span>
+      </button>
+      <button class="flow-step" onclick="flowGoTo('phase2','pc3')">
+        &Delta;&theta; Zonation
+        <span class="flow-step-tip">Traffic-light slope risk map</span>
+      </button>
+      <button class="flow-step" onclick="flowGoTo('phase2','pc4')">
+        Risk Model
+        <span class="flow-step-tip">Monte Carlo probability of failure</span>
+      </button>
+      <button class="flow-step" onclick="flowGoTo('phase3','pc5')">
+        Regional Guide
+        <span class="flow-step-tip">KSA infrastructure framework</span>
+      </button>
+    </div>
+    <button class="landing-cta" onclick="goTo('overview')">Open Research Roadmap <span class="arrow">&#8594;</span></button>
+  </div>
+</div>
+
+
+<!-- ══ LAYER 2: OVERVIEW ══ -->
+<div class="layer" id="layer-overview">
+  <div class="ov-wrap">
+    <div class="ov-header">
+      <div class="ov-kicker">Five-paper programme &middot; 0&ndash;18 months</div>
+      <h2 class="ov-title">Research Roadmap</h2>
+      <p class="ov-sub">Three phases converting field observations into a regional engineering standard. Expand any paper for a summary, or click &ldquo;Explore&rdquo; to open the full detail view.</p>
+    </div>
+
+    <!-- Phase I -->
+    <section class="phase one">
+      <div class="phase-head">
+        <div class="phase-no">I</div>
+        <div>
+          <h2 class="phase-title">Field Characterisation</h2>
+          <p class="phase-desc">Establish the geological signal and convert Najd fabric from observation into measurable structure.</p>
+        </div>
+        <div class="time-badge">Months 0&ndash;6</div>
+      </div>
+      <div class="phase-papers">
+        <article class="paper-row">
+          <div class="pr-top" onclick="togglePaper(this)">
+            <div class="pr-num">Paper 1</div>
+            <div>
+              <h3 class="pr-title">Bimodal joint population characterisation at Najd-affected road cuts, Makkah region</h3>
+              <div class="pr-tags"><span class="tag">Circular statistics</span><span class="tag">Rose diagrams</span><span class="tag">Field joints</span></div>
+            </div>
+            <div class="chev">&#8964;</div>
+          </div>
+          <div class="pr-body">
+            <div class="detail-grid">
+              <div><div class="d-label">Main output</div><div class="d-val">Najd + Red Sea joint families</div></div>
+              <div><div class="d-label">Data</div><div class="d-val">5 sites &middot; 330 joints</div></div>
+              <div><div class="d-label">Methods</div><div class="d-val">Rayleigh, V-test, von Mises</div></div>
+            </div>
+            <p class="body-text">Proves the structural signal statistically &mdash; two distinct joint families at all 5 sites. Every later paper depends on the credibility of this foundation.</p>
+            <div class="dependency">Dependency: none. This is the foundation paper.</div>
+            <button class="pr-detail-link" onclick="event.stopPropagation();goPhase1('pc1')">Full Paper Details &#8594;</button>
+          </div>
+        </article>
+        <article class="paper-row">
+          <div class="pr-top" onclick="togglePaper(this)">
+            <div class="pr-num">Paper 2</div>
+            <div>
+              <h3 class="pr-title">Najd Intensity Index: a composite quantitative index linking structural fabric to rock-mass quality</h3>
+              <div class="pr-tags"><span class="tag">NII</span><span class="tag">GSI/RMR</span><span class="tag">Engineering index</span></div>
+            </div>
+            <div class="chev">&#8964;</div>
+          </div>
+          <div class="pr-body">
+            <div class="detail-grid">
+              <div><div class="d-label">Main output</div><div class="d-val">Measurable Najd intensity</div></div>
+              <div><div class="d-label">Data</div><div class="d-val">Paper 1 + Schmidt + GSI/RMR</div></div>
+              <div><div class="d-label">Methods</div><div class="d-val">Weighted index + regression</div></div>
+            </div>
+            <p class="body-text">The key engineering translation &mdash; turns &ldquo;Najd influence&rdquo; from qualitative statement into a variable that can be mapped, compared, and tested.</p>
+            <div class="dependency">Dependency: requires Paper 1 structural groups and field engineering parameters.</div>
+            <button class="pr-detail-link" onclick="event.stopPropagation();goPhase1('pc2')">Full Paper Details &#8594;</button>
+          </div>
+        </article>
+      </div>
+      <div class="phase-footer">
+        <button class="explore-btn ready" onclick="goTo('phase1')">Explore Phase I <span class="arrow">&#8594;</span></button>
+      </div>
+    </section>
+
+    <!-- Phase II -->
+    <section class="phase two">
+      <div class="phase-head">
+        <div class="phase-no">II</div>
+        <div>
+          <h2 class="phase-title">Engineering Application</h2>
+          <p class="phase-desc">Translate structural fabric into road-cut decisions, support classes, and quantified failure probability.</p>
+        </div>
+        <div class="time-badge">Months 6&ndash;12</div>
+      </div>
+      <div class="phase-papers">
+        <article class="paper-row">
+          <div class="pr-top" onclick="togglePaper(this)">
+            <div class="pr-num">Paper 3</div>
+            <div>
+              <h3 class="pr-title">&Delta;&theta; zonation system: road alignment classification for Najd-controlled slope instability risk</h3>
+              <div class="pr-tags"><span class="tag">Traffic-light map</span><span class="tag">Slope direction</span><span class="tag">Decision tool</span></div>
+            </div>
+            <div class="chev">&#8964;</div>
+          </div>
+          <div class="pr-body">
+            <div class="detail-grid">
+              <div><div class="d-label">Main output</div><div class="d-val">Red / amber / green slope classes</div></div>
+              <div><div class="d-label">Data</div><div class="d-val">NII + slope dip direction</div></div>
+              <div><div class="d-label">Methods</div><div class="d-val">&Delta;&theta; thresholds + kinematics</div></div>
+            </div>
+            <p class="body-text">Creates the practical chart: road alignment and slope dip direction become a fast screening tool for dangerous versus safer cuts.</p>
+            <div class="dependency">Dependency: requires Paper 1 joint direction and Paper 2 intensity classification.</div>
+            <button class="pr-detail-link copper" onclick="event.stopPropagation();goTo('phase2');openCard('pc3')">Full Paper Details &#8594;</button>
+          </div>
+        </article>
+        <article class="paper-row">
+          <div class="pr-top" onclick="togglePaper(this)">
+            <div class="pr-num">Paper 4</div>
+            <div>
+              <h3 class="pr-title">Probabilistic slope stability in Najd-affected terrain through the Schmidt&ndash;GSI&ndash;Hoek-Brown&ndash;FS chain</h3>
+              <div class="pr-tags"><span class="tag">Monte Carlo</span><span class="tag">Probability of failure</span><span class="tag">Uncertainty</span></div>
+            </div>
+            <div class="chev">&#8964;</div>
+          </div>
+          <div class="pr-body">
+            <div class="detail-grid">
+              <div><div class="d-label">Main output</div><div class="d-val">P(failure), not only FS</div></div>
+              <div><div class="d-label">Data</div><div class="d-val">All sites + variability</div></div>
+              <div><div class="d-label">Methods</div><div class="d-val">Monte Carlo simulation</div></div>
+            </div>
+            <p class="body-text">Where the project becomes quantitatively defensible &mdash; shows how uncertainty moves through the entire engineering chain from measurement to design.</p>
+            <div class="dependency">Dependency: requires NII, &Delta;&theta; classes, GSI/RMR, and slope geometry assumptions.</div>
+            <button class="pr-detail-link copper" onclick="event.stopPropagation();goTo('phase2');openCard('pc4')">Full Paper Details &#8594;</button>
+          </div>
+        </article>
+      </div>
+      <div class="phase-footer">
+        <button class="explore-btn copper" onclick="goTo('phase2')">Explore Phase II <span class="arrow">&#8594;</span></button>
+      </div>
+    </section>
+
+    <!-- Phase III -->
+    <section class="phase three">
+      <div class="phase-head">
+        <div class="phase-no">III</div>
+        <div>
+          <h2 class="phase-title">Regional Synthesis</h2>
+          <p class="phase-desc">Scale the method from local road cuts to a regional screening framework for western Saudi infrastructure.</p>
+        </div>
+        <div class="time-badge">Months 12&ndash;18</div>
+      </div>
+      <div class="phase-papers">
+        <article class="paper-row">
+          <div class="pr-top" onclick="togglePaper(this)">
+            <div class="pr-num">Paper 5</div>
+            <div>
+              <h3 class="pr-title">Najd Fault System as a first-order engineering geology control for infrastructure in western Saudi Arabia</h3>
+              <div class="pr-tags"><span class="tag">Regional framework</span><span class="tag">GIS layer</span><span class="tag">Policy-facing</span></div>
+            </div>
+            <div class="chev">&#8964;</div>
+          </div>
+          <div class="pr-body">
+            <div class="detail-grid">
+              <div><div class="d-label">Main output</div><div class="d-val">Regional planning framework</div></div>
+              <div><div class="d-label">Data</div><div class="d-val">Papers 1&ndash;4 + expanded sites</div></div>
+              <div><div class="d-label">Methods</div><div class="d-val">Synthesis + GIS screening</div></div>
+            </div>
+            <p class="body-text">The capstone paper. Argues that Najd fabric assessment should become an early screening layer for roads, tunnels, and linear infrastructure across the Kingdom.</p>
+            <div class="dependency">Dependency: requires all previous outputs and additional validation sites.</div>
+            <button class="pr-detail-link gold" onclick="event.stopPropagation();goTo('phase3');openCard('pc5')">Full Paper Details &#8594;</button>
+          </div>
+        </article>
+      </div>
+      <div class="phase-footer">
+        <button class="explore-btn gold" onclick="goTo('phase3')">Explore Phase III <span class="arrow">&#8594;</span></button>
+      </div>
+    </section>
+
+    <section class="outcome">
+      <div class="outcome-label">Programme outcome</div>
+      <p class="outcome-text">From fracture measurements to a quantified index, from an index to a road-cut decision chart, and from the chart to regional infrastructure risk guidance for western Saudi Arabia.</p>
+    </section>
+  </div>
+</div>
+
+
+<!-- ══ LAYER 3a: PHASE I DETAIL ══ -->
+<div class="layer" id="layer-phase1">
+  <div class="phx-wrap">
+    <div class="phx-hero blue">
+      <div class="phx-watermark blue">I</div>
+      <div class="phx-kicker blue">Phase I of III &mdash; Field Characterisation</div>
+      <div class="phx-title">Structural Characterisation &amp; Index Development</div>
+      <div class="phx-badges">
+        <span class="badge">Months 0&ndash;6</span><span class="badge">2 papers</span>
+        <span class="badge">330 joints &middot; 5 sites</span><span class="badge">Granodiorite &middot; Makkah region</span>
+      </div>
+      <p class="phx-desc">Establishes the bimodal Najd/Red Sea joint signature statistically and formalises the first measurable Najd Intensity Index. Both papers can proceed to submission immediately using data already collected.</p>
+    </div>
+
+    <div class="author-filter-bar">
+      <span class="af-label">Filter by author</span>
+      <div class="af-btn" data-afbtn="AS" onclick="filterAuthor('AS')">
+        <div class="af-ini ini-teal">AS</div><span class="af-name">Prof. Abdullah Sabtan</span>
+      </div>
+      <div class="af-btn" data-afbtn="BS" onclick="filterAuthor('BS')">
+        <div class="af-ini ini-amber">BS</div><span class="af-name">Dr. Bader Sabtan</span>
+      </div>
+      <a href="phase-1-papers.html" style="margin-left:auto;font-size:11px;font-style:italic;color:var(--blue);text-decoration:none;padding:6px 14px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,0.5)">&#9883; Animated React view &rarr;</a>
+    </div>
+
+    <div class="phx-papers">
+
+      <div class="paper-card blue" id="pc1">
+        <div class="pc-top" onclick="toggleCard('pc1')">
+          <div class="pc-num blue">Paper 1</div>
+          <div>
+            <h3 class="pc-title">Bimodal joint population characterisation at Najd-affected road cuts, Makkah region</h3>
+            <div class="pc-tags"><span class="tag">Structural geology</span><span class="tag">Circular statistics</span><span class="tag">Field data</span></div>
+          </div>
+          <div class="pc-chev">&#8964;</div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-meta">
+            <div><div class="pc-meta-label">Target journal</div>
+              <div class="journal-wrap"><div class="pc-meta-val">Journal of Structural Geology</div>
+                <div class="tip-box"><div class="tip-title">Alternatives</div><div class="tip-alt">Engineering Geology</div><div class="tip-alt">Arabian Journal of Geosciences</div><div class="tip-alt">J. Geophysical Research &ndash; Solid Earth</div><div class="tip-alt">Tectonophysics</div></div>
+              </div>
+            </div>
+            <div><div class="pc-meta-label">Data status</div><div class="pc-meta-val">Complete &mdash; 5 sites, 330 joints</div></div>
+            <div><div class="pc-meta-label">Timeline</div><div class="pc-meta-val">3&ndash;5 months to submission</div></div>
+          </div>
+          <div class="pc-divider"></div>
+          <p class="pc-desc">Two statistically distinct joint families co-exist at all 5 sites &mdash; Najd (NW&ndash;SE, R&#772;&asymp;0.98&ndash;1.00) and Red Sea (NE&ndash;SW). Site 2 shows Red Sea more coherent than Najd, indicating overprinting. Site 5 is a three-way mixture: Najd 39%, Red Sea 18%, unclassified 42%.</p>
+          <button class="pc-ask-btn" onclick="event.stopPropagation();goTo('paper1guide')">Open Paper 1 Writing Guide &#8594;</button>
+          <div class="pc-divider"></div>
+          <div class="author-section-header">Author contributions &mdash; click a name to focus</div>
+          <div class="author-cols" id="ac-p1">
+            <div class="author-col col-AS" data-col="AS">
+              <div class="ac-header" onclick="event.stopPropagation();selectCol('p1','AS')">
+                <div class="ac-ini ini-teal">AS</div>
+                <div><div class="ac-name">Prof. Abdullah Sabtan</div><div class="ac-role">Lead &middot; geological interpretation</div></div>
+                <span class="ac-toggle">focus</span>
+              </div>
+              <ul class="ac-items">
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Led all field data collection at 5 granodiorite outcrops along Makkah region road cuts &mdash; dip and dip direction recorded per joint plane</li>
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Identified and interpreted the bimodal joint fabric as evidence of two distinct tectonic episodes separated by ~600 Ma</li>
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Established the geological argument for Site 2 overprinting: Cenozoic Red Sea rifting reactivating older Najd joint planes</li>
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Provided regional structural context linking joint orientations to the Najd shear corridor and Precambrian basement fabric</li>
+              </ul>
+            </div>
+            <div class="author-col col-BS" data-col="BS">
+              <div class="ac-header" onclick="event.stopPropagation();selectCol('p1','BS')">
+                <div class="ac-ini ini-amber">BS</div>
+                <div><div class="ac-name">Dr. Bader Sabtan</div><div class="ac-role">Co-author &middot; circular statistics</div></div>
+                <span class="ac-toggle">focus</span>
+              </div>
+              <ul class="ac-items">
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Applied Rayleigh test and V-test to all 330 measurements &mdash; confirmed non-uniform distribution at 4 of 5 sites (p &lt; 0.05)</li>
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Fitted von Mises distributions to each joint family, computing mean direction &mu; and concentration &kappa; per population per site</li>
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Decomposed Site 5's apparent randomness: Najd 39% (R&#772;=0.99), Red Sea 18% (R&#772;=0.43), unclassified 42% &mdash; explaining pooled Rayleigh p=0.228</li>
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Computed R&#772; values ranging 0.07&ndash;1.00, identifying the Najd family as more concentrated across all sites</li>
+              </ul>
+            </div>
+          </div>
+          <div class="detail-tags-row">
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>Rayleigh test<div class="tip-box">Tests for preferred direction. Z-statistic from R&#772;. Low p &lt; 0.05 = significant preferred direction.</div></span>
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>Von Mises fitting<div class="tip-box">Circular normal per joint family. Estimates &mu; and &kappa;. Higher &kappa; = tighter cluster.</div></span>
+            <span class="dtag" data-author="AS"><span class="dtag-ini dtag-teal">AS</span>Rose diagrams<div class="tip-box">Circular frequency plots in 10&deg; bins, one per site, colour-coded by family.</div></span>
+            <span class="dtag" data-author="AS"><span class="dtag-ini dtag-teal">AS</span>Bimodal mixture<div class="tip-box">Najd (110&ndash;165&deg;) vs Red Sea (030&ndash;075&deg;) decomposition at each outcrop.</div></span>
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>R&#772; values<div class="tip-box right">Mean resultant length 0&ndash;1. R&#772;&asymp;0.99 = very tight; R&#772;&asymp;0.07 = scattered.</div></span>
+            <span class="dtag" data-author="AS"><span class="dtag-ini dtag-teal">AS</span>5 sites &middot; 330 joints<div class="tip-box right">Scanline surveys across 5 granodiorite outcrops. Dip angle and direction recorded per joint plane.</div></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="paper-card blue" id="pc2">
+        <div class="pc-top" onclick="toggleCard('pc2')">
+          <div class="pc-num blue">Paper 2</div>
+          <div>
+            <h3 class="pc-title">Najd Intensity Index (NII): a composite quantitative index linking structural fabric to rock mass quality</h3>
+            <div class="pc-tags"><span class="tag">Engineering geology</span><span class="tag">Index development</span><span class="tag">IE methods</span></div>
+          </div>
+          <div class="pc-chev">&#8964;</div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-meta">
+            <div><div class="pc-meta-label">Target journal</div>
+              <div class="journal-wrap"><div class="pc-meta-val">Engineering Geology</div>
+                <div class="tip-box"><div class="tip-title">Alternatives</div><div class="tip-alt">Rock Mechanics and Rock Engineering</div><div class="tip-alt">Intl. J. Rock Mechanics &amp; Mining Sciences</div><div class="tip-alt">Geomechanics and Geoengineering</div><div class="tip-alt">Geotechnical and Geological Engineering</div></div>
+              </div>
+            </div>
+            <div><div class="pc-meta-label">Data status</div><div class="pc-meta-val">Paper 1 results + Schmidt + GSI/RMR</div></div>
+            <div><div class="pc-meta-label">Timeline</div><div class="pc-meta-val">4&ndash;6 months (after Paper 1)</div></div>
+          </div>
+          <div class="pc-divider"></div>
+          <p class="pc-desc">Formally defines the NII as a weighted composite of R&#772;, %Najd joints, joint frequency, Schmidt hammer R, and weathering grade W. Calibrates NII against GSI/RMR across 5 sites &mdash; filling the field's biggest gap: "Najd intensity" used qualitatively everywhere but never formally measured.</p>
+          <button class="pc-ask-btn" onclick="event.stopPropagation()">How do we build the NII?</button>
+          <div class="pc-divider"></div>
+          <div class="author-section-header">Author contributions &mdash; click a name to focus</div>
+          <div class="author-cols" id="ac-p2">
+            <div class="author-col col-AS" data-col="AS">
+              <div class="ac-header" onclick="event.stopPropagation();selectCol('p2','AS')">
+                <div class="ac-ini ini-teal">AS</div>
+                <div><div class="ac-name">Prof. Abdullah Sabtan</div><div class="ac-role">Co-author &middot; geological interpretation</div></div>
+                <span class="ac-toggle">focus</span>
+              </div>
+              <ul class="ac-items">
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Provided geological constraints bounding NII weight ranges &mdash; preventing combinations inconsistent with Najd fault mechanics and field observation</li>
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Validated index outputs against field rock mass assessments at all 5 sites, flagging cases where NII conflicted with observed conditions</li>
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Interpreted the GSI/RMR gradient across sites as a proxy for proximity to active Najd shear zones and degree of cataclastic overprinting</li>
+              </ul>
+            </div>
+            <div class="author-col col-BS" data-col="BS">
+              <div class="ac-header" onclick="event.stopPropagation();selectCol('p2','BS')">
+                <div class="ac-ini ini-amber">BS</div>
+                <div><div class="ac-name">Dr. Bader Sabtan</div><div class="ac-role">Lead &middot; index development</div></div>
+                <span class="ac-toggle">focus</span>
+              </div>
+              <ul class="ac-items">
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Designed the NII formula: NII = w&#8321;&middot;R&#772; + w&#8322;&middot;%Najd + w&#8323;&middot;JF + w&#8324;&middot;R_schmidt + w&#8325;&middot;W_grade</li>
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Built Pearson correlation matrix identifying R&#772; and %Najd as dominant predictors and Schmidt R and weathering grade as complementary inputs</li>
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Ran constrained regression of NII against GSI and RMR across 5 sites, achieving R&sup2; &gt; 0.85 within geologically bounded weight ranges</li>
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Converted Schmidt rebound R to UCS via Deere-Miller chart (mean R=46&ndash;49 &rarr; UCS&asymp;80&ndash;110 MPa)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="detail-tags-row">
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>NII formula<div class="tip-box">NII = w&#8321;&middot;R&#772; + w&#8322;&middot;%Najd + w&#8323;&middot;JF + w&#8324;&middot;R_schmidt + w&#8325;&middot;W_grade. Weights optimised by regression against GSI.</div></span>
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>Schmidt &rarr; UCS<div class="tip-box">R converted via Deere-Miller chart. Mean R=46&ndash;49 gives UCS&asymp;80&ndash;110 MPa.</div></span>
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>GSI/RMR regression<div class="tip-box">Pearson regression of NII against field GSI and RMR. Target R&sup2;&gt;0.85 for validation.</div></span>
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>Pearson correlation<div class="tip-box right">Full matrix across all parameters. Identifies redundant inputs before weight optimisation.</div></span>
+            <span class="dtag" data-author="AS"><span class="dtag-ini dtag-teal">AS</span>Weight optimisation<div class="tip-box right">Geological judgement constrains weight ranges &mdash; prevents NII inconsistent with Najd mechanics.</div></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="phx-bottom">
+      <button class="nav-btn back" onclick="goTo('overview')">&#8592; Back to Overview</button>
+      <button class="nav-btn forward" onclick="goTo('phase2')">Phase II &#8594;</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ LAYER 3b: PHASE II DETAIL ══ -->
+<div class="layer" id="layer-phase2">
+  <div class="phx-wrap">
+    <div class="phx-hero copper">
+      <div class="phx-watermark copper">II</div>
+      <div class="phx-kicker copper">Phase II of III &mdash; Engineering Application</div>
+      <div class="phx-title">&Delta;&theta; Zonation &amp; Probabilistic Stability</div>
+      <div class="phx-badges">
+        <span class="badge">Months 6&ndash;12</span><span class="badge">2 papers</span>
+        <span class="badge">Depends on Phase I outputs</span><span class="badge">12 road-cut slopes</span>
+      </div>
+      <p class="phx-desc">Converts the NII into a practical road alignment risk tool and a probabilistic slope stability model. These papers are the engineering core of the programme &mdash; moving from structural description to quantified design parameters and probability of failure.</p>
+    </div>
+
+    <div class="author-filter-bar">
+      <span class="af-label">Filter by author</span>
+      <div class="af-btn" data-afbtn="AS" onclick="filterAuthor('AS')">
+        <div class="af-ini ini-teal">AS</div><span class="af-name">Prof. Abdullah Sabtan</span>
+      </div>
+      <div class="af-btn" data-afbtn="BS" onclick="filterAuthor('BS')">
+        <div class="af-ini ini-amber">BS</div><span class="af-name">Dr. Bader Sabtan</span>
+      </div>
+    </div>
+
+    <div class="phx-papers">
+
+      <div class="paper-card copper" id="pc3">
+        <div class="pc-top" onclick="toggleCard('pc3')">
+          <div class="pc-num copper">Paper 3</div>
+          <div>
+            <h3 class="pc-title">&Delta;&theta; zonation system: road alignment classification for Najd-controlled slope instability risk</h3>
+            <div class="pc-tags"><span class="tag">Slope engineering</span><span class="tag">Traffic-light classification</span><span class="tag">Decision tool</span></div>
+          </div>
+          <div class="pc-chev">&#8964;</div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-meta">
+            <div><div class="pc-meta-label">Target journal</div>
+              <div class="journal-wrap"><div class="pc-meta-val">Bulletin of Engineering Geology</div>
+                <div class="tip-box"><div class="tip-title">Alternatives</div><div class="tip-alt">Engineering Geology</div><div class="tip-alt">Landslides</div><div class="tip-alt">Natural Hazards and Earth System Sciences</div><div class="tip-alt">Geotechnical and Geological Engineering</div></div>
+              </div>
+            </div>
+            <div><div class="pc-meta-label">Data status</div><div class="pc-meta-val">NII from Paper 2 + slope surveys needed</div></div>
+            <div><div class="pc-meta-label">Timeline</div><div class="pc-meta-val">6&ndash;9 months</div></div>
+          </div>
+          <div class="pc-divider"></div>
+          <p class="pc-desc">Formalises the Red/Amber/Green classification based on &Delta;&theta; &mdash; the angle between slope dip direction and dominant Najd joint dip direction. Derives threshold values statistically rather than by rule-of-thumb. Builds a decision matrix mapping (&Delta;&theta;, slope height, weathering grade, NII) to required support level. Applied to 12 road-cut slopes in the Makkah region.</p>
+          <div class="pc-status">&#9998; In progress &mdash; slope orientation surveys and kinematic analysis to be completed after Paper 2 submission.</div>
+          <div class="pc-divider"></div>
+          <div class="author-section-header">Author contributions &mdash; click a name to focus</div>
+          <div class="author-cols" id="ac-p3">
+            <div class="author-col col-BS" data-col="BS">
+              <div class="ac-header" onclick="event.stopPropagation();selectCol('p3','BS')">
+                <div class="ac-ini ini-amber">BS</div>
+                <div><div class="ac-name">Dr. Bader Sabtan</div><div class="ac-role">Lead &middot; decision tool design</div></div>
+                <span class="ac-toggle">focus</span>
+              </div>
+              <ul class="ac-items">
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Design and derivation of the &Delta;&theta; classification formula: &Delta;&theta; = min(|slope&ndash;300&deg;|, 360&deg;&ndash;|slope&ndash;300&deg;|)</li>
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Statistical optimisation of threshold values (20&deg; and 60&deg;) using ROC analysis against observed failure and stability records at 12 road cuts</li>
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Construction of the 4D decision matrix: (&Delta;&theta;) &times; (slope height) &times; (NII) &times; (weathering grade) &rarr; support intervention level</li>
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Stereonet kinematic analysis for planar and wedge failure modes at each classified slope orientation</li>
+              </ul>
+            </div>
+            <div class="author-col col-AS" data-col="AS">
+              <div class="ac-header" onclick="event.stopPropagation();selectCol('p3','AS')">
+                <div class="ac-ini ini-teal">AS</div>
+                <div><div class="ac-name">Prof. Abdullah Sabtan</div><div class="ac-role">Co-author &middot; field validation</div></div>
+                <span class="ac-toggle">focus</span>
+              </div>
+              <ul class="ac-items">
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Field measurement of dip direction, height, and stability condition for all 12 road-cut slopes along Makkah alignments</li>
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Ground-truthing of Red/Amber/Green classifications against observed failure evidence and maintenance records</li>
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Geological interpretation of anomalous classifications where &Delta;&theta; predicts safety but observed instability exists &mdash; identifying confounding local joint sets</li>
+              </ul>
+            </div>
+          </div>
+          <div class="detail-tags-row">
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>&Delta;&theta; formula<div class="tip-box">Angular difference between slope dip direction and dominant Najd joint dip direction. Core kinematic predictor of failure mode.</div></span>
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>Red/Amber/Green<div class="tip-box">Green: &Delta;&theta;&gt;60&deg;. Amber: 20&ndash;60&deg;. Red: &le;20&deg; (planar or wedge failure likely along Najd joints).</div></span>
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>ROC analysis<div class="tip-box right">Receiver operating characteristic used to statistically derive optimal &Delta;&theta; cutoffs from observed slope performance data.</div></span>
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>Decision matrix<div class="tip-box right">4D matrix mapping (&Delta;&theta;) &times; (height) &times; (NII) &times; (weathering) &rarr; recommended support level.</div></span>
+            <span class="dtag" data-author="AS"><span class="dtag-ini dtag-teal">AS</span>12 road cuts<div class="tip-box right">Field-measured slope orientations along Makkah region alignments. Dip, height, and stability recorded per slope.</div></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="paper-card copper" id="pc4">
+        <div class="pc-top" onclick="toggleCard('pc4')">
+          <div class="pc-num copper">Paper 4</div>
+          <div>
+            <h3 class="pc-title">Probabilistic slope stability in Najd-affected terrain: Monte Carlo propagation through the Schmidt&ndash;GSI&ndash;Hoek-Brown&ndash;FS chain</h3>
+            <div class="pc-tags"><span class="tag">Uncertainty quantification</span><span class="tag">Probability of failure</span><span class="tag">Monte Carlo</span></div>
+          </div>
+          <div class="pc-chev">&#8964;</div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-meta">
+            <div><div class="pc-meta-label">Target journal</div>
+              <div class="journal-wrap"><div class="pc-meta-val">Rock Mechanics &amp; Rock Engineering</div>
+                <div class="tip-box"><div class="tip-title">Alternatives</div><div class="tip-alt">Intl. J. Rock Mechanics &amp; Mining Sciences</div><div class="tip-alt">Computers and Geotechnics</div><div class="tip-alt">Georisk: Assessment &amp; Management of Risk</div><div class="tip-alt">Engineering Geology</div></div>
+              </div>
+            </div>
+            <div><div class="pc-meta-label">Data status</div><div class="pc-meta-val">All 5 sites + variability from Papers 1&ndash;3</div></div>
+            <div><div class="pc-meta-label">Timeline</div><div class="pc-meta-val">8&ndash;12 months</div></div>
+          </div>
+          <div class="pc-divider"></div>
+          <p class="pc-desc">Takes the deterministic design chain &mdash; Schmidt &rarr; UCS &rarr; GSI &rarr; Hoek-Brown &rarr; Factor of Safety &mdash; and propagates uncertainty through every step using Monte Carlo simulation (n=1,000). Outputs P(failure) rather than a single FS value, showing how probability varies with NII and &Delta;&theta; across all 5 sites.</p>
+          <div class="pc-status">&#9998; In progress &mdash; requires completion of Papers 1&ndash;3. Input distribution parameters to be derived from site variability data.</div>
+          <div class="pc-divider"></div>
+          <div class="author-section-header">Author contributions &mdash; click a name to focus</div>
+          <div class="author-cols" id="ac-p4">
+            <div class="author-col col-BS" data-col="BS">
+              <div class="ac-header" onclick="event.stopPropagation();selectCol('p4','BS')">
+                <div class="ac-ini ini-amber">BS</div>
+                <div><div class="ac-name">Dr. Bader Sabtan</div><div class="ac-role">Lead &middot; probabilistic modelling</div></div>
+                <span class="ac-toggle">focus</span>
+              </div>
+              <ul class="ac-items">
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Design and implementation of the Monte Carlo simulation framework (n=1,000 per site) propagating uncertainty from Schmidt R through UCS, GSI, Hoek-Brown parameters to FS</li>
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Definition of input distributions: Schmidt R (&plusmn;5%), weathering grade (&plusmn;1 class), GSI (&plusmn;8 points) &mdash; derived from within-site measurement variability</li>
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Computation of P(failure) = P(FS &lt; 1.0) per site and per &Delta;&theta; class, with full FS distribution, mean, standard deviation, and 5th percentile reported</li>
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Sensitivity analysis identifying which input parameter dominates P(failure) variation at each NII level</li>
+              </ul>
+            </div>
+            <div class="author-col col-AS" data-col="AS">
+              <div class="ac-header" onclick="event.stopPropagation();selectCol('p4','AS')">
+                <div class="ac-ini ini-teal">AS</div>
+                <div><div class="ac-name">Prof. Abdullah Sabtan</div><div class="ac-role">Co-author &middot; geological interpretation</div></div>
+                <span class="ac-toggle">focus</span>
+              </div>
+              <ul class="ac-items">
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Selection and justification of disturbance factor D in Hoek-Brown criterion based on blasting practice and rock mass condition at each site</li>
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Geological interpretation of cases where P(failure) diverges from &Delta;&theta; prediction &mdash; identifying secondary control factors (groundwater, weathering chimneys)</li>
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Cross-check of probabilistic outputs against field-observed failure rates and maintenance records along Makkah road alignments</li>
+              </ul>
+            </div>
+          </div>
+          <div class="detail-tags-row">
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>Monte Carlo n=1,000<div class="tip-box">1,000 random draws per site from input distributions. Output: full FS histogram, mean, 5th percentile, P(FS&lt;1.0).</div></span>
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>P(failure)<div class="tip-box">Probability FS&lt;1.0 across the Monte Carlo sample. Replaces single deterministic FS for risk-informed design.</div></span>
+            <span class="dtag" data-author="AS"><span class="dtag-ini dtag-teal">AS</span>Hoek-Brown<div class="tip-box">Non-linear rock mass failure criterion. Parameters m_b, s, a from GSI and UCS. Factor D requires geological judgement.</div></span>
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>Sensitivity analysis<div class="tip-box right">Identifies which input (Schmidt R, GSI, weathering) drives P(failure) most at each NII level.</div></span>
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>FS distribution<div class="tip-box right">Full probability distribution of FS. Mean, std dev, 5th percentile, and P(failure) reported per site and &Delta;&theta; zone.</div></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="phx-bottom">
+      <button class="nav-btn back" onclick="goTo('phase1')">&#8592; Phase I</button>
+      <button class="nav-btn forward" onclick="goTo('phase3')">Phase III &#8594;</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ LAYER 3c: PHASE III DETAIL ══ -->
+<div class="layer" id="layer-phase3">
+  <div class="phx-wrap">
+    <div class="phx-hero gold">
+      <div class="phx-watermark gold">III</div>
+      <div class="phx-kicker gold">Phase III of III &mdash; Regional Synthesis</div>
+      <div class="phx-title">Regional Framework &amp; Policy Integration</div>
+      <div class="phx-badges">
+        <span class="badge">Months 12&ndash;18</span><span class="badge">1 paper</span>
+        <span class="badge">Depends on all prior papers</span><span class="badge">KSA infrastructure policy</span>
+      </div>
+      <p class="phx-desc">The capstone paper synthesises the NII, &Delta;&theta; zonation, and probabilistic framework into a unified regional guidance document. The goal is for Najd fabric assessment to become a mandatory pre-drilling screening step in KSA infrastructure planning &mdash; adopted into Saudi engineering standards.</p>
+    </div>
+
+    <div class="author-filter-bar">
+      <span class="af-label">Filter by author</span>
+      <div class="af-btn" data-afbtn="AS" onclick="filterAuthor('AS')">
+        <div class="af-ini ini-teal">AS</div><span class="af-name">Prof. Abdullah Sabtan</span>
+      </div>
+      <div class="af-btn" data-afbtn="BS" onclick="filterAuthor('BS')">
+        <div class="af-ini ini-amber">BS</div><span class="af-name">Dr. Bader Sabtan</span>
+      </div>
+    </div>
+
+    <div class="phx-papers">
+
+      <div class="paper-card gold" id="pc5">
+        <div class="pc-top"
+          onclick="toggleCard('pc5')">
+          <div class="pc-num gold">Paper 5</div>
+          <div>
+            <h3 class="pc-title">Najd Fault System as a first-order engineering geology control for infrastructure in western Saudi Arabia: a regional framework</h3>
+            <div class="pc-tags"><span class="tag">Review article</span><span class="tag">Regional synthesis</span><span class="tag">Policy-facing</span></div>
+          </div>
+          <div class="pc-chev">&#8964;</div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-meta">
+            <div><div class="pc-meta-label">Target journal</div>
+              <div class="journal-wrap"><div class="pc-meta-val">Engineering Geology (review)</div>
+                <div class="tip-box"><div class="tip-title">Alternatives</div><div class="tip-alt">Earth-Science Reviews</div><div class="tip-alt">Quarterly Journal of Engineering Geology and Hydrogeology</div><div class="tip-alt">Geomorphology</div><div class="tip-alt">Arabian Journal of Geosciences</div></div>
+              </div>
+            </div>
+            <div><div class="pc-meta-label">Data status</div><div class="pc-meta-val">All 4 prior papers + expanded site network</div></div>
+            <div><div class="pc-meta-label">Timeline</div><div class="pc-meta-val">12&ndash;18 months</div></div>
+          </div>
+          <div class="pc-divider"></div>
+          <p class="pc-desc">Synthesises the NII, &Delta;&theta; zonation system, and probabilistic FS framework into a unified regional guidance document for infrastructure planners across KSA. Argues for incorporating Najd fabric assessment as a mandatory pre-drilling screening step for road, tunnel, and linear infrastructure projects. This is the paper that gets cited by engineering standards bodies.</p>
+          <div class="pc-status">&#9998; Planned &mdash; will begin after Papers 3 and 4 are accepted. Additional validation sites beyond the 5 Makkah outcrops are recommended before submission.</div>
+          <div class="pc-divider"></div>
+          <div class="author-section-header">Author contributions &mdash; click a name to focus</div>
+          <div class="author-cols" id="ac-p5">
+            <div class="author-col col-AS" data-col="AS">
+              <div class="ac-header" onclick="event.stopPropagation();selectCol('p5','AS')">
+                <div class="ac-ini ini-teal">AS</div>
+                <div><div class="ac-name">Prof. Abdullah Sabtan</div><div class="ac-role">Lead &middot; regional synthesis</div></div>
+                <span class="ac-toggle">focus</span>
+              </div>
+              <ul class="ac-items">
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Lead author and programme architect &mdash; the regional synthesis reflects Prof. Sabtan's original vision of the Najd system as a first-order engineering design variable</li>
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Geological argument for extending the framework beyond the 5 Makkah sites to the wider NW&ndash;SE Najd belt across western Saudi Arabia</li>
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Recommendations for integration with Saudi Building Code and Ministry of Transport geotechnical guidelines for linear infrastructure</li>
+                <li class="ac-item"><span class="ac-dot dot-teal"></span>Identification of additional validation sites in Madinah, Taif, and Abha corridors to strengthen regional applicability</li>
+              </ul>
+            </div>
+            <div class="author-col col-BS" data-col="BS">
+              <div class="ac-header" onclick="event.stopPropagation();selectCol('p5','BS')">
+                <div class="ac-ini ini-amber">BS</div>
+                <div><div class="ac-name">Dr. Bader Sabtan</div><div class="ac-role">Co-author &middot; quantitative framework</div></div>
+                <span class="ac-toggle">focus</span>
+              </div>
+              <ul class="ac-items">
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Integration of NII, &Delta;&theta; zonation, and Monte Carlo P(failure) outputs into a single pre-drilling screening workflow applicable at corridor planning stage</li>
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>GIS spatial analysis pipeline: GPS coordinates + slope measurements + Najd reference direction &rarr; automated Red/Amber/Green corridor map output</li>
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Cost&ndash;benefit case demonstrating that early Najd screening reduces total investigation cost by concentrating boreholes in high-NII corridors</li>
+                <li class="ac-item"><span class="ac-dot dot-amber"></span>Proposed standard investigation protocol: remote sensing lineament analysis &rarr; NII field screening &rarr; targeted borehole campaign &rarr; &Delta;&theta; design assessment</li>
+              </ul>
+            </div>
+          </div>
+          <div class="detail-tags-row">
+            <span class="dtag" data-author="AS"><span class="dtag-ini dtag-teal">AS</span>Regional framework<div class="tip-box">Unified guidance integrating NII, &Delta;&theta; zonation, and probabilistic FS into a single pre-drilling screening protocol for KSA infrastructure planners.</div></span>
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>GIS pipeline<div class="tip-box">Spatial analysis: GPS + slope data + Najd reference &rarr; automated corridor risk map. Scalable to any Najd-affected alignment.</div></span>
+            <span class="dtag" data-author="AS"><span class="dtag-ini dtag-teal">AS</span>KSA standards<div class="tip-box right">Proposed integration with Saudi Building Code and Ministry of Transport geotechnical guidelines for linear infrastructure.</div></span>
+            <span class="dtag" data-author="BS"><span class="dtag-ini dtag-amber">BS</span>Cost&ndash;benefit<div class="tip-box right">Demonstrates investigation cost reduction by concentrating boreholes in high-NII Najd corridors rather than uniform spacing.</div></span>
+            <span class="dtag" data-author="AS"><span class="dtag-ini dtag-teal">AS</span>Expanded sites<div class="tip-box right">Additional validation recommended in Madinah, Taif, and Abha corridors to confirm regional applicability of the NII thresholds.</div></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="phx-bottom">
+      <button class="nav-btn back" onclick="goTo('phase2')">&#8592; Phase II</button>
+      <span class="phx-hint">End of programme &mdash; all phases documented</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ LAYER: PAPER 1 GUIDE ══ -->
+<div class="layer" id="layer-paper1guide">
+  <div class="guide-wrap">
+
+    <div class="guide-hero">
+      <div class="guide-kicker">Phase I &middot; Paper 1 &middot; Writing Guide</div>
+      <h1 class="guide-title">Bimodal Joint Population Characterisation<br>at Najd-affected Road Cuts, Makkah Region</h1>
+      <p class="guide-sub">Target: <em>Journal of Structural Geology</em> &mdash; 3&ndash;5 months to submission</p>
+    </div>
+
+    <!-- SCOPE -->
+    <div class="scope-card">
+      <div class="scope-label">Scope</div>
+      <div class="scope-cols">
+        <div class="scope-in" style="font-size: 12px">
+          <div class="scope-col-label">This paper covers</div>
+          <ul class="scope-list">
+            <li>Statistical proof that two distinct joint families co-exist at all five sites</li>
+            <li>Separation of Najd (NW&ndash;SE) and Red Sea (NE&ndash;SW) families by orientation and concentration</li>
+            <li>Site-by-site mean direction, R&#772;, and &kappa; per family</li>
+            <li>Geological interpretation of Site 2 overprinting and Site 5 three-way mixture</li>
+            <li>Rose diagrams and a summary statistics table for all 330 measurements</li>
+          </ul>
+        </div>
+        <div class="scope-out" style="font-size: 12px">
+          <div class="scope-col-label">This paper does not cover</div>
+          <ul class="scope-list">
+            <li>The Najd Intensity Index or any engineering rating &mdash; Paper 2</li>
+            <li>Slope stability, kinematic analysis, or failure modes &mdash; Paper 3</li>
+            <li>Spatial zonation or risk mapping &mdash; Papers 4&ndash;5</li>
+            <li>Geotechnical design parameters or support class recommendations</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATA -->
+    <div class="g-block">
+      <div class="g-block-label">Data at a glance</div>
+      <div class="g-stats">
+        <div class="g-stat"><div class="g-stat-num">330</div><div class="g-stat-lbl">Joint measurements</div></div>
+        <div class="g-stat"><div class="g-stat-num">5</div><div class="g-stat-lbl">Granodiorite sites</div></div>
+        <div class="g-stat"><div class="g-stat-num">2</div><div class="g-stat-lbl">Joint families</div></div>
+        <div class="g-stat"><div class="g-stat-num">4/5</div><div class="g-stat-lbl">Sites p &lt; 0.05</div></div>
+      </div>
+    </div>
+
+    <!-- SECTIONS -->
+    <div class="g-block">
+      <div class="g-block-label">Paper sections</div>
+      <div class="section-list">
+
+        <div class="section-item">
+          <div class="sec-num">1</div>
+          <div>
+            <div class="sec-title">Abstract</div>
+            <div class="sec-desc" style="color: rgb(0, 0, 0); font-size: 14px">State the problem (no rigorous statistical characterisation of Najd joint fabric at site scale), the data (330 measurements, 5 granodiorite outcrops), the methods (Rayleigh, V-test, von Mises), and the finding (bimodal fabric confirmed at all sites; Site 2 Red Sea overprint; Site 5 three-way mixture). Close with significance: this is the quantitative foundation for the NII in Paper 2.</div>
+            <div class="sec-meta"><span class="sec-tag">~150 words</span></div>
+          </div>
+        </div>
+
+        <div class="section-item">
+          <div class="sec-num">2</div>
+          <div>
+            <div class="sec-title">Introduction</div>
+            <div class="sec-desc" style="font-size: 6px; color: rgb(0, 0, 0)">Establish why joint fabric matters for road-cut infrastructure in western KSA. Name the gap: the Najd Fault System is invoked qualitatively in nearly every regional engineering study, yet no published work statistically confirms and separates its bimodal joint signature at site scale. State two objectives: (1) confirm non-uniformity at each site; (2) separate and characterise the two families.</div>
+            <div class="sec-meta"><span class="sec-tag">~400 words</span><span class="sec-tag">2&ndash;3 key references</span></div>
+          </div>
+        </div>
+
+        <div class="section-item">
+          <div class="sec-num">3</div>
+          <div>
+            <div class="sec-title">Geological Setting</div>
+            <div class="sec-desc">Two tectonic episodes. (A) Najd Fault System: Proterozoic sinistral transpression ~600 Ma, NW&ndash;SE shear corridor, imprinting the persistent NW-trending joint set. (B) Cenozoic Red Sea rifting ~30 Ma, NE&ndash;SW extension, creating the subordinate but locally dominant NE-trending set. Describe the Precambrian granodiorite basement as the host rock at all five sites &mdash; lithological uniformity is a strength that isolates structural from lithological variation.</div>
+            <div class="sec-meta"><span class="sec-tag">~350 words</span><span class="sec-tag">Regional geology map</span></div>
+          </div>
+        </div>
+
+        <div class="section-item">
+          <div class="sec-num">4</div>
+          <div>
+            <div class="sec-title">Study Sites</div>
+            <div class="sec-desc">Brief description of each of the five road-cut outcrops: location, coordinates, exposure length, rock condition. Include a location map (Figure 1). All sites are in granodiorite; note this as a controlled variable that strengthens the structural interpretation.</div>
+            <div class="sec-meta"><span class="sec-tag">Table 1 &middot; site summary</span><span class="sec-tag">Figure 1 &middot; location map</span></div>
+          </div>
+        </div>
+
+        <div class="section-item">
+          <div class="sec-num">5</div>
+          <div>
+            <div class="sec-title">Field Methodology</div>
+            <div class="sec-desc">Describe the scanline survey protocol. For each joint plane: dip angle and dip direction recorded. State total measurements per site. Note whether joint families were separated in the field or post-hoc in analysis. Keep this replicable &mdash; a reader must be able to repeat the survey at a new site with the same equipment and protocol.</div>
+            <div class="sec-meta"><span class="sec-tag">~250 words</span></div>
+          </div>
+        </div>
+
+        <div class="section-item">
+          <div class="sec-num">6</div>
+          <div>
+            <div class="sec-title">Statistical Methods</div>
+            <div class="sec-desc">Introduce circular statistics as the appropriate framework for directional data. Define: (a) R&#772; mean resultant length as a concentration metric; (b) Rayleigh test for non-uniformity &mdash; null hypothesis, Z-statistic, p-value threshold; (c) V-test for clustering toward a hypothesised direction; (d) von Mises distribution &mdash; &mu; and &kappa;, fitting procedure; (e) rose diagram construction in 10&deg; bins. Cite Fisher (1993) or Mardia &amp; Jupp.</div>
+            <div class="sec-meta"><span class="sec-tag">~400 words</span><span class="sec-tag">Cite Fisher 1993</span></div>
+          </div>
+        </div>
+
+        <div class="section-item">
+          <div class="sec-num">7</div>
+          <div>
+            <div class="sec-title">Results</div>
+            <div class="sec-desc">Site by site: rose diagram, Rayleigh p-value, and per-family R&#772;, &mu;, &kappa;. Call out Site 2 explicitly (Red Sea R&#772; exceeds Najd &mdash; overprinting evidence) and Site 5 (pooled Rayleigh p=0.228; decomposition yields Najd 39%, Red Sea 18%, unclassified 42%). Close with Table 2 summarising all sites and families.</div>
+            <div class="sec-meta"><span class="sec-tag">Table 2 &middot; stats summary</span><span class="sec-tag">Figures 2a&ndash;2e &middot; rose diagrams</span></div>
+          </div>
+        </div>
+
+        <div class="section-item">
+          <div class="sec-num">8</div>
+          <div>
+            <div class="sec-title">Discussion</div>
+            <div class="sec-desc">Three threads. (1) Why bimodal is expected: two tectonic episodes ~600 Ma apart should leave two independent joint sets; the data confirms this. (2) Site 2: argue that stronger Red Sea coherence reflects Cenozoic reactivation or proximity to a rift-related structure. (3) Site 5: interpret the three-way mixture as a structural transition zone, possibly at a shear-zone boundary. Note that Najd R&#772; &asymp; 0.98&ndash;1.00 across sites makes it a reliable input to the NII in Paper 2.</div>
+            <div class="sec-meta"><span class="sec-tag">~500 words</span></div>
+          </div>
+        </div>
+
+        <div class="section-item">
+          <div class="sec-num">9</div>
+          <div>
+            <div class="sec-title">Conclusions</div>
+            <div class="sec-desc">Four points: (1) non-uniform distribution confirmed at 4 of 5 sites (p &lt; 0.05); (2) bimodal fabric present at all sites &mdash; Najd NW&ndash;SE dominant, Red Sea NE&ndash;SW subordinate; (3) Site 2 Red Sea overprint, Site 5 structural complexity requiring family decomposition; (4) confirmed families form the quantitative input foundation for the Najd Intensity Index in Paper 2.</div>
+            <div class="sec-meta"><span class="sec-tag">~150 words</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- METHODS -->
+    <div class="g-block">
+      <div class="g-block-label">Statistical methods reference</div>
+      <div class="methods-grid">
+        <div class="method-card">
+          <div class="method-name">Rayleigh Test</div>
+          <div class="method-role">Non-uniformity &middot; primary test</div>
+          <div class="method-desc">Tests whether joint azimuths differ from uniform. Statistic Z = n &middot; R&#772;&sup2;. A p-value &lt; 0.05 rejects randomness and confirms a preferred direction exists at the site.</div>
+          <div class="method-note">Applied to pooled per-site data at all 5 sites</div>
+        </div>
+        <div class="method-card">
+          <div class="method-name">V-test</div>
+          <div class="method-role">Directional &middot; targeted test</div>
+          <div class="method-desc">One-tailed Rayleigh variant that tests clustering toward a specific hypothesised bearing. Use to formally test whether data clusters toward Najd (~135&deg;) or Red Sea (~050&deg;). Strengthens the directional argument beyond Rayleigh alone.</div>
+          <div class="method-note">Useful where the Rayleigh test is borderline</div>
+        </div>
+        <div class="method-card">
+          <div class="method-name">Von Mises Fitting</div>
+          <div class="method-role">Distribution &middot; per family per site</div>
+          <div class="method-desc">Circular analogue of the normal distribution. &mu; = mean direction; &kappa; = concentration (higher = tighter cluster). Fit separately to each family at each site to characterise rather than just detect the preferred direction.</div>
+          <div class="method-note">10 fits: 5 sites &times; 2 families</div>
+        </div>
+        <div class="method-card">
+          <div class="method-name">R&#772; Mean Resultant Length</div>
+          <div class="method-role">Concentration metric &middot; range 0&ndash;1</div>
+          <div class="method-desc">Length of the mean resultant vector. R&#772; &asymp; 1.00 = all measurements in the same direction. R&#772; &asymp; 0.07 = scattered. The Najd family yields R&#772; = 0.98&ndash;1.00 across sites; this consistency is the key finding that validates the family as a reliable index input.</div>
+          <div class="method-note">Core diagnostic separating the two families</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEY FINDINGS -->
+    <div class="g-block">
+      <div class="g-block-label">Key findings to report</div>
+      <table class="findings-table">
+        <thead>
+          <tr><th>Site</th><th>Najd R&#772;</th><th>Najd &mu;</th><th>Red Sea R&#772;</th><th>Rayleigh p</th><th>Note</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Site 1</td><td class="td-hi">~0.99</td><td>~135&deg;</td><td>Subordinate</td><td class="td-hi">&lt; 0.05</td><td>&mdash;</td></tr>
+          <tr><td>Site 2</td><td>Lower</td><td>&mdash;</td><td class="td-hi">&gt; Najd</td><td class="td-hi">&lt; 0.05</td><td><span class="td-flag">Red Sea overprint</span></td></tr>
+          <tr><td>Site 3</td><td class="td-hi">~0.98</td><td>~135&deg;</td><td>Subordinate</td><td class="td-hi">&lt; 0.05</td><td>&mdash;</td></tr>
+          <tr><td>Site 4</td><td class="td-hi">~1.00</td><td>~135&deg;</td><td>Subordinate</td><td class="td-hi">&lt; 0.05</td><td>&mdash;</td></tr>
+          <tr><td>Site 5</td><td>0.99 (39%)</td><td>&mdash;</td><td>0.43 (18%)</td><td>0.228 pooled</td><td><span class="td-flag">42% unclassified &middot; 3-way mixture</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- FIGURES -->
+    <div class="g-block">
+      <div class="g-block-label">Figures checklist</div>
+      <div class="fig-list">
+        <div class="fig-item">
+          <div class="fig-num">1</div>
+          <div>
+            <div class="fig-title">Study area location map</div>
+            <div class="fig-desc">Makkah region with the five outcrop locations marked. Inset showing the Najd Fault System corridor (NW&ndash;SE) and Red Sea rift axis. The map should convey regional tectonic context at a glance &mdash; reviewers will look here first.</div>
+          </div>
+        </div>
+        <div class="fig-item">
+          <div class="fig-num">2</div>
+          <div>
+            <div class="fig-title">Rose diagrams &mdash; Sites 1 to 5</div>
+            <div class="fig-desc">One diagram per site in 10&deg; bins, colour-coded by family (teal = Najd, rust = Red Sea). Present as a 2&times;3 panel or a 1&times;5 strip. Site 5 should include the three-class decomposition. This is the paper&rsquo;s core visual.</div>
+          </div>
+        </div>
+        <div class="fig-item">
+          <div class="fig-num">3</div>
+          <div>
+            <div class="fig-title">Summary statistics table (Table 2)</div>
+            <div class="fig-desc">n, R&#772;, &mu;, &kappa;, and Rayleigh p-value for each family at each site. Likely a table rather than a figure, but this is the first thing a reviewer will check &mdash; values must be internally consistent with the rose diagrams.</div>
+          </div>
+        </div>
+        <div class="fig-item">
+          <div class="fig-num">4</div>
+          <div>
+            <div class="fig-title">Stereonet plot (optional)</div>
+            <div class="fig-desc">Equal-area lower-hemisphere plot of all 330 poles to joint planes, coloured by family. Strong visual for a structural geology journal. Requires Stereonet or OpenStereo software. Include if time allows; skip if it delays submission.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="guide-bottom">
+      <button class="nav-btn back" onclick="goTo('phase1')">&#8592; Back to Phase I</button>
+      <span class="guide-note-text">Data complete &mdash; ready to draft</span>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+const topbarConfig = {
+  landing:      { hidden: true },
+  overview:     { center: 'Research Roadmap',                     right: '<button class="nav-btn back" onclick="goTo(\'landing\')">&#8592; Programme</button>' },
+  phase1:       { center: 'Phase I &mdash; Field Characterisation',    right: '<button class="nav-btn back" onclick="goTo(\'overview\')">&#8592; Overview</button>' },
+  phase2:       { center: 'Phase II &mdash; Engineering Application',  right: '<button class="nav-btn back" onclick="goTo(\'overview\')">&#8592; Overview</button>' },
+  phase3:       { center: 'Phase III &mdash; Regional Synthesis',      right: '<button class="nav-btn back" onclick="goTo(\'overview\')">&#8592; Overview</button>' },
+  paper1guide:  { center: 'Paper 1 &mdash; Writing Guide',             right: '<button class="nav-btn back" onclick="goTo(\'phase1\')">&#8592; Phase I</button>' }
+};
+
+
+function goPhase1(cardId) {
+  const legacy = { pc1: 'p1', pc2: 'p2' };
+  const paper = cardId ? (legacy[cardId] || cardId) : '';
+  window.location.href = 'phase-1-papers.html' + (paper ? '#' + paper : '');
+}
+function flowGoTo(layerId, cardId) {
+  if (layerId === 'phase1') {
+    goPhase1(cardId);
+    return;
+  }
+  goTo(layerId);
+  if (cardId) openCard(cardId);
+}
+function goTo(id) {
+  if (id === 'phase1') {
+    goPhase1();
+    return;
+  }
+  document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
+  document.getElementById('layer-' + id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  updateTopbar(id);
+  updateNavStrip(id);
+  if (!id.startsWith('phase')) { resetFilter(); resetAllCols(); }
+}
+function updateNavStrip(id) {
+  var map = { landing: '', overview: 'overview', phase2: 'phase2', phase3: 'phase3', paper1guide: 'paper1guide' };
+  var navId = Object.prototype.hasOwnProperty.call(map, id) ? map[id] : id;
+  if (typeof window.setNavActive === 'function') window.setNavActive(navId);
+}
+
+function openCard(cardId) {
+  setTimeout(() => {
+    const card = document.getElementById(cardId);
+    if (!card) return;
+    if (!card.classList.contains('open')) card.classList.add('open');
+    card.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 450);
+}
+
+function updateTopbar(id) {
+  const bar = document.getElementById('topbar');
+  const cfg = topbarConfig[id];
+  if (cfg.hidden) { bar.classList.add('hidden'); return; }
+  bar.classList.remove('hidden');
+  document.getElementById('topbar-center').innerHTML = cfg.center;
+  document.getElementById('topbar-right').innerHTML = cfg.right;
+}
+
+function togglePaper(el) {
+  const paper = el.closest('.paper-row');
+  const isOpen = paper.classList.contains('open');
+  document.querySelectorAll('.paper-row').forEach(p => p.classList.remove('open'));
+  if (!isOpen) paper.classList.add('open');
+}
+
+function toggleCard(id) {
+  const card = document.getElementById(id);
+  if (!card) return;
+  const isOpen = card.classList.contains('open');
+  const active = document.querySelector('.layer.active');
+  if (active) active.querySelectorAll('.paper-card').forEach(c => c.classList.remove('open'));
+  if (!isOpen) card.classList.add('open');
+}
+
+let activeAuthor = null;
+function filterAuthor(a) { activeAuthor = (activeAuthor === a) ? null : a; applyFilter(); }
+function resetFilter() { activeAuthor = null; applyFilter(); }
+function applyFilter() {
+  // scope to active layer only
+  const active = document.querySelector('.layer.active');
+  if (!active) return;
+  active.querySelectorAll('[data-afbtn]').forEach(btn => {
+    btn.classList.remove('active-teal','active-amber','inactive');
+    if (!activeAuthor) return;
+    if (btn.dataset.afbtn === activeAuthor) {
+      btn.classList.add(activeAuthor === 'AS' ? 'active-teal' : 'active-amber');
+    } else {
+      btn.classList.add('inactive');
+    }
+  });
+  active.querySelectorAll('.dtag[data-author]').forEach(t => {
+    t.classList.remove('hi','dim');
+    if (activeAuthor) t.classList.add(t.dataset.author === activeAuthor ? 'hi' : 'dim');
+  });
+}
+
+const colState = {};
+function selectCol(paperId, author) {
+  colState[paperId] = (colState[paperId] === author) ? null : author;
+  const container = document.getElementById('ac-' + paperId);
+  if (!container) return;
+  container.classList.remove('show-AS','show-BS');
+  if (colState[paperId] === 'AS') container.classList.add('show-AS');
+  else if (colState[paperId] === 'BS') container.classList.add('show-BS');
+  container.querySelectorAll('.author-col').forEach(col => {
+    col.classList.remove('collapsed');
+    if (colState[paperId] && col.dataset.col !== colState[paperId]) col.classList.add('collapsed');
+  });
+  container.querySelectorAll('.ac-toggle').forEach(t => {
+    const col = t.closest('.author-col');
+    t.textContent = (colState[paperId] && col.dataset.col === colState[paperId]) ? 'reset' : 'focus';
+  });
+}
+function resetAllCols() {
+  Object.keys(colState).forEach(k => { colState[k] = null; });
+  document.querySelectorAll('.author-cols').forEach(c => c.classList.remove('show-AS','show-BS'));
+  document.querySelectorAll('.author-col').forEach(c => c.classList.remove('collapsed'));
+  document.querySelectorAll('.ac-toggle').forEach(t => t.textContent = 'focus');
+}
+
+let zoomLevel = 100;
+function adjustZoom(d) {
+  zoomLevel = Math.min(200, Math.max(70, zoomLevel + d));
+  document.body.style.zoom = zoomLevel + '%';
+  document.getElementById('zoom-pct').textContent = zoomLevel + '%';
+}
+function resetZoom() {
+  zoomLevel = 100; document.body.style.zoom = '100%';
+  document.getElementById('zoom-pct').textContent = '100%';
+}
+
+(function initLayerFromQuery() {
+  const layer = new URLSearchParams(window.location.search).get('layer');
+  if (!layer || layer === 'phase1' || !document.getElementById('layer-' + layer)) return;
+  document.addEventListener('DOMContentLoaded', () => goTo(layer));
+})();
+</script>
+<script src="/shared/nav-strip.js" data-nav-active="overview"></script>
+<script src="/shared/assistant-chat.js"></script>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- ══ COLLAB ADD-ON: Tasks per paper + Quick-capture idea inbox ══ -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<style>
+  /* ── Task panel inside each paper card ── */
+  .task-panel{
+    margin-top:18px;padding:16px 18px;border-radius:14px;
+    background:rgba(255,255,255,0.55);border:1px solid var(--line);
+  }
+  .task-panel-head{
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--soft);font-weight:600;margin-bottom:12px;
+    padding-bottom:8px;border-bottom:1px solid var(--line);
+  }
+  .task-count{
+    font-size:10px;font-style:italic;font-family:'Lora',serif;
+    color:var(--muted);letter-spacing:.02em;text-transform:none;font-weight:500;
+  }
+  .task-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+  .task-empty{
+    font-size:12px;font-style:italic;color:var(--soft);
+    padding:14px;text-align:center;background:rgba(255,255,255,0.4);
+    border:1px dashed var(--line);border-radius:10px;
+  }
+  .task-item{
+    display:grid;grid-template-columns:22px 1fr auto auto;gap:10px;align-items:center;
+    background:rgba(255,255,255,0.6);border:1px solid rgba(222,212,193,0.6);
+    border-radius:10px;padding:9px 12px;transition:all .15s;
+  }
+  .task-item:hover{background:rgba(255,255,255,0.85);border-color:var(--soft)}
+  .task-item.done{opacity:.5}
+  .task-item.done .task-text{text-decoration:line-through;color:var(--soft)}
+  .task-check{
+    appearance:none;-webkit-appearance:none;width:18px;height:18px;
+    border:1.5px solid var(--soft);border-radius:5px;cursor:pointer;
+    position:relative;background:rgba(255,255,255,0.7);transition:all .15s;
+  }
+  .task-check:hover{border-color:var(--graphite)}
+  .task-check:checked{background:var(--blue);border-color:var(--blue)}
+  .task-check:checked::after{
+    content:"";position:absolute;top:2px;left:5px;width:5px;height:9px;
+    border:solid #fffaf0;border-width:0 2px 2px 0;transform:rotate(45deg);
+  }
+  .task-text{
+    font-size:13px;line-height:1.5;color:var(--graphite);font-family:'Lora',serif;
+    border:none;background:none;outline:none;width:100%;padding:2px 0;
+  }
+  .task-text:focus{border-bottom:1px dashed var(--soft)}
+  .task-assignee{
+    width:24px;height:24px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:9px;font-weight:700;cursor:pointer;flex-shrink:0;
+    border:1.5px solid transparent;transition:all .15s;
+    font-family:'Lora',serif;
+  }
+  .task-assignee.tA{background:#E1F5EE;color:#085041;border-color:#0F6E56}
+  .task-assignee.tB{background:#FAEEDA;color:#633806;border-color:#854F0B}
+  .task-assignee.t-none{background:rgba(255,255,255,0.6);color:var(--soft);border-color:var(--line);font-size:13px;font-weight:400}
+  .task-assignee:hover{transform:scale(1.08)}
+  .task-del{
+    background:none;border:none;cursor:pointer;font-size:16px;
+    color:var(--soft);padding:2px 6px;line-height:1;border-radius:6px;
+    transition:all .15s;
+  }
+  .task-del:hover{color:var(--copper);background:rgba(165,100,58,0.08)}
+  .task-add{
+    display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;
+    padding:8px 10px;background:rgba(255,255,255,0.4);
+    border:1px dashed var(--line);border-radius:10px;
+  }
+  .task-add input{
+    border:none;background:none;outline:none;font-size:13px;
+    color:var(--graphite);font-family:'Lora',serif;padding:4px 4px;
+  }
+  .task-add input::placeholder{color:var(--soft);font-style:italic}
+  .task-add-btn{
+    font-size:11px;font-style:italic;font-family:'Lora',serif;
+    padding:5px 14px;border-radius:999px;cursor:pointer;
+    background:var(--blue);color:#fffaf0;border:none;transition:all .15s;
+  }
+  .task-add-btn:hover{background:var(--blue-dk)}
+  .task-add-btn:disabled{opacity:.4;cursor:not-allowed}
+
+  /* ── Floating Capture button (bottom-left) ── */
+  #capture-fab{
+    position:fixed;bottom:28px;left:28px;z-index:850;
+    display:flex;align-items:center;gap:8px;
+    background:var(--copper);color:#fffaf0;
+    border:none;border-radius:999px;cursor:pointer;
+    padding:11px 20px 11px 16px;
+    font-family:'Lora',serif;font-style:italic;font-size:13px;
+    box-shadow:0 6px 22px rgba(165,100,58,0.32);
+    transition:all .2s;
+  }
+  #capture-fab:hover{background:var(--copper-dk);transform:translateY(-2px);box-shadow:0 10px 28px rgba(165,100,58,0.4)}
+  #capture-fab .fab-plus{
+    width:22px;height:22px;border-radius:50%;background:rgba(255,250,240,0.22);
+    display:flex;align-items:center;justify-content:center;font-size:16px;font-style:normal;line-height:1;
+  }
+  #capture-fab .fab-badge{
+    background:#fffaf0;color:var(--copper-dk);
+    border-radius:999px;padding:1px 8px;font-size:10px;font-style:normal;font-weight:700;margin-left:2px;
+  }
+  #capture-fab .fab-badge:empty{display:none}
+
+  /* ── Capture drawer ── */
+  #capture-drawer{
+    position:fixed;top:0;left:0;bottom:0;width:380px;z-index:950;
+    background:linear-gradient(180deg,#fffdf8 0%,var(--ivory) 100%);
+    border-right:1px solid var(--line);
+    box-shadow:6px 0 30px rgba(55,45,30,0.18);
+    transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
+    display:flex;flex-direction:column;
+  }
+  #capture-drawer.open{transform:translateX(0)}
+  .cap-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 22px 14px;border-bottom:1px solid var(--line);
+  }
+  .cap-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--graphite);font-weight:700}
+  .cap-sub{font-size:11px;font-style:italic;color:var(--muted);margin-top:2px}
+  .cap-close{
+    background:none;border:none;font-size:22px;color:var(--soft);cursor:pointer;
+    line-height:1;padding:4px 8px;border-radius:8px;transition:all .15s;
+  }
+  .cap-close:hover{color:var(--graphite);background:rgba(0,0,0,0.04)}
+  .cap-form{padding:18px 22px;border-bottom:1px solid var(--line);background:rgba(255,253,248,0.5)}
+  .cap-textarea{
+    width:100%;min-height:70px;border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;font-family:'Lora',serif;font-size:13px;line-height:1.5;
+    color:var(--graphite);background:rgba(255,255,255,0.7);outline:none;
+    resize:vertical;transition:border-color .15s;
+  }
+  .cap-textarea:focus{border-color:var(--copper)}
+  .cap-textarea::placeholder{color:var(--soft);font-style:italic}
+  .cap-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+  .cap-meta-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);font-weight:600;margin-right:2px}
+  .cap-select{
+    font-family:'Lora',serif;font-size:11px;font-style:italic;color:var(--muted);
+    background:rgba(255,255,255,0.7);border:1px solid var(--line);border-radius:999px;
+    padding:4px 10px;cursor:pointer;outline:none;
+  }
+  .cap-assign-row{display:flex;gap:5px}
+  .cap-assign{
+    width:28px;height:28px;border-radius:50%;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;font-family:'Lora',serif;
+    border:1.5px solid var(--line);background:rgba(255,255,255,0.6);
+    color:var(--soft);transition:all .15s;
+  }
+  .cap-assign:hover{transform:scale(1.08)}
+  .cap-assign.act-A{background:#E1F5EE;color:#085041;border-color:#0F6E56}
+  .cap-assign.act-B{background:#FAEEDA;color:#633806;border-color:#854F0B}
+  .cap-assign.dim{opacity:.45}
+  .cap-save{
+    margin-top:12px;width:100%;
+    font-family:'Lora',serif;font-style:italic;font-size:13px;
+    padding:9px 16px;border-radius:999px;cursor:pointer;
+    background:var(--copper);color:#fffaf0;border:none;transition:all .15s;
+  }
+  .cap-save:hover{background:var(--copper-dk)}
+  .cap-save:disabled{opacity:.4;cursor:not-allowed;background:var(--soft)}
+
+  .cap-list{flex:1;overflow-y:auto;padding:14px 22px 24px}
+  .cap-list-head{
+    font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--soft);font-weight:600;margin:6px 0 12px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .cap-clear{font-size:10px;font-style:italic;color:var(--soft);cursor:pointer;text-transform:none;letter-spacing:0;font-weight:400}
+  .cap-clear:hover{color:var(--copper)}
+  .cap-empty{
+    font-size:13px;font-style:italic;color:var(--soft);text-align:center;
+    padding:30px 16px;background:rgba(255,255,255,0.4);
+    border:1px dashed var(--line);border-radius:14px;line-height:1.6;
+  }
+  .cap-item{
+    background:rgba(255,253,248,0.85);border:1px solid var(--line);border-radius:12px;
+    padding:12px 14px;margin-bottom:10px;position:relative;
+    box-shadow:0 2px 8px rgba(55,45,30,0.05);
+  }
+  .cap-item-meta{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+  .cap-item-paper{
+    font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--blue);font-weight:600;
+  }
+  .cap-item-paper.paper-copper{color:var(--copper)}
+  .cap-item-paper.paper-gold{color:#8a6a25}
+  .cap-item-paper.paper-inbox{color:var(--soft)}
+  .cap-item-ass{
+    width:18px;height:18px;border-radius:50%;display:inline-flex;
+    align-items:center;justify-content:center;font-size:8px;font-weight:700;
+  }
+  .cap-item-time{font-size:10px;font-style:italic;color:var(--soft);margin-left:auto}
+  .cap-item-text{font-size:13px;line-height:1.55;color:var(--graphite);white-space:pre-wrap;word-break:break-word}
+  .cap-item-actions{display:flex;gap:4px;margin-top:8px}
+  .cap-item-act{
+    font-size:10px;font-style:italic;font-family:'Lora',serif;
+    background:none;border:1px solid var(--line);border-radius:999px;
+    padding:3px 10px;cursor:pointer;color:var(--muted);transition:all .15s;
+  }
+  .cap-item-act:hover{background:rgba(255,255,255,0.8);color:var(--graphite);border-color:var(--soft)}
+  .cap-item-act.danger:hover{color:var(--copper);border-color:var(--copper)}
+
+  /* dim overlay when drawer open */
+  #cap-overlay{
+    position:fixed;inset:0;z-index:940;background:rgba(40,30,15,0.18);
+    opacity:0;pointer-events:none;transition:opacity .25s;
+  }
+  #cap-overlay.show{opacity:1;pointer-events:auto}
+</style>
+
+<!-- Floating Capture button + Drawer -->
+<button id="capture-fab" onclick="openCapture()">
+  <span class="fab-plus">+</span>
+  <span>Comment</span>
+  <span class="fab-badge" id="cap-fab-badge"></span>
+</button>
+<div id="cap-overlay" onclick="closeCapture()"></div>
+<aside id="capture-drawer" aria-hidden="true">
+  <div class="cap-head">
+    <div>
+      <div class="cap-title">Comments</div>
+      <div class="cap-sub">Quick notes, references, questions while you work</div>
+    </div>
+    <button class="cap-close" onclick="closeCapture()" aria-label="Close">&times;</button>
+  </div>
+  <div class="cap-form">
+    <textarea class="cap-textarea" id="cap-input" placeholder="A note, reference, or question…" oninput="updateCapSave()"></textarea>
+    <div class="cap-meta">
+      <span class="cap-meta-label">Link to</span>
+      <select class="cap-select" id="cap-paper">
+        <option value="inbox">Inbox (no paper)</option>
+        <option value="pc1">Paper 1 · Bimodal joints</option>
+        <option value="pc2">Paper 2 · NII index</option>
+        <option value="pc3">Paper 3 · Δθ zonation</option>
+        <option value="pc4">Paper 4 · Risk model</option>
+        <option value="pc5">Paper 5 · Regional guide</option>
+      </select>
+      <span class="cap-meta-label" style="margin-left:6px">For</span>
+      <div class="cap-assign-row" id="cap-assign-row">
+        <div class="cap-assign" data-who="AS" onclick="toggleCapAssign('AS')">AS</div>
+        <div class="cap-assign" data-who="BS" onclick="toggleCapAssign('BS')">BS</div>
+      </div>
+    </div>
+    <button class="cap-save" id="cap-save" onclick="saveIdea()" disabled>Save comment</button>
+  </div>
+  <div class="cap-list">
+    <div class="cap-list-head">
+      <span id="cap-list-count">All comments</span>
+      <span class="cap-clear" onclick="clearAllIdeas()">clear all</span>
+    </div>
+    <div id="cap-list"></div>
+  </div>
+</aside>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   COLLAB STATE — localStorage backed.
+   NOTE: storage is per-browser/per-device. To truly share
+   between collaborators, this would need a backend.
+   ═══════════════════════════════════════════════════════ */
+const COLLAB_KEY = 'najd-collab-v1';
+let collab = loadCollab();
+function loadCollab(){
+  try{
+    const raw = localStorage.getItem(COLLAB_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return { tasks: {pc1:[],pc2:[],pc3:[],pc4:[],pc5:[]}, ideas: [] };
+}
+function saveCollab(){
+  try{ localStorage.setItem(COLLAB_KEY, JSON.stringify(collab)); }catch(e){}
+}
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+/* ═══════════════════════════════════════════════════════
+   TASK PANELS — injected into every paper-card .pc-body
+   ═══════════════════════════════════════════════════════ */
+const PAPER_IDS = ['pc1','pc2','pc3','pc4','pc5'];
+
+function buildTaskPanels(){
+  PAPER_IDS.forEach(pid => {
+    const card = document.getElementById(pid);
+    if(!card) return;
+    const body = card.querySelector('.pc-body');
+    if(!body || body.querySelector('.task-panel')) return;
+
+    const panel = document.createElement('div');
+    panel.className = 'task-panel';
+    panel.dataset.paper = pid;
+    panel.innerHTML = `
+      <div class="task-panel-head">
+        <span>Working tasks</span>
+        <span class="task-count" id="tcount-${pid}">0 open</span>
+      </div>
+      <div class="task-list" id="tlist-${pid}"></div>
+      <div class="task-add">
+        <input type="text" placeholder="Add a task — e.g. ‘re-run Rayleigh on Site 2’"
+               id="tinp-${pid}"
+               onkeydown="if(event.key==='Enter'){addTask('${pid}');}"/>
+        <div class="task-assignee t-none" id="tasn-${pid}" data-who=""
+             onclick="cycleNewAssignee('${pid}')" title="Assign to AS / BS / none">—</div>
+        <button class="task-add-btn" onclick="addTask('${pid}')">Add</button>
+      </div>
+    `;
+    // Place before the detail-tags-row if it exists, else at the end
+    const tagsRow = body.querySelector('.detail-tags-row');
+    if(tagsRow) body.insertBefore(panel, tagsRow);
+    else body.appendChild(panel);
+
+    renderTasks(pid);
+  });
+}
+
+function renderTasks(pid){
+  const list = document.getElementById('tlist-'+pid);
+  if(!list) return;
+  const tasks = collab.tasks[pid] || [];
+  if(tasks.length === 0){
+    list.innerHTML = '<div class="task-empty">No tasks yet. Add one below.</div>';
+  }else{
+    list.innerHTML = tasks.map(t => `
+      <div class="task-item ${t.done?'done':''}" data-id="${t.id}">
+        <input type="checkbox" class="task-check" ${t.done?'checked':''}
+               onchange="toggleTask('${pid}','${t.id}')"/>
+        <input type="text" class="task-text" value="${escapeAttr(t.text)}"
+               onchange="renameTask('${pid}','${t.id}',this.value)"/>
+        <div class="task-assignee ${t.who==='AS'?'tA':t.who==='BS'?'tB':'t-none'}"
+             onclick="cycleTaskAssignee('${pid}','${t.id}')"
+             title="Assign to AS / BS / none">${t.who||'—'}</div>
+        <button class="task-del" onclick="deleteTask('${pid}','${t.id}')" title="Delete">×</button>
+      </div>
+    `).join('');
+  }
+  const open = tasks.filter(t=>!t.done).length;
+  const done = tasks.length - open;
+  const cnt = document.getElementById('tcount-'+pid);
+  if(cnt){
+    if(tasks.length === 0) cnt.textContent = 'no tasks';
+    else if(done === 0) cnt.textContent = `${open} open`;
+    else cnt.textContent = `${open} open · ${done} done`;
+  }
+}
+
+function escapeAttr(s){ return String(s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function addTask(pid){
+  const inp = document.getElementById('tinp-'+pid);
+  const asn = document.getElementById('tasn-'+pid);
+  if(!inp || !inp.value.trim()) return;
+  collab.tasks[pid] = collab.tasks[pid] || [];
+  collab.tasks[pid].push({
+    id: uid(), text: inp.value.trim(),
+    done:false, who: asn.dataset.who || ''
+  });
+  inp.value = '';
+  saveCollab(); renderTasks(pid);
+}
+
+function toggleTask(pid,id){
+  const t = (collab.tasks[pid]||[]).find(x=>x.id===id);
+  if(t){ t.done = !t.done; saveCollab(); renderTasks(pid); }
+}
+function renameTask(pid,id,val){
+  const t = (collab.tasks[pid]||[]).find(x=>x.id===id);
+  if(t){ t.text = val.trim() || t.text; saveCollab(); }
+}
+function deleteTask(pid,id){
+  collab.tasks[pid] = (collab.tasks[pid]||[]).filter(x=>x.id!==id);
+  saveCollab(); renderTasks(pid);
+}
+function cycleTaskAssignee(pid,id){
+  const t = (collab.tasks[pid]||[]).find(x=>x.id===id);
+  if(!t) return;
+  t.who = t.who === '' ? 'AS' : t.who === 'AS' ? 'BS' : '';
+  saveCollab(); renderTasks(pid);
+}
+function cycleNewAssignee(pid){
+  const el = document.getElementById('tasn-'+pid);
+  const cur = el.dataset.who || '';
+  const next = cur === '' ? 'AS' : cur === 'AS' ? 'BS' : '';
+  el.dataset.who = next;
+  el.textContent = next || '—';
+  el.className = 'task-assignee '+(next==='AS'?'tA':next==='BS'?'tB':'t-none');
+}
+
+/* ═══════════════════════════════════════════════════════
+   QUICK CAPTURE — drawer + idea list
+   ═══════════════════════════════════════════════════════ */
+let capAssignee = '';
+function openCapture(){
+  document.getElementById('capture-drawer').classList.add('open');
+  document.getElementById('cap-overlay').classList.add('show');
+  renderIdeas();
+  setTimeout(()=>document.getElementById('cap-input').focus(), 280);
+}
+function closeCapture(){
+  document.getElementById('capture-drawer').classList.remove('open');
+  document.getElementById('cap-overlay').classList.remove('show');
+}
+function toggleCapAssign(who){
+  capAssignee = (capAssignee === who) ? '' : who;
+  document.querySelectorAll('#cap-assign-row .cap-assign').forEach(el=>{
+    el.classList.remove('act-A','act-B','dim');
+    if(capAssignee){
+      if(el.dataset.who === capAssignee) el.classList.add(capAssignee==='AS'?'act-A':'act-B');
+      else el.classList.add('dim');
+    }
+  });
+}
+function updateCapSave(){
+  const text = document.getElementById('cap-input').value.trim();
+  document.getElementById('cap-save').disabled = !text;
+}
+function saveIdea(){
+  const input = document.getElementById('cap-input');
+  const text = input.value.trim();
+  if(!text) return;
+  const paper = document.getElementById('cap-paper').value;
+  collab.ideas.unshift({
+    id: uid(), text, paper, who: capAssignee, t: Date.now()
+  });
+  input.value = ''; capAssignee = ''; toggleCapAssign(''); updateCapSave();
+  saveCollab(); renderIdeas(); updateFabBadge();
+}
+function deleteIdea(id){
+  collab.ideas = collab.ideas.filter(i=>i.id!==id);
+  saveCollab(); renderIdeas(); updateFabBadge();
+}
+function promoteIdea(id){
+  const idea = collab.ideas.find(i=>i.id===id);
+  if(!idea) return;
+  if(idea.paper === 'inbox'){
+    alert('Set a paper for this idea before promoting to a task.');
+    return;
+  }
+  collab.tasks[idea.paper] = collab.tasks[idea.paper] || [];
+  collab.tasks[idea.paper].push({
+    id: uid(), text: idea.text, done:false, who: idea.who || ''
+  });
+  collab.ideas = collab.ideas.filter(i=>i.id!==id);
+  saveCollab(); renderIdeas(); renderTasks(idea.paper); updateFabBadge();
+}
+function clearAllIdeas(){
+  if(collab.ideas.length === 0) return;
+  if(!confirm('Clear all '+collab.ideas.length+' comments?')) return;
+  collab.ideas = []; saveCollab(); renderIdeas(); updateFabBadge();
+}
+
+const PAPER_LABELS = {
+  inbox:{l:'Inbox', cls:'paper-inbox'},
+  pc1:{l:'Paper 1', cls:''},
+  pc2:{l:'Paper 2', cls:''},
+  pc3:{l:'Paper 3', cls:'paper-copper'},
+  pc4:{l:'Paper 4', cls:'paper-copper'},
+  pc5:{l:'Paper 5', cls:'paper-gold'}
+};
+function relTime(t){
+  const s = Math.floor((Date.now()-t)/1000);
+  if(s<60) return 'just now';
+  if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago';
+  const d = Math.floor(s/86400);
+  if(d<7) return d+'d ago';
+  return new Date(t).toLocaleDateString();
+}
+function renderIdeas(){
+  const list = document.getElementById('cap-list');
+  const headCnt = document.getElementById('cap-list-count');
+  if(collab.ideas.length === 0){
+    list.innerHTML = '<div class="cap-empty">No comments yet.<br>Anything that pops into your head while working — references, questions, “remember to…” — goes here, then you sort it later.</div>';
+    headCnt.textContent = 'All comments';
+    return;
+  }
+  headCnt.textContent = collab.ideas.length + ' comment' + (collab.ideas.length===1?'':'s');
+  list.innerHTML = collab.ideas.map(i => {
+    const p = PAPER_LABELS[i.paper] || PAPER_LABELS.inbox;
+    const who = i.who ? `<span class="cap-item-ass ${i.who==='AS'?'ini-teal':'ini-amber'}">${i.who}</span>` : '';
+    return `
+      <div class="cap-item">
+        <div class="cap-item-meta">
+          <span class="cap-item-paper ${p.cls}">${p.l}</span>
+          ${who}
+          <span class="cap-item-time">${relTime(i.t)}</span>
+        </div>
+        <div class="cap-item-text">${escapeAttr(i.text)}</div>
+        <div class="cap-item-actions">
+          ${i.paper !== 'inbox' ? `<button class="cap-item-act" onclick="promoteIdea('${i.id}')">→ Make task</button>` : ''}
+          <button class="cap-item-act danger" onclick="deleteIdea('${i.id}')">Delete</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+function updateFabBadge(){
+  const b = document.getElementById('cap-fab-badge');
+  b.textContent = collab.ideas.length || '';
+}
+
+/* Init after the rest of the page is parsed */
+document.addEventListener('DOMContentLoaded', () => {
+  buildTaskPanels();
+  updateFabBadge();
+  // Keyboard: Esc closes drawer; Cmd/Ctrl+Shift+I opens it
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') closeCapture();
+    if((e.metaKey||e.ctrlKey) && e.shiftKey && e.key.toLowerCase()==='i'){
+      e.preventDefault(); openCapture();
+    }
+  });
+});
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- ══ ALL PAPERS WRITING CHECKLIST — peek-tab drawer ═══════════ -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<style>
+  :root{ --p1-drawer-w:380px; --p1-tab-w:42px; }
+
+  /* always-visible peek tab on right edge — appears on ALL layers */
+  #p1-tab{
+    position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:920;
+    width:var(--p1-tab-w);
+    background:var(--blue);color:#fffaf0;
+    border:none;border-radius:14px 0 0 14px;cursor:pointer;
+    padding:18px 8px;
+    box-shadow:-4px 4px 16px rgba(55,45,30,0.18);
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    font-family:'Lora',serif;
+    transition:background .2s,padding .2s,box-shadow .2s,transform .35s cubic-bezier(.4,0,.2,1);
+  }
+  #p1-tab:hover{background:var(--blue-dk);padding-right:14px;box-shadow:-6px 6px 22px rgba(55,45,30,0.25)}
+  #p1-tab .p1-tab-icon{
+    width:24px;height:24px;border-radius:50%;
+    background:rgba(255,250,240,0.22);
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;line-height:1;
+  }
+  #p1-tab .p1-tab-label{
+    writing-mode:vertical-rl;transform:rotate(180deg);
+    font-size:11px;font-style:italic;letter-spacing:.08em;
+    white-space:nowrap;
+  }
+  #p1-tab .p1-tab-count{
+    background:#fffaf0;color:var(--blue-dk);
+    border-radius:999px;padding:2px 7px;
+    font-size:9px;font-weight:700;line-height:1.3;
+  }
+  body.p1-drawer-open #p1-tab{
+    transform:translate(calc(-1 * var(--p1-drawer-w)),-50%);
+    background:var(--blue-dk);
+  }
+
+  /* drawer */
+  #p1-drawer{
+    position:fixed;right:0;top:0;bottom:0;z-index:910;
+    width:var(--p1-drawer-w);
+    background:linear-gradient(180deg,#fffdf8 0%,var(--ivory) 100%);
+    border-left:1px solid var(--line);
+    box-shadow:-8px 0 30px rgba(55,45,30,0.18);
+    transform:translateX(100%);
+    transition:transform .35s cubic-bezier(.4,0,.2,1);
+    display:flex;flex-direction:column;
+    min-height:0;
+  }
+  body.p1-drawer-open #p1-drawer{transform:translateX(0)}
+
+  .p1d-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 22px 14px;border-bottom:1px solid var(--line);
+  }
+  .p1d-kicker{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:3px}
+  .p1d-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--graphite);font-weight:700}
+  .p1d-close{
+    background:none;border:none;font-size:22px;color:var(--soft);cursor:pointer;
+    line-height:1;padding:4px 8px;border-radius:8px;transition:all .15s;
+  }
+  .p1d-close:hover{color:var(--graphite);background:rgba(0,0,0,0.04)}
+
+  /* overall progress strip */
+  .p1d-overall{
+    padding:14px 22px;background:rgba(255,253,248,0.6);border-bottom:1px solid var(--line);
+  }
+  .p1d-overall-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+  .p1d-overall-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);font-weight:600}
+  .p1d-overall-count{font-size:11px;font-style:italic;color:var(--muted);font-weight:500}
+  .p1d-overall-bar-wrap{height:6px;background:rgba(0,0,0,0.06);border-radius:999px;overflow:hidden}
+  .p1d-overall-bar{
+    height:100%;background:linear-gradient(90deg,var(--blue),var(--copper),var(--gold));
+    border-radius:999px;transition:width .3s;width:0%;
+  }
+  body.p1-all-complete .p1d-overall-bar{background:var(--green)}
+
+  /* papers list — min-height:0 lets flex child scroll instead of clipping */
+  .p1d-body{
+    flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;
+    padding:14px 18px 20px;display:flex;flex-direction:column;gap:10px;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  /* ── PAPER (outer) card ── */
+  .pp-card{
+    background:rgba(255,253,248,0.84);border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;box-shadow:0 3px 10px rgba(55,45,30,0.05);
+    transition:box-shadow .2s,border-color .2s;
+  }
+  .pp-card:hover{box-shadow:0 6px 16px rgba(55,45,30,0.09)}
+  .pp-card.color-blue{border-left:4px solid var(--blue)}
+  .pp-card.color-copper{border-left:4px solid var(--copper)}
+  .pp-card.color-gold{border-left:4px solid var(--gold)}
+  .pp-card.complete{border-color:var(--green)}
+  .pp-card.complete.color-blue,.pp-card.complete.color-copper,.pp-card.complete.color-gold{border-left-color:var(--green)}
+
+  .pp-head{
+    display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
+    padding:14px 16px;cursor:pointer;transition:background .15s;
+  }
+  .pp-head:hover{background:rgba(255,255,255,0.5)}
+  .pp-num{
+    font-family:'Playfair Display',serif;font-size:11px;font-weight:700;
+    letter-spacing:.12em;text-transform:uppercase;
+    padding:4px 9px;border-radius:999px;background:rgba(255,255,255,0.7);
+    border:1px solid var(--line);flex-shrink:0;
+  }
+  .pp-card.color-blue .pp-num{color:var(--blue)}
+  .pp-card.color-copper .pp-num{color:var(--copper)}
+  .pp-card.color-gold .pp-num{color:#8a6a25}
+  .pp-title-wrap{min-width:0}
+  .pp-title{font-family:'Playfair Display',serif;font-size:13.5px;font-weight:700;color:var(--graphite);line-height:1.3;margin-bottom:5px}
+  .pp-bar-wrap{height:4px;background:rgba(0,0,0,0.05);border-radius:999px;overflow:hidden}
+  .pp-bar{
+    height:100%;border-radius:999px;transition:width .3s;width:0%;
+  }
+  .pp-card.color-blue .pp-bar{background:var(--blue)}
+  .pp-card.color-copper .pp-bar{background:var(--copper)}
+  .pp-card.color-gold .pp-bar{background:var(--gold)}
+  .pp-card.complete .pp-bar{background:var(--green)}
+  .pp-meta{display:flex;align-items:center;gap:8px}
+  .pp-count{font-size:10px;font-style:italic;color:var(--muted);white-space:nowrap;font-weight:500}
+  .pp-card.complete .pp-count{color:var(--green);font-weight:600}
+  .pp-chev{font-size:12px;color:var(--soft);transition:transform .25s;width:14px;text-align:center}
+  .pp-card.open .pp-chev{transform:rotate(180deg)}
+
+  .pp-body{display:none;border-top:1px solid var(--line);padding:10px 12px 12px;background:rgba(255,253,248,0.55)}
+  .pp-card.open .pp-body{display:block}
+  .pp-card.open{overflow:visible}
+
+  /* empty state for un-populated papers */
+  .pp-empty{
+    padding:18px 14px;text-align:center;
+    background:rgba(255,255,255,0.4);border:1px dashed var(--line);border-radius:10px;
+    font-size:11.5px;font-style:italic;color:var(--soft);line-height:1.6;
+  }
+
+  /* ── SECTION (inner) card ── */
+  .ss-list{display:flex;flex-direction:column;gap:8px}
+  .ss-card{
+    background:rgba(255,255,255,0.55);border:1px solid rgba(222,212,193,0.7);border-radius:10px;
+    overflow:hidden;transition:border-color .2s;
+  }
+  .ss-card.complete{border-color:var(--green);background:rgba(73,111,97,0.04)}
+  .ss-head{
+    display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;
+    padding:10px 12px;cursor:pointer;
+  }
+  .ss-head:hover{background:rgba(255,255,255,0.65)}
+  .ss-icon{
+    width:24px;height:24px;border-radius:7px;background:rgba(47,83,103,0.10);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--blue);flex-shrink:0;
+  }
+  .ss-card.complete .ss-icon{background:rgba(73,111,97,0.18);color:var(--green)}
+  .ss-card.complete .ss-icon::after{content:"✓";font-family:'Lora',serif;font-size:13px}
+  .ss-card.complete .ss-icon-num{display:none}
+  .ss-title-wrap{min-width:0}
+  .ss-title{font-size:11.5px;font-weight:600;color:var(--graphite);margin-bottom:4px;line-height:1.25}
+  .ss-bar-wrap{height:3px;background:rgba(0,0,0,0.05);border-radius:999px;overflow:hidden}
+  .ss-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--copper));border-radius:999px;transition:width .3s;width:0%}
+  .ss-card.complete .ss-bar{background:var(--green)}
+  .ss-meta{display:flex;align-items:center;gap:6px}
+  .ss-count{font-size:9.5px;font-style:italic;color:var(--muted);white-space:nowrap}
+  .ss-chev{font-size:11px;color:var(--soft);transition:transform .25s;width:12px;text-align:center}
+  .ss-card.open .ss-chev{transform:rotate(180deg)}
+
+  .ss-body{
+    display:none;border-top:1px solid var(--line);padding:6px 12px 10px;
+    background:rgba(255,253,248,0.7);
+  }
+  .ss-card.open .ss-body{
+    display:block;
+    max-height:min(360px, 52vh);
+    overflow-y:auto;overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+  }
+  .ss-card.open{overflow:visible}
+  .p1-item{display:grid;grid-template-columns:20px 1fr;gap:9px;align-items:flex-start;padding:7px 0;cursor:pointer}
+  .p1-item + .p1-item{border-top:1px dashed rgba(222,212,193,0.5)}
+  .p1-check{
+    appearance:none;-webkit-appearance:none;width:16px;height:16px;
+    border:1.5px solid var(--soft);border-radius:5px;cursor:pointer;
+    position:relative;background:rgba(255,255,255,0.7);transition:all .15s;margin-top:2px;
+  }
+  .p1-check:hover{border-color:var(--graphite)}
+  .p1-check:checked{background:var(--copper);border-color:var(--copper)}
+  .p1-check:checked::after{
+    content:"";position:absolute;top:1.5px;left:4.5px;width:4px;height:8px;
+    border:solid #fffaf0;border-width:0 2px 2px 0;transform:rotate(45deg);
+  }
+  .p1-text{font-size:12px;line-height:1.5;color:var(--graphite)}
+  .p1-item.done .p1-text{text-decoration:line-through;color:var(--soft)}
+
+  .p1d-foot{
+    padding:10px 22px;border-top:1px solid var(--line);
+    font-size:10px;font-style:italic;color:var(--soft);
+    display:flex;justify-content:space-between;align-items:center;
+    background:rgba(255,253,248,0.5);
+  }
+  .p1d-reset{font-size:10px;cursor:pointer;color:var(--soft);transition:color .15s}
+  .p1d-reset:hover{color:var(--copper)}
+
+  /* dim overlay behind drawer */
+  #p1-overlay{
+    position:fixed;inset:0;z-index:905;background:rgba(40,30,15,0.16);
+    opacity:0;pointer-events:none;transition:opacity .25s;
+  }
+  body.p1-drawer-open #p1-overlay{opacity:1;pointer-events:auto}
+</style>
+
+<!-- peek tab + drawer + overlay (visible on every layer) -->
+<button id="p1-tab" onclick="toggleP1Drawer()" aria-label="Open writing checklist">
+  <span class="p1-tab-count" id="p1-tab-count">0/20</span>
+  <span class="p1-tab-icon">✓</span>
+  <span class="p1-tab-label">Writing checklist</span>
+</button>
+<aside id="p1-drawer" aria-hidden="true">
+  <div class="p1d-head">
+    <div>
+      <div class="p1d-kicker">Working space · All 5 papers</div>
+      <div class="p1d-title">Writing checklist</div>
+    </div>
+    <button class="p1d-close" onclick="toggleP1Drawer()" aria-label="Close">&times;</button>
+  </div>
+  <div class="p1d-overall">
+    <div class="p1d-overall-row">
+      <span class="p1d-overall-label">Overall · across all papers</span>
+      <span class="p1d-overall-count" id="p1-overall-count">0 of 20 · 0%</span>
+    </div>
+    <div class="p1d-overall-bar-wrap"><div class="p1d-overall-bar" id="p1-overall-bar"></div></div>
+  </div>
+  <div class="p1d-body" id="p1-papers"></div>
+  <div class="p1d-foot">
+    <span>Auto-saves locally</span>
+    <span class="p1d-reset" onclick="resetP1Checklist()">reset all</span>
+  </div>
+</aside>
+<div id="p1-overlay" onclick="toggleP1Drawer()"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   WRITING CHECKLIST — papers → sections → items
+   Paper 1 fully populated; Papers 2-5 empty until filled in.
+   ═══════════════════════════════════════════════════════ */
+const PAPERS = [
+  {
+    id:'p1', num:'Paper 1', color:'blue',
+    title:'Bimodal joint population characterisation',
+    sections:[
+      { id:'prep', title:'Before writing — data & references', items:[
+        'All 330 measurements consolidated into a single CSV (site, dip, dip-direction)',
+        'Per-site Rayleigh / V-test scripts reproducible from raw data',
+        'Fisher (1993) and Mardia & Jupp obtained & read',
+        'Regional geology basemap sourced (SGS or equivalent)',
+      ]},
+      { id:'sections', title:'Sections drafted', items:[
+        '1. Abstract — bimodal finding, methods, significance (~150 words)',
+        '2. Introduction — the qualitative-Najd gap (~400 words)',
+        '3. Geological Setting — Najd vs Red Sea episodes (~350 words)',
+        '4. Study Sites — 5 outcrops, lithology controlled',
+        '5. Field Methodology — scanline protocol (~250 words)',
+        '6. Statistical Methods — Rayleigh, V-test, von Mises (~400 words)',
+        '7. Results — per-site analysis, Site 2 & 5 callouts',
+        '8. Discussion — three interpretive threads (~500 words)',
+        '9. Conclusions — 4-point summary & bridge to Paper 2 (~150 words)',
+      ]},
+      { id:'figs', title:'Figures & tables produced', items:[
+        'Figure 1 — location map with Najd & Red Sea inset',
+        'Figure 2 — rose diagrams for all 5 sites (colour-coded by family)',
+        'Table 1 — site summary (location, exposure, n)',
+        'Table 2 — per-site / per-family R̄, μ, κ, p-value',
+      ]},
+      { id:'submit', title:'Pre-submission', items:[
+        'Internal read by co-author',
+        'Cover letter draft for J. Structural Geology',
+        'Supplementary materials zipped (raw data + scripts)',
+      ]},
+    ]
+  },
+  {
+    id:'p2', num:'Paper 2', color:'blue',
+    title:'Najd Intensity Index (NII)',
+    sections:[] // empty — populate when ready
+  },
+  {
+    id:'p3', num:'Paper 3', color:'copper',
+    title:'Δθ slope-stability zonation',
+    sections:[]
+  },
+  {
+    id:'p4', num:'Paper 4', color:'copper',
+    title:'Monte Carlo risk model',
+    sections:[]
+  },
+  {
+    id:'p5', num:'Paper 5', color:'gold',
+    title:'Regional infrastructure guidance',
+    sections:[]
+  },
+];
+
+const P1_KEY = 'najd-checklist-v2';
+let p1State = loadP1State();
+
+function loadP1State(){
+  try{
+    const raw = localStorage.getItem(P1_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      // Ensure shape matches current PAPERS (handles new items / papers added later)
+      PAPERS.forEach(p => {
+        if(!parsed[p.id]) parsed[p.id] = { open:false, sections:{} };
+        if(!parsed[p.id].sections) parsed[p.id].sections = {};
+        p.sections.forEach(s => {
+          if(!parsed[p.id].sections[s.id]) parsed[p.id].sections[s.id] = { open:false, done: s.items.map(()=>false) };
+          // resize done array if items count changed
+          const cur = parsed[p.id].sections[s.id].done || [];
+          parsed[p.id].sections[s.id].done = s.items.map((_,i)=>!!cur[i]);
+        });
+      });
+      return parsed;
+    }
+  }catch(e){}
+  const s = {};
+  PAPERS.forEach(p => {
+    s[p.id] = { open: p.id==='p1', sections:{} };
+    p.sections.forEach(sec => {
+      s[p.id].sections[sec.id] = { open:false, done: sec.items.map(()=>false) };
+    });
+  });
+  return s;
+}
+function saveP1State(){
+  try{ localStorage.setItem(P1_KEY, JSON.stringify(p1State)); }catch(e){}
+}
+
+function paperTotals(p){
+  let total = 0, done = 0;
+  p.sections.forEach(sec => {
+    total += sec.items.length;
+    done += (p1State[p.id]?.sections[sec.id]?.done || []).filter(x=>x).length;
+  });
+  return { total, done };
+}
+function sectionTotals(p, sec){
+  const total = sec.items.length;
+  const done = (p1State[p.id]?.sections[sec.id]?.done || []).filter(x=>x).length;
+  return { total, done };
+}
+
+function escapeP1(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderP1(){
+  const container = document.getElementById('p1-papers');
+  container.innerHTML = PAPERS.map(p => {
+    const st = p1State[p.id];
+    const { total, done } = paperTotals(p);
+    const pct = total ? Math.round(done/total*100) : 0;
+    const complete = total > 0 && done === total;
+    const empty = p.sections.length === 0;
+    return `
+      <div class="pp-card color-${p.color} ${st.open?'open':''} ${complete?'complete':''}" data-paper="${p.id}">
+        <div class="pp-head" onclick="toggleP1Paper('${p.id}')">
+          <div class="pp-num">${p.num}</div>
+          <div class="pp-title-wrap">
+            <div class="pp-title">${escapeP1(p.title)}</div>
+            <div class="pp-bar-wrap"><div class="pp-bar" style="width:${pct}%"></div></div>
+          </div>
+          <div class="pp-meta">
+            <span class="pp-count">${empty ? 'empty' : done+'/'+total}</span>
+            <span class="pp-chev">&#8964;</span>
+          </div>
+        </div>
+        <div class="pp-body">
+          ${empty
+            ? `<div class="pp-empty">No checklist yet for this paper.<br>Add the sections &amp; items when ready.</div>`
+            : `<div class="ss-list">${p.sections.map((sec, sIdx) => {
+                const sst = st.sections[sec.id];
+                const { total:st_total, done:st_done } = sectionTotals(p, sec);
+                const st_pct = st_total ? Math.round(st_done/st_total*100) : 0;
+                const sec_complete = st_total > 0 && st_done === st_total;
+                return `
+                  <div class="ss-card ${sst.open?'open':''} ${sec_complete?'complete':''}" data-paper="${p.id}" data-sec="${sec.id}">
+                    <div class="ss-head" onclick="toggleP1Section('${p.id}','${sec.id}')">
+                      <div class="ss-icon"><span class="ss-icon-num">${sIdx+1}</span></div>
+                      <div class="ss-title-wrap">
+                        <div class="ss-title">${escapeP1(sec.title)}</div>
+                        <div class="ss-bar-wrap"><div class="ss-bar" style="width:${st_pct}%"></div></div>
+                      </div>
+                      <div class="ss-meta">
+                        <span class="ss-count">${st_done}/${st_total}</span>
+                        <span class="ss-chev">&#8964;</span>
+                      </div>
+                    </div>
+                    <div class="ss-body">
+                      ${sec.items.map((item, iIdx) => `
+                        <label class="p1-item ${sst.done[iIdx]?'done':''}">
+                          <input type="checkbox" class="p1-check" ${sst.done[iIdx]?'checked':''}
+                            onchange="tickP1('${p.id}','${sec.id}',${iIdx},this.checked)"/>
+                          <span class="p1-text">${escapeP1(item)}</span>
+                        </label>
+                      `).join('')}
+                    </div>
+                  </div>
+                `;
+              }).join('')}</div>`
+          }
+        </div>
+      </div>
+    `;
+  }).join('');
+  updateP1Overall();
+}
+
+function toggleP1Paper(pid){
+  p1State[pid].open = !p1State[pid].open;
+  saveP1State();
+  document.querySelector(`.pp-card[data-paper="${pid}"]`)?.classList.toggle('open', p1State[pid].open);
+}
+function toggleP1Section(pid, secId){
+  p1State[pid].sections[secId].open = !p1State[pid].sections[secId].open;
+  saveP1State();
+  document.querySelector(`.ss-card[data-paper="${pid}"][data-sec="${secId}"]`)?.classList.toggle('open', p1State[pid].sections[secId].open);
+}
+
+function tickP1(pid, secId, idx, checked){
+  p1State[pid].sections[secId].done[idx] = checked;
+  saveP1State();
+  // Update affected section card
+  const paper = PAPERS.find(p=>p.id===pid);
+  const sec = paper.sections.find(s=>s.id===secId);
+  const ssCard = document.querySelector(`.ss-card[data-paper="${pid}"][data-sec="${secId}"]`);
+  if(ssCard){
+    const { total, done } = sectionTotals(paper, sec);
+    const pct = total ? Math.round(done/total*100) : 0;
+    const complete = done === total && total > 0;
+    ssCard.classList.toggle('complete', complete);
+    ssCard.querySelector('.ss-count').textContent = done+'/'+total;
+    ssCard.querySelector('.ss-bar').style.width = pct+'%';
+    ssCard.querySelectorAll('.p1-item')[idx].classList.toggle('done', checked);
+  }
+  // Update parent paper card
+  const ppCard = document.querySelector(`.pp-card[data-paper="${pid}"]`);
+  if(ppCard){
+    const { total, done } = paperTotals(paper);
+    const pct = total ? Math.round(done/total*100) : 0;
+    const complete = done === total && total > 0;
+    ppCard.classList.toggle('complete', complete);
+    ppCard.querySelector('.pp-count').textContent = done+'/'+total;
+    ppCard.querySelector('.pp-bar').style.width = pct+'%';
+  }
+  updateP1Overall();
+}
+
+function updateP1Overall(){
+  let total = 0, done = 0;
+  PAPERS.forEach(p => {
+    const t = paperTotals(p);
+    total += t.total; done += t.done;
+  });
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('p1-overall-count').textContent = `${done} of ${total} · ${pct}%`;
+  document.getElementById('p1-overall-bar').style.width = pct+'%';
+  document.getElementById('p1-tab-count').textContent = `${done}/${total}`;
+  document.body.classList.toggle('p1-all-complete', done === total && total > 0);
+}
+
+function resetP1Checklist(){
+  if(!confirm('Reset all checklist items across all papers? This cannot be undone.')) return;
+  PAPERS.forEach(p => {
+    p.sections.forEach(sec => {
+      if(p1State[p.id]?.sections[sec.id]){
+        p1State[p.id].sections[sec.id].done = sec.items.map(()=>false);
+      }
+    });
+  });
+  saveP1State(); renderP1();
+}
+
+function toggleP1Drawer(){
+  const open = document.body.classList.toggle('p1-drawer-open');
+  document.getElementById('p1-drawer').setAttribute('aria-hidden', open ? 'false' : 'true');
+}
+function closeP1Drawer(){
+  document.body.classList.remove('p1-drawer-open');
+  document.getElementById('p1-drawer').setAttribute('aria-hidden','true');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderP1();
+  // keyboard: 'c' toggle, Esc close (any layer)
+  document.addEventListener('keydown', e => {
+    if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if(e.key === 'Escape' && document.body.classList.contains('p1-drawer-open')) closeP1Drawer();
+    if(e.key.toLowerCase() === 'c' && !e.metaKey && !e.ctrlKey && !e.shiftKey){
+      toggleP1Drawer();
+    }
+  });
+});
+</script>
+</body>
+</html>

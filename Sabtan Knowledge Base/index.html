@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sabtan Research Knowledge Base</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --graphite: #232421;
+      --muted: #4a453c;
+      --soft: #8a8274;
+      --line: #c9baa4;
+      --border-strong: #9a8b72;
+      --topbar: 52px;
+      --nav-bottom: 96px;
+      --r: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { height: 100%; }
+
+    body {
+      color: var(--graphite);
+      font-family: "Lora", serif;
+      background: #fbf7ef;
+      overflow: hidden;
+    }
+
+    #topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 900;
+      height: var(--topbar);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: rgba(251, 247, 239, 0.98);
+      border-bottom: 2px solid var(--border-strong);
+    }
+
+    .tb-brand {
+      font-family: "Playfair Display", serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--graphite);
+      text-decoration: none;
+    }
+
+    .tb-meta { font-size: 11px; color: var(--muted); font-style: italic; }
+
+    .board-wrap {
+      margin-top: var(--topbar);
+      height: calc(100dvh - var(--topbar));
+      padding: 16px 18px var(--nav-bottom);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .board-head {
+      flex-shrink: 0;
+    }
+
+    .board-head h1 {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(24px, 3.2vw, 34px);
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .board-head p {
+      margin-top: 4px;
+      font-size: 13px;
+      font-style: italic;
+      color: var(--soft);
+    }
+
+    .board {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      border: 2px solid var(--border-strong);
+      border-radius: var(--r);
+      overflow: hidden;
+      box-shadow: 0 8px 22px rgba(55, 45, 30, 0.07);
+    }
+
+    .column.collapsed .col-body { display: none; }
+
+    .col-head {
+      flex-shrink: 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      padding: 14px 14px 12px;
+      border-bottom: 2px solid rgba(154, 139, 114, 0.35);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-family: inherit;
+      color: inherit;
+    }
+
+    .col-head:hover { filter: brightness(0.98); }
+
+    .col-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--r);
+      border: 2px solid rgba(154, 139, 114, 0.45);
+      background: rgba(255, 253, 248, 0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .col-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke-width: 1.75;
+      fill: none;
+    }
+
+    .col-head-text { flex: 1; min-width: 0; }
+
+    .col-title {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(16px, 1.6vw, 20px);
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    .col-sub {
+      margin-top: 3px;
+      font-size: 11px;
+      font-style: italic;
+      color: var(--soft);
+    }
+
+    .col-chevron {
+      font-style: normal;
+      font-size: 14px;
+      color: var(--soft);
+      transition: transform 0.2s;
+      padding-top: 4px;
+    }
+
+    .column.collapsed .col-chevron { transform: rotate(-90deg); }
+
+    .col-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .col-body::-webkit-scrollbar { width: 5px; }
+    .col-body::-webkit-scrollbar-thumb {
+      background: rgba(154, 139, 114, 0.5);
+      border-radius: 2px;
+    }
+
+    .section {
+      border: 1.5px solid var(--line);
+      border-radius: var(--r);
+      background: rgba(255, 253, 248, 0.7);
+      overflow: hidden;
+    }
+
+    .section.collapsed .sec-body,
+    .section.collapsed .sec-actions { display: none; }
+
+    .sec-head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 8px 8px 10px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.45);
+    }
+
+    .sec-toggle {
+      flex: 1;
+      border: none;
+      background: none;
+      cursor: pointer;
+      text-align: left;
+      font-family: "Playfair Display", serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--graphite);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0;
+    }
+
+    .sec-toggle .chev {
+      font-style: normal;
+      font-size: 11px;
+      color: var(--soft);
+      transition: transform 0.2s;
+    }
+
+    .section.collapsed .sec-toggle .chev { transform: rotate(-90deg); }
+
+    .sec-del,
+    .sec-add {
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 248, 0.9);
+      border-radius: var(--r);
+      width: 26px;
+      height: 26px;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .sec-del:hover { color: #8b3a3a; border-color: #c98; }
+    .sec-add:hover { color: #2f5367; border-color: #2f5367; }
+
+    .sec-body {
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sec-actions {
+      padding: 0 6px 6px;
+    }
+
+    .mini-btn {
+      width: 100%;
+      border: 1px dashed var(--line);
+      background: transparent;
+      border-radius: var(--r);
+      padding: 6px;
+      font-family: "Lora", serif;
+      font-size: 11px;
+      font-style: italic;
+      color: var(--soft);
+      cursor: pointer;
+    }
+
+    .mini-btn:hover {
+      border-color: #2f5367;
+      color: #2f5367;
+    }
+
+    .card {
+      position: relative;
+      display: block;
+      padding: 12px 38px 10px 12px;
+      background: rgba(255, 253, 248, 0.96);
+      border: 1.5px solid var(--line);
+      border-radius: var(--r);
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s;
+    }
+
+    .card:hover { border-color: #2f5367; }
+
+    .card-title {
+      font-family: "Playfair Display", serif;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .card-hint {
+      margin-top: 4px;
+      font-size: 11px;
+      font-style: italic;
+      color: var(--soft);
+      line-height: 1.4;
+    }
+
+    .card-tools {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      display: flex;
+      gap: 2px;
+    }
+
+    .icon-btn {
+      width: 26px;
+      height: 26px;
+      border: none;
+      border-radius: var(--r);
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #c4b8a4;
+    }
+
+    .icon-btn:hover { background: rgba(184, 147, 68, 0.12); color: #b89344; }
+    .icon-btn.on { color: #b89344; }
+    .icon-btn.del:hover { color: #8b3a3a; background: rgba(139, 58, 58, 0.08); }
+
+    .icon-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+      stroke: currentColor;
+      stroke-width: 1.2;
+    }
+
+    .icon-btn:not(.on) svg.star { fill: none; }
+
+    .col-foot {
+      padding: 0 8px 8px;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 960px) {
+      body { overflow: auto; }
+      .board-wrap {
+        height: auto;
+        min-height: calc(100dvh - var(--topbar));
+        overflow: visible;
+      }
+      .board { grid-template-columns: 1fr; }
+      .col-body { max-height: 360px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header id="topbar">
+    <a class="tb-brand" href="../index.html">← Home</a>
+    <span class="tb-meta">Professor Abdullah A. Sabtan</span>
+    <span class="tb-meta">Knowledge Base</span>
+  </header>
+
+  <div class="board-wrap">
+    <header class="board-head">
+      <h1>Knowledge Base</h1>
+      <p>Star any project to pin it on the home page under Favorites</p>
+    </header>
+    <div class="board" id="board"></div>
+  </div>
+
+  <link rel="stylesheet" href="/shared/nav-strip.css"/>
+  <script src="/shared/kb-board.js"></script>
+  <script src="/shared/nav-strip.js" data-nav-active="knowledge"></script>
+  <script src="/shared/assistant-chat.js"></script>
+  <script>
+  (function () {
+    var ICONS = {
+      profile: '<svg viewBox="0 0 24 24" stroke="currentColor"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="8" r="4"/></svg>',
+      research: '<svg viewBox="0 0 24 24" stroke="currentColor"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M2 12l10 5 10-5M2 17l10 5 10-5"/></svg>',
+      urgent: '<svg viewBox="0 0 24 24" stroke="currentColor"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/></svg>',
+    };
+    var STAR = '<svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+    var board = document.getElementById("board");
+    var KB = window.SabtanKB;
+    if (!board || !KB) return;
+
+    function relHref(vaultHref) {
+      if (!vaultHref || vaultHref === "#") return "#";
+      if (vaultHref.indexOf("Sabtan Knowledge Base/") === 0) {
+        return vaultHref.slice("Sabtan Knowledge Base/".length);
+      }
+      return "../" + vaultHref;
+    }
+
+    function promptLine(label, def) {
+      var v = window.prompt(label, def || "");
+      return v === null ? null : v.trim();
+    }
+
+    function renderCard(item) {
+      var card = document.createElement("a");
+      card.className = "card";
+      card.href = relHref(item.href);
+      card.dataset.itemId = item.id;
+      if (item.href === "#") {
+        card.addEventListener("click", function (e) {
+          e.preventDefault();
+        });
+      }
+      var favOn = KB.isFavorite(item.id);
+      card.innerHTML =
+        '<div class="card-tools">' +
+        '<button type="button" class="icon-btn' + (favOn ? " on" : "") + '" data-act="fav" aria-label="Favorite">' + STAR + "</button>" +
+        '<button type="button" class="icon-btn del" data-act="del" aria-label="Remove" title="Remove">×</button>' +
+        "</div>" +
+        '<div class="card-title">' + escapeHtml(item.title) + "</div>" +
+        (item.hint ? '<div class="card-hint">' + escapeHtml(item.hint) + "</div>" : "");
+
+      card.querySelector('[data-act="fav"]').addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var on = KB.toggleFavorite(item.id);
+        this.classList.toggle("on", on);
+      });
+      card.querySelector('[data-act="del"]').addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (window.confirm("Remove \"" + item.title + "\" from this board?")) {
+          KB.removeItem(item.id);
+          render();
+        }
+      });
+      return card;
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function renderSection(sec) {
+      var items = KB.itemsForSection(sec.id);
+      var secEl = document.createElement("div");
+      secEl.className = "section" + (KB.isSecExpanded(sec.id) ? "" : " collapsed");
+
+      secEl.innerHTML =
+        '<div class="sec-head">' +
+        '<button type="button" class="sec-toggle"><span class="chev">▼</span> ' + escapeHtml(sec.title) + "</button>" +
+        '<button type="button" class="sec-del" title="Remove section">×</button>' +
+        "</div>" +
+        '<div class="sec-body"></div>' +
+        '<div class="sec-actions"><button type="button" class="mini-btn" data-add-link>+ Add link</button></div>';
+
+      secEl.querySelector(".sec-toggle").addEventListener("click", function () {
+        KB.toggleSecExpanded(sec.id);
+        secEl.classList.toggle("collapsed", !KB.isSecExpanded(sec.id));
+      });
+      secEl.querySelector(".sec-del").addEventListener("click", function () {
+        if (window.confirm("Remove section \"" + sec.title + "\" and its links?")) {
+          KB.removeSection(sec.id);
+          render();
+        }
+      });
+      secEl.querySelector("[data-add-link]").addEventListener("click", function () {
+        var title = promptLine("Link title");
+        if (!title) return;
+        var href = promptLine("URL or path (e.g. najd-roadmap.html)", "");
+        var hint = promptLine("Short description (optional)", "") || "";
+        KB.addItem(sec.id, { title: title, hint: hint, href: href || "#" });
+        render();
+      });
+
+      var body = secEl.querySelector(".sec-body");
+      items.forEach(function (it) {
+        body.appendChild(renderCard(it));
+      });
+      return secEl;
+    }
+
+    function render() {
+      board.innerHTML = "";
+      KB.COLUMNS.forEach(function (col) {
+        var sections = KB.sectionsForColumn(col.id);
+        var colEl = document.createElement("section");
+        colEl.className = "column" + (KB.isColExpanded(col.id) ? "" : " collapsed");
+        colEl.style.background = col.bg;
+
+        colEl.innerHTML =
+          '<button type="button" class="col-head">' +
+          '<div class="col-icon" style="color:' + col.accent + '">' + (ICONS[col.id] || "") + "</div>" +
+          '<div class="col-head-text">' +
+          '<div class="col-title">' + escapeHtml(col.title) + "</div>" +
+          '<div class="col-sub">' + escapeHtml(col.subtitle) + "</div>" +
+          "</div>" +
+          '<span class="col-chevron" aria-hidden="true">▼</span>' +
+          "</button>" +
+          '<div class="col-body"></div>' +
+          '<div class="col-foot"><button type="button" class="mini-btn" data-add-sec>+ Add section</button></div>';
+
+        colEl.querySelector(".col-head").addEventListener("click", function () {
+          KB.toggleColExpanded(col.id);
+          colEl.classList.toggle("collapsed", !KB.isColExpanded(col.id));
+        });
+        colEl.querySelector("[data-add-sec]").addEventListener("click", function () {
+          var title = promptLine("Section title", "New section");
+          if (!title) return;
+          KB.addSection(col.id, title);
+          render();
+        });
+
+        var body = colEl.querySelector(".col-body");
+        sections.forEach(function (sec) {
+          body.appendChild(renderSection(sec));
+        });
+        board.appendChild(colEl);
+      });
+    }
+
+    render();
+    window.addEventListener("sabtan-kb-layout-changed", render);
+    window.addEventListener("sabtan-kb-favorites-changed", render);
+  })();
+  </script>
+</body>
+</html>

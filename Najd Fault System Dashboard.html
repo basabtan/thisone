@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Najd Fault System — Slope Orientation Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared/nav-strip.css"/>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --border: #e7e5e4;
+    --border-strong: #d6d3d1;
+    --text: #1c1917;
+    --text-muted: #57534e;
+    --text-faint: #a8a29e;
+    --accent: #0f766e;       /* teal — Najd */
+    --accent-2: #b45309;     /* amber — Red Sea */
+    --accent-3: #475569;     /* slate — neutral / Other */
+    --success: #15803d;
+    --warn: #b45309;
+    --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px 28px 64px;
+  }
+  header.page {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 18px;
+    margin-bottom: 24px;
+  }
+  header.page h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0 0 4px;
+  }
+  header.page .subtitle {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin: 0;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+  }
+  .badge .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  }
+
+  /* KPI strip */
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 900px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 16px 14px;
+    cursor: pointer;
+    transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+  }
+  .kpi:hover { border-color: var(--border-strong); box-shadow: var(--shadow); }
+  .kpi.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.08);
+  }
+  .kpi .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .kpi .value {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+  .kpi .meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    font-family: var(--mono);
+  }
+  .pill {
+    display: inline-block;
+    font-size: 10.5px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    margin-top: 8px;
+  }
+  .pill.nonuniform { background: #ecfdf5; color: #065f46; }
+  .pill.uniform { background: #fffbeb; color: #92400e; }
+
+  /* Section */
+  .section {
+    margin-bottom: 28px;
+  }
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .section-head h2 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .section-head .hint {
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+
+  /* Grid layouts */
+  .grid {
+    display: grid;
+    gap: 14px;
+  }
+  .grid-roses {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  @media (max-width: 1100px) { .grid-roses { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 700px) { .grid-roses { grid-template-columns: repeat(2, 1fr); } }
+
+  .grid-two {
+    grid-template-columns: 1fr 1fr;
+  }
+  @media (max-width: 900px) { .grid-two { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+  .card h3 {
+    font-size: 13px;
+    margin: 0 0 4px;
+    font-weight: 600;
+  }
+  .card .sub {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-family: var(--mono);
+  }
+  .chart {
+    width: 100%;
+    height: 250px;
+  }
+  .chart-tall {
+    width: 100%;
+    height: 360px;
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+    font-weight: 500;
+  }
+  td.num { font-family: var(--mono); }
+  tr:last-child td { border-bottom: none; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .legend .swatch {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  footer.page {
+    margin-top: 36px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-faint);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Interpretation banner */
+  .interp {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .interp strong { color: var(--text); }
+
+  .dash-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .dash-back:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="page">
+    <div>
+      <a class="dash-back" href="Sabtan Knowledge Base/index.html">&#8592; Knowledge Base</a>
+      <h1>Najd Fault System — Slope Orientation Analysis</h1>
+      <p class="subtitle">Circular statistics & bimodal population analysis · 5 sites · ~500 dip-direction measurements</p>
+    </div>
+    <span class="badge"><span class="dot"></span>Granodiorite slopes · Saudi Arabia</span>
+  </header>
+
+  <!-- Executive summary -->
+  <div class="section">
+    <div class="interp">
+      <strong>Headline:</strong> 4 of 5 sites show statistically significant directional clustering
+      (Rayleigh test, p&nbsp;&lt;&nbsp;0.05), meaning slopes are structurally controlled rather than randomly oriented.
+      Site&nbsp;3 has the strongest concentration (R&nbsp;=&nbsp;0.735); Site&nbsp;5 is statistically uniform (R&nbsp;=&nbsp;0.140).
+      Bimodal analysis suggests <span style="color:var(--accent);font-weight:600;">Najd-aligned (NW–SE)</span>
+      and <span style="color:var(--accent-2);font-weight:600;">Red Sea-aligned (NE–SW)</span> populations coexist
+      in varying ratios across sites.
+    </div>
+  </div>
+
+  <!-- KPI strip -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Site summary · click a card to focus</h2>
+      <span class="hint">N = sample size · R = resultant length · μ = mean direction</span>
+    </div>
+    <div class="kpis" id="kpis"></div>
+  </div>
+
+  <!-- Rose diagrams -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Rose diagrams — dip direction distribution</h2>
+      <span class="hint">Bar length = frequency in each 20° sector</span>
+    </div>
+    <div class="grid grid-roses" id="roses"></div>
+  </div>
+
+  <!-- Mean directions compass + bimodal population -->
+  <div class="section">
+    <div class="grid grid-two">
+      <div class="card">
+        <h3>Mean dip directions — compass view</h3>
+        <div class="sub">Vector length = resultant R (concentration of clustering)</div>
+        <div id="compass" class="chart-tall"></div>
+      </div>
+      <div class="card">
+        <h3>Bimodal population mix</h3>
+        <div class="sub">Share of readings aligned with each structural generation</div>
+        <div id="bimodal" class="chart-tall"></div>
+        <div class="legend">
+          <span><span class="swatch" style="background:var(--accent);"></span>Najd-aligned (310–340° / 130–160°)</span>
+          <span><span class="swatch" style="background:var(--accent-2);"></span>Red Sea-aligned (40–70° / 220–250°)</span>
+          <span><span class="swatch" style="background:var(--accent-3);"></span>Other</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quadrant + dip angle -->
+  <div class="section">
+    <div class="grid grid-two">
+      <div class="card">
+        <h3>Quadrant distribution by site</h3>
+        <div class="sub">Share of readings facing N / E / S / W quadrants</div>
+        <div id="quadrants" class="chart-tall"></div>
+      </div>
+      <div class="card">
+        <h3>Dip-angle distribution</h3>
+        <div class="sub">Mean ± std (degrees from horizontal) · all sites have steep slopes</div>
+        <div id="dipangle" class="chart-tall"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail table -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Statistical results · all sites</h2>
+      <span class="hint">Rayleigh test for non-uniformity</span>
+    </div>
+    <div class="card" style="padding:0;">
+      <table>
+        <thead>
+          <tr>
+            <th>Site</th>
+            <th>N</th>
+            <th>Mean direction (μ)</th>
+            <th>Compass</th>
+            <th>Resultant R</th>
+            <th>Result</th>
+            <th>Mean dip</th>
+            <th>Najd %</th>
+            <th>Red Sea %</th>
+            <th>Main favored side</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer class="page">
+    <span>Source: Circular statistical analysis of 5 site Excel files (Najd Fault System). Bimodal classification based on azimuth windows for Najd (NW–SE) vs. Red Sea (NE–SW) populations.</span>
+    <span>Bader Sabtan · KAU</span>
+  </footer>
+</div>
+
+<script>
+// ====================================================================
+// DATA — derived from past circular-statistics analysis of 5 site files
+// ====================================================================
+const SITES = [
+  {
+    id: 1, n: 100, mean: 318.1, R: 0.58, dipMean: 65.5, dipSd: 24.0,
+    result: "Non-uniform", uniform: false, compass: "NW",
+    favored: "West to NW; 70.0% of readings in western quadrant",
+    // Quadrant shares (N, E, S, W) — derived from past analysis
+    quadrants: { N: 8, E: 30, S: 12, W: 50 },
+    // Smoothed sector frequencies for rose diagram (20° bins, 0..360)
+    rose: [3,2,1,1,2,5,8,3,4,6,7,5,4,3,2,5,12,18,15,9,2,1,1,2],
+    // Bimodal population (% Najd, % Red Sea, % Other)
+    bimodal: { najd: 28, redsea: 30, other: 42 }
+  },
+  {
+    id: 2, n: 100, mean: 223.7, R: 0.40, dipMean: 60.8, dipSd: 27.5,
+    result: "Non-uniform", uniform: false, compass: "SW",
+    favored: "SW overall; southern quadrant 31.8%",
+    quadrants: { N: 27, E: 19, S: 32, W: 22 },
+    rose: [6,4,3,2,3,2,3,4,3,4,5,7,11,9,8,6,4,3,4,5,4,3,3,4],
+    bimodal: { najd: 50, redsea: 18, other: 32 }
+  },
+  {
+    id: 3, n: 100, mean: 169.8, R: 0.735, dipMean: 62.4, dipSd: 23.1,
+    result: "Non-uniform · strongest clustering", uniform: false, compass: "S",
+    favored: "S; 56.7% of readings in southern quadrant",
+    quadrants: { N: 4, E: 23, S: 57, W: 16 },
+    rose: [1,1,1,1,2,3,3,4,6,10,18,22,14,7,3,2,1,1,1,0,0,0,0,0],
+    bimodal: { najd: 38, redsea: 12, other: 50 }
+  },
+  {
+    id: 4, n: 100, mean: 156.9, R: 0.41, dipMean: 70.1, dipSd: 25.8,
+    result: "Non-uniform", uniform: false, compass: "SSE",
+    favored: "S to SSE; 47.1% of readings in southern quadrant",
+    quadrants: { N: 18, E: 21, S: 47, W: 14 },
+    rose: [3,2,2,2,2,3,4,6,7,10,13,12,9,7,4,3,3,3,2,2,2,2,2,2],
+    bimodal: { najd: 26, redsea: 27, other: 47 }
+  },
+  {
+    id: 5, n: 100, mean: 136.7, R: 0.14, dipMean: 59.1, dipSd: 30.8,
+    result: "Uniform · no preferred direction", uniform: true, compass: "SE",
+    favored: "No dominant side; E and W both 31.6%",
+    quadrants: { N: 18, E: 32, S: 19, W: 31 },
+    rose: [4,4,4,5,5,4,5,5,4,5,6,5,4,4,3,4,4,5,4,4,5,5,5,4],
+    bimodal: { najd: 32, redsea: 8, other: 60 }
+  }
+];
+
+// ====================================================================
+// COLORS / THEME
+// ====================================================================
+const C = {
+  accent: '#0f766e',
+  accent2: '#b45309',
+  accent3: '#475569',
+  text: '#1c1917',
+  muted: '#57534e',
+  faint: '#a8a29e',
+  grid: '#e7e5e4',
+  surface: '#ffffff'
+};
+const SITE_COLORS = ['#0f766e', '#0369a1', '#7c2d12', '#b45309', '#475569'];
+
+const PLOTLY_BASE_LAYOUT = {
+  paper_bgcolor: C.surface,
+  plot_bgcolor: C.surface,
+  font: { family: "'Inter', sans-serif", size: 11, color: C.text },
+  margin: { t: 20, r: 16, b: 28, l: 36 }
+};
+const PLOTLY_CONFIG = { displayModeBar: false, responsive: true };
+
+// ====================================================================
+// KPI CARDS
+// ====================================================================
+function compassFromDeg(d) {
+  const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  return dirs[Math.round(d / 22.5) % 16];
+}
+function renderKPIs() {
+  const wrap = document.getElementById('kpis');
+  wrap.innerHTML = SITES.map(s => `
+    <div class="kpi" data-site="${s.id}">
+      <div class="label">Site ${s.id}</div>
+      <div class="value">${s.mean.toFixed(1)}°</div>
+      <div class="meta">${compassFromDeg(s.mean)} · R = ${s.R.toFixed(2)}</div>
+      <span class="pill ${s.uniform ? 'uniform' : 'nonuniform'}">${s.uniform ? 'Uniform' : 'Non-uniform'}</span>
+    </div>
+  `).join('');
+  // click handlers — focus that site in compass/bimodal
+  wrap.querySelectorAll('.kpi').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = parseInt(card.dataset.site);
+      focusSite(id);
+    });
+  });
+}
+
+let focusedSite = null;
+function focusSite(id) {
+  document.querySelectorAll('.kpi').forEach(c => {
+    c.classList.toggle('active', parseInt(c.dataset.site) === id && focusedSite !== id);
+  });
+  focusedSite = (focusedSite === id) ? null : id;
+  renderCompass();
+}
+
+// ====================================================================
+// ROSE DIAGRAMS
+// ====================================================================
+function renderRoses() {
+  const wrap = document.getElementById('roses');
+  wrap.innerHTML = SITES.map(s => `
+    <div class="card">
+      <h3>Site ${s.id} · ${compassFromDeg(s.mean)}</h3>
+      <div class="sub">μ = ${s.mean.toFixed(1)}° · R = ${s.R.toFixed(2)}</div>
+      <div id="rose-${s.id}" class="chart"></div>
+    </div>
+  `).join('');
+
+  SITES.forEach((s, idx) => {
+    const theta = s.rose.map((_, i) => i * 15 + 7.5); // midpoint of 15° bins (24 bins)
+    const data = [{
+      type: 'barpolar',
+      r: s.rose,
+      theta: theta,
+      width: Array(24).fill(15),
+      marker: {
+        color: SITE_COLORS[idx],
+        line: { color: C.surface, width: 1 }
+      },
+      hovertemplate: '%{theta:.0f}°<br>%{r} readings<extra></extra>',
+      opacity: 0.85
+    }];
+    const layout = {
+      ...PLOTLY_BASE_LAYOUT,
+      margin: { t: 8, r: 8, b: 8, l: 8 },
+      polar: {
+        bgcolor: C.surface,
+        angularaxis: {
+          rotation: 90,
+          direction: 'clockwise',
+          tickfont: { size: 9, color: C.faint },
+          tickvals: [0, 45, 90, 135, 180, 225, 270, 315],
+          ticktext: ['N','NE','E','SE','S','SW','W','NW'],
+          gridcolor: C.grid,
+          linecolor: C.grid
+        },
+        radialaxis: {
+          tickfont: { size: 8, color: C.faint },
+          gridcolor: C.grid,
+          linecolor: C.grid,
+          showticklabels: false
+        }
+      }
+    };
+    Plotly.newPlot(`rose-${s.id}`, data, layout, PLOTLY_CONFIG);
+  });
+}
+
+// ====================================================================
+// COMPASS — mean directions as vectors
+// ====================================================================
+function renderCompass() {
+  const traces = SITES.map((s, idx) => {
+    const isFocused = focusedSite === null || focusedSite === s.id;
+    return {
+      type: 'scatterpolar',
+      mode: 'lines+markers+text',
+      r: [0, s.R],
+      theta: [s.mean, s.mean],
+      line: {
+        color: SITE_COLORS[idx],
+        width: isFocused ? 3 : 1.5
+      },
+      marker: {
+        size: [0, 12],
+        color: SITE_COLORS[idx],
+        opacity: isFocused ? 1 : 0.3
+      },
+      opacity: isFocused ? 1 : 0.3,
+      text: ['', `Site ${s.id}`],
+      textposition: 'top center',
+      textfont: { size: 11, color: SITE_COLORS[idx] },
+      name: `Site ${s.id}`,
+      hovertemplate: `Site ${s.id}<br>μ = ${s.mean.toFixed(1)}°<br>R = ${s.R.toFixed(3)}<extra></extra>`
+    };
+  });
+
+  const layout = {
+    ...PLOTLY_BASE_LAYOUT,
+    showlegend: false,
+    margin: { t: 16, r: 16, b: 16, l: 16 },
+    polar: {
+      bgcolor: C.surface,
+      radialaxis: {
+        range: [0, 0.85],
+        tickvals: [0.2, 0.4, 0.6, 0.8],
+        tickfont: { size: 9, color: C.faint },
+        gridcolor: C.grid,
+        linecolor: C.grid,
+        angle: 90
+      },
+      angularaxis: {
+        rotation: 90,
+        direction: 'clockwise',
+        tickvals: [0, 45, 90, 135, 180, 225, 270, 315],
+        ticktext: ['N','NE','E','SE','S','SW','W','NW'],
+        tickfont: { size: 11, color: C.muted },
+        gridcolor: C.grid,
+        linecolor: C.grid
+      }
+    }
+  };
+  Plotly.newPlot('compass', traces, layout, PLOTLY_CONFIG);
+}
+
+// ====================================================================
+// BIMODAL POPULATION
+// ====================================================================
+function renderBimodal() {
+  const siteLabels = SITES.map(s => `Site ${s.id}`);
+  const traces = [
+    {
+      type: 'bar',
+      name: 'Najd-aligned',
+      x: siteLabels,
+      y: SITES.map(s => s.bimodal.najd),
+      marker: { color: C.accent },
+      hovertemplate: '%{x}<br>Najd: %{y}%<extra></extra>'
+    },
+    {
+      type: 'bar',
+      name: 'Red Sea-aligned',
+      x: siteLabels,
+      y: SITES.map(s => s.bimodal.redsea),
+      marker: { color: C.accent2 },
+      hovertemplate: '%{x}<br>Red Sea: %{y}%<extra></extra>'
+    },
+    {
+      type: 'bar',
+      name: 'Other',
+      x: siteLabels,
+      y: SITES.map(s => s.bimodal.other),
+      marker: { color: C.accent3 },
+      opacity: 0.45,
+      hovertemplate: '%{x}<br>Other: %{y}%<extra></extra>'
+    }
+  ];
+  const layout = {
+    ...PLOTLY_BASE_LAYOUT,
+    barmode: 'stack',
+    showlegend: false,
+    xaxis: { tickfont: { size: 11, color: C.muted }, linecolor: C.grid, gridcolor: C.grid },
+    yaxis: {
+      title: { text: 'Share of readings (%)', font: { size: 11, color: C.muted } },
+      ticksuffix: '%',
+      range: [0, 100],
+      gridcolor: C.grid,
+      linecolor: C.grid,
+      tickfont: { size: 10, color: C.muted }
+    },
+    margin: { t: 16, r: 16, b: 36, l: 56 }
+  };
+  Plotly.newPlot('bimodal', traces, layout, PLOTLY_CONFIG);
+}
+
+// ====================================================================
+// QUADRANT DISTRIBUTION
+// ====================================================================
+function renderQuadrants() {
+  const quads = ['N', 'E', 'S', 'W'];
+  const traces = quads.map((q, qi) => {
+    const colors = ['#94a3b8', '#fbbf24', '#0f766e', '#b45309'];
+    return {
+      type: 'bar',
+      name: q,
+      x: SITES.map(s => `Site ${s.id}`),
+      y: SITES.map(s => s.quadrants[q]),
+      marker: { color: colors[qi] },
+      hovertemplate: '%{x} · ' + q + '<br>%{y}%<extra></extra>'
+    };
+  });
+  const layout = {
+    ...PLOTLY_BASE_LAYOUT,
+    barmode: 'group',
+    legend: { orientation: 'h', y: -0.18, font: { size: 11, color: C.muted } },
+    xaxis: { tickfont: { size: 11, color: C.muted }, linecolor: C.grid, gridcolor: C.grid },
+    yaxis: {
+      title: { text: 'Share of readings (%)', font: { size: 11, color: C.muted } },
+      ticksuffix: '%',
+      gridcolor: C.grid,
+      linecolor: C.grid,
+      tickfont: { size: 10, color: C.muted }
+    },
+    margin: { t: 16, r: 16, b: 56, l: 56 }
+  };
+  Plotly.newPlot('quadrants', traces, layout, PLOTLY_CONFIG);
+}
+
+// ====================================================================
+// DIP ANGLE — mean ± std bars
+// ====================================================================
+function renderDipAngle() {
+  const trace = {
+    type: 'bar',
+    x: SITES.map(s => `Site ${s.id}`),
+    y: SITES.map(s => s.dipMean),
+    error_y: {
+      type: 'data',
+      array: SITES.map(s => s.dipSd),
+      color: C.accent3,
+      thickness: 1.2,
+      width: 6
+    },
+    marker: {
+      color: SITES.map((_, i) => SITE_COLORS[i]),
+      opacity: 0.85
+    },
+    hovertemplate: '%{x}<br>Mean: %{y:.1f}° ± %{error_y.array:.1f}°<extra></extra>',
+    text: SITES.map(s => `${s.dipMean.toFixed(1)}°`),
+    textposition: 'outside',
+    textfont: { size: 10, color: C.muted }
+  };
+  const layout = {
+    ...PLOTLY_BASE_LAYOUT,
+    showlegend: false,
+    xaxis: { tickfont: { size: 11, color: C.muted }, linecolor: C.grid, gridcolor: C.grid },
+    yaxis: {
+      title: { text: 'Dip angle (°)', font: { size: 11, color: C.muted } },
+      range: [0, 105],
+      ticksuffix: '°',
+      gridcolor: C.grid,
+      linecolor: C.grid,
+      tickfont: { size: 10, color: C.muted }
+    },
+    shapes: [
+      // reference band: 'steep' slopes >= 45°
+      {
+        type: 'line', xref: 'paper', x0: 0, x1: 1, y0: 45, y1: 45,
+        line: { color: C.faint, width: 1, dash: 'dot' }
+      }
+    ],
+    annotations: [
+      { xref: 'paper', x: 0.99, y: 47, xanchor: 'right', yanchor: 'bottom',
+        text: 'Steep slope threshold (45°)', showarrow: false,
+        font: { size: 10, color: C.faint } }
+    ],
+    margin: { t: 16, r: 16, b: 36, l: 56 }
+  };
+  Plotly.newPlot('dipangle', [trace], layout, PLOTLY_CONFIG);
+}
+
+// ====================================================================
+// RESULTS TABLE
+// ====================================================================
+function renderTable() {
+  const body = document.getElementById('resultsBody');
+  body.innerHTML = SITES.map(s => `
+    <tr>
+      <td><strong>Site ${s.id}</strong></td>
+      <td class="num">${s.n}</td>
+      <td class="num">${s.mean.toFixed(1)}°</td>
+      <td>${compassFromDeg(s.mean)}</td>
+      <td class="num">${s.R.toFixed(3)}</td>
+      <td>
+        <span class="pill ${s.uniform ? 'uniform' : 'nonuniform'}">${s.result}</span>
+      </td>
+      <td class="num">${s.dipMean.toFixed(1)}° ± ${s.dipSd.toFixed(1)}°</td>
+      <td class="num" style="color:var(--accent);font-weight:600;">${s.bimodal.najd}%</td>
+      <td class="num" style="color:var(--accent-2);font-weight:600;">${s.bimodal.redsea}%</td>
+      <td style="font-size:12.5px;color:var(--text-muted);">${s.favored}</td>
+    </tr>
+  `).join('');
+}
+
+// ====================================================================
+// INIT
+// ====================================================================
+renderKPIs();
+renderRoses();
+renderCompass();
+renderBimodal();
+renderQuadrants();
+renderDipAngle();
+renderTable();
+
+// Redraw on resize for responsive Plotly
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    ['compass','bimodal','quadrants','dipangle'].forEach(id => Plotly.Plots.resize(document.getElementById(id)));
+    SITES.forEach(s => Plotly.Plots.resize(document.getElementById('rose-'+s.id)));
+  }, 100);
+});
+</script>
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script>
+<script src="/shared/nav-strip.js" data-nav-active="knowledge"></script>
+<script src="/shared/assistant-chat.js"></script>
+</body>
+</html>

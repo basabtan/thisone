@@ -1,0 +1,16 @@
+---
+description: "navbar" means the vault bottom nav strip (#navstrip-shell), not generic <nav>
+alwaysApply: true
+---
+
+# Vault alias: navbar
+
+When the user says **navbar**, they mean the **vault nav strip** (bottom “Go to” bar):
+
+- DOM: `#navstrip-shell`, `#navstrip` (strip content is built by `shared/nav-strip.js`)
+- Assets: `shared/nav-strip.js`, `shared/nav-strip.css`
+- Glossary: `PAGES.md` → Aliases
+
+Do **not** treat “navbar” as a generic HTML `<nav>` elsewhere (page headers, sidebars, React app chrome, etc.) unless the user explicitly points at that element.
+
+**Nav designs** (class on `html` / `#navstrip-shell`: `navbar-design-classic` | `navbar-design-editorial` | `navbar-design-disc`): **Classic** uses crystal + search + pill bar; **Editorial** (`editorial`; legacy `unified` → same) shows numbered sharp cards `#navstrip-editorial` (01–06); **Disc** hides the bar and shows `#ns-navdisc-toggle` plus two rolling discs (Ideas, Home).
