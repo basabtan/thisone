@@ -62,11 +62,15 @@
   backdrop-filter:blur(10px);overflow:hidden;
   opacity:0;transform:translateY(8px) scale(.98);pointer-events:none;
   transition:opacity .2s ease,transform .2s ease;
+  --sa-pearl:#f8f4ec;
+  --sa-pearl-hi:#fffefb;
+  --sa-pearl-sh:#ddd4c4;
+  --sa-copper:#a5643a;
 }
 .sabtan-assistant-panel.open{opacity:1;transform:none;pointer-events:auto}
 
 .sabtan-assistant-head{
-  padding:10px 12px;border-bottom:1px solid var(--sa-line);
+  padding:10px 12px 10px 34px;border-bottom:1px solid var(--sa-line);
   display:flex;align-items:flex-start;justify-content:space-between;gap:8px;
   background:rgba(251,247,239,.85);flex-shrink:0;
 }
@@ -129,15 +133,39 @@
 }
 
 .sabtan-assistant-form{
-  display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--sa-line);background:rgba(255,255,255,.72);
+  display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--sa-line);background:rgba(255,255,255,.72);
   flex-shrink:0;
 }
 .sabtan-assistant-attach{
-  flex-shrink:0;width:38px;height:38px;border:1px solid var(--sa-line);border-radius:50%;
-  background:#fff;color:var(--sa-blue);cursor:pointer;font-size:17px;line-height:1;
-  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;width:50px;height:50px;border-radius:50%;cursor:pointer;font-size:21px;line-height:1;
+  display:flex;align-items:center;justify-content:center;color:var(--sa-blue);
+  border:1px solid rgba(255,255,255,.92);
+  background:
+    radial-gradient(circle at 28% 22%, var(--sa-pearl-hi) 0%, rgba(255,255,255,0) 42%),
+    radial-gradient(circle at 72% 78%, rgba(210,198,180,.28) 0%, rgba(255,255,255,0) 48%),
+    linear-gradient(155deg, #fffefb 0%, var(--sa-pearl) 38%, var(--sa-pearl-sh) 100%);
+  box-shadow:
+    0 5px 14px rgba(55,45,30,.16),
+    0 2px 0 rgba(255,255,255,.95) inset,
+    0 -4px 10px rgba(165,100,58,.07) inset;
+  transform:translateY(-2px);
+  transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
 }
-.sabtan-assistant-attach:hover{background:rgba(47,83,103,.06)}
+.sabtan-assistant-attach:hover{
+  transform:translateY(-3px) scale(1.04);
+  filter:brightness(1.02);
+  box-shadow:
+    0 8px 18px rgba(55,45,30,.2),
+    0 2px 0 rgba(255,255,255,.98) inset,
+    0 -4px 12px rgba(165,100,58,.1) inset;
+}
+.sabtan-assistant-attach:active{
+  transform:translateY(-1px) scale(1.01);
+  box-shadow:
+    0 3px 10px rgba(55,45,30,.14),
+    0 1px 0 rgba(255,255,255,.9) inset,
+    0 -2px 6px rgba(165,100,58,.08) inset;
+}
 .sabtan-assistant-input{
   flex:1;border:1px solid var(--sa-line);border-radius:999px;padding:9px 14px;
   font:inherit;font-size:calc(13px * var(--sa-font-scale));background:#fff;color:var(--sa-graphite);
@@ -151,14 +179,38 @@
 .sabtan-assistant-send:disabled{opacity:.55;cursor:not-allowed}
 
 .sabtan-assistant-resize{
-  position:absolute;left:6px;bottom:6px;width:18px;height:18px;cursor:nwse-resize;
-  border:none;background:transparent;padding:0;opacity:.45;z-index:2;
+  position:absolute;left:7px;top:7px;width:24px;height:24px;cursor:nwse-resize;
+  border:none;padding:0;z-index:3;border-radius:6px;
+  background:rgba(255,253,248,.92);
+  border:1px solid rgba(47,83,103,.28);
+  box-shadow:0 2px 6px rgba(55,45,30,.12);
+  transition:background .15s ease,border-color .15s ease,box-shadow .15s ease;
+}
+.sabtan-assistant-resize::before,
+.sabtan-assistant-resize::after{
+  content:"";position:absolute;pointer-events:none;
 }
 .sabtan-assistant-resize::before{
-  content:"";position:absolute;left:2px;bottom:2px;width:12px;height:12px;
-  border-left:2px solid var(--sa-muted);border-bottom:2px solid var(--sa-muted);border-radius:0 0 0 3px;
+  left:5px;top:5px;width:10px;height:10px;
+  border-left:2.5px solid var(--sa-blue);
+  border-top:2.5px solid var(--sa-copper);
+  border-radius:2px 0 0 0;
 }
-.sabtan-assistant-resize:hover{opacity:.85}
+.sabtan-assistant-resize::after{
+  left:9px;top:9px;width:6px;height:6px;
+  border-left:2px solid rgba(47,83,103,.45);
+  border-top:2px solid rgba(165,100,58,.65);
+  border-radius:1px 0 0 0;
+}
+.sabtan-assistant-resize:hover{
+  background:#fff;
+  border-color:var(--sa-blue);
+  box-shadow:0 3px 10px rgba(47,83,103,.18);
+}
+.sabtan-assistant-panel.is-resizing .sabtan-assistant-resize{
+  background:#fff;border-color:var(--sa-copper);
+}
+
 .sabtan-assistant-panel.is-resizing{transition:none;user-select:none}
 
 @media(max-width:680px){

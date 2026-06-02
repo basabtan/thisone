@@ -338,6 +338,7 @@
     root.style.setProperty('--sa-font-scale', String(settings.fontScale));
     root.innerHTML =
       '<div class="sabtan-assistant-panel" id="sabtan-assistant-panel" hidden>' +
+        '<button type="button" class="sabtan-assistant-resize" id="sabtan-assistant-resize" title="Drag to resize" aria-label="Resize assistant window"></button>' +
         '<div class="sabtan-assistant-head">' +
           '<div class="sabtan-assistant-head-main">' +
             '<h2>Vault assistant</h2>' +
@@ -368,7 +369,6 @@
           '<input class="sabtan-assistant-input" id="sabtan-assistant-input" type="text" placeholder="Ask, navigate, or attach a file…" autocomplete="off" />' +
           '<button class="sabtan-assistant-send" type="submit">Send</button>' +
         '</form>' +
-        '<button type="button" class="sabtan-assistant-resize" id="sabtan-assistant-resize" title="Drag to resize" aria-label="Resize assistant window"></button>' +
       '</div>' +
       '<div class="sabtan-assistant-fab-col">' +
         '<button type="button" class="sabtan-assistant-toggle" id="sabtan-assistant-toggle" aria-expanded="false" title="Vault assistant">✦</button>' +
