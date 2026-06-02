@@ -164,6 +164,34 @@
     return el;
   }
 
+  var THINKING_ID = 'sabtan-assistant-thinking';
+
+  function showThinking(log, toggleEl) {
+    hideThinking(toggleEl);
+    var el = document.createElement('div');
+    el.className = 'sabtan-assistant-msg bot sabtan-assistant-thinking';
+    el.id = THINKING_ID;
+    el.setAttribute('aria-live', 'polite');
+    el.setAttribute('aria-busy', 'true');
+    el.innerHTML =
+      '<span class="sabtan-assistant-thinking-icon" aria-hidden="true">✦</span>' +
+      '<span class="sabtan-assistant-thinking-body">' +
+        '<span class="sabtan-assistant-thinking-dots" aria-hidden="true">' +
+          '<span></span><span></span><span></span>' +
+        '</span>' +
+        '<span class="sabtan-assistant-thinking-label">Thinking…</span>' +
+      '</span>';
+    log.appendChild(el);
+    log.scrollTop = log.scrollHeight;
+    if (toggleEl) toggleEl.classList.add('is-thinking');
+  }
+
+  function hideThinking(toggleEl) {
+    var el = document.getElementById(THINKING_ID);
+    if (el) el.remove();
+    if (toggleEl) toggleEl.classList.remove('is-thinking');
+  }
+
   function navigateToPage(args) {
     var path = String(args.path || '').trim();
     if (!path) return;
@@ -565,6 +593,7 @@
       input.value = '';
       setPendingAttachment(null);
       sendBtn.disabled = true;
+      showThinking(log, toggle);
 
       var payload = {
         message: message,
@@ -617,6 +646,7 @@
           addMessage(log, 'error', msg);
         })
         .finally(function () {
+          hideThinking(toggle);
           sendBtn.disabled = false;
           input.focus();
         });
