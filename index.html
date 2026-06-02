@@ -724,7 +724,7 @@
                   <span class="opt-title">Najd</span>
                 </span>
               </a>
-              <button type="button" class="hub-disc hub-option profile is-core" id="hub-profile-btn" data-page-id="profile">
+              <a class="hub-disc hub-option profile is-core" href="Sabtan Knowledge Base/profile.html" data-page-id="profile">
                 <span class="opt-label">
                   <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="12" cy="8" r="3.5"/>
@@ -732,7 +732,7 @@
                   </svg>
                   <span class="opt-title">Profile</span>
                 </span>
-              </button>
+              </a>
               <button type="button" class="hub-disc hub-option ideas is-core" id="hub-ideas-btn" data-page-id="ideas">
                 <span class="opt-label">
                   <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -744,15 +744,6 @@
                 </span>
               </button>
             </div>
-          </div>
-          <div class="hub-profile-panel" id="hub-profile-panel" hidden>
-            <button type="button" class="prof-back" id="hub-profile-back">&#8592; Back</button>
-            <a class="hub-sub-option" href="Sabtan Knowledge Base/profile-matrix.html">
-              <span class="sub-num">Option 1</span> Executive Matrix <span class="link-arrow">&#8594;</span>
-            </a>
-            <a class="hub-sub-option" href="Sabtan Knowledge Base/profile-strategic.html">
-              <span class="sub-num">Option 2</span> Strategic Profile <span class="link-arrow">&#8594;</span>
-            </a>
           </div>
           <div class="hub-ideas-panel" id="hub-ideas-panel" hidden>
             <button type="button" class="prof-back" id="hub-ideas-back">&#8592; Back</button>
@@ -776,9 +767,6 @@
     var btn = document.getElementById("hub-main");
     var backdrop = document.getElementById("hub-backdrop");
     var discRow = document.getElementById("hub-disc-row");
-    var profileBtn = document.getElementById("hub-profile-btn");
-    var profilePanel = document.getElementById("hub-profile-panel");
-    var profileBack = document.getElementById("hub-profile-back");
     var ideasBtn = document.getElementById("hub-ideas-btn");
     var ideasPanel = document.getElementById("hub-ideas-panel");
     var ideasBack = document.getElementById("hub-ideas-back");
@@ -790,16 +778,13 @@
 
     var HUB_PAGES = [
       { id: "najd", title: "Najd", label: "Najd", hint: "Programme roadmap", href: "najd-roadmap.html", core: true },
-      { id: "profile", title: "Profile", label: "Profile", hint: "Executive profile options", href: "", core: true },
+      { id: "profile", title: "Profile", label: "Profile", hint: "Prof. Abdullah — executive profile", href: "Sabtan Knowledge Base/profile.html", core: true },
       { id: "ideas", title: "Ideas", label: "Ideas", hint: "Research and app ideas", href: "research-ideas.html?view=research", core: true },
       { id: "kb-hub", title: "Knowledge Base Hub", label: "Hub", hint: "Full dashboard", href: "Sabtan Knowledge Base/index.html" },
       { id: "roadmap", title: "Programme Roadmap", label: "Roadmap", hint: "Phases I–III", href: "najd-roadmap.html" },
       { id: "phase1", title: "Phase I Papers", label: "Phase I", hint: "Paper cards & author view", href: "phase-1-papers.html" },
       { id: "dashboard", title: "Structural Dashboard", label: "Dashboard", hint: "Slope data & analytics", href: "Najd Fault System Dashboard.html" },
       { id: "ideas-dev", title: "Research Ideas (Dev)", label: "Ideas Dev", hint: "Editable React build", href: "research-ideas-dev.html" },
-      { id: "prof-strategic", title: "Strategic Profile", label: "Strategic", hint: "Executive positioning", href: "Sabtan Knowledge Base/profile-strategic.html" },
-      { id: "prof-matrix", title: "Executive Matrix", label: "Matrix", hint: "Leadership matrix", href: "Sabtan Knowledge Base/profile-matrix.html" },
-      { id: "prof-main", title: "Profile Overview", label: "Prof.", hint: "Main profile page", href: "Sabtan Knowledge Base/profile.html" },
       { id: "p1-guide", title: "Paper 1 — Author Guide", label: "P1 Guide", hint: "Visual drafting guide", href: "paper-1-guide.html" },
       { id: "p1-companion", title: "Paper 1 — Companion", label: "P1 Notes", hint: "Reference and notes", href: "Paper 1/drafts/p1/p - guide .html" },
       { id: "archive", title: "Earlier Overview", label: "Archive", hint: "Archive programme view", href: "najd1.html" }
@@ -935,12 +920,8 @@
     }
 
     function setProfileMode(on) {
-      hub.classList.toggle("profile-mode", on);
-      if (profilePanel) profilePanel.hidden = !on;
-      if (on) {
-        setIdeasMode(false);
-        setPickerOpen(false);
-      }
+      hub.classList.toggle("profile-mode", false);
+      if (on) setIdeasMode(false);
     }
 
     function setIdeasMode(on) {
@@ -986,18 +967,6 @@
       });
     }
 
-    if (profileBtn) {
-      profileBtn.addEventListener("click", function () {
-        if (!hub.classList.contains("open")) setOpen(true);
-        setProfileMode(true);
-      });
-    }
-    if (profileBack) {
-      profileBack.addEventListener("click", function () {
-        setProfileMode(false);
-      });
-    }
-
     if (ideasBtn) {
       ideasBtn.addEventListener("click", function () {
         if (!hub.classList.contains("open")) setOpen(true);
@@ -1022,8 +991,7 @@
         setPickerOpen(false);
         return;
       }
-      if (hub.classList.contains("profile-mode")) setProfileMode(false);
-      else if (hub.classList.contains("ideas-mode")) setIdeasMode(false);
+      if (hub.classList.contains("ideas-mode")) setIdeasMode(false);
       else setOpen(false);
     });
 

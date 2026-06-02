@@ -38,4 +38,14 @@
   to = "/paper-1-guide.html"
   status = 301
 
+[[redirects]]
+  from = "/Sabtan Knowledge Base/profile-strategic.html"
+  to = "/Sabtan Knowledge Base/profile.html"
+  status = 301
+
+[[redirects]]
+  from = "/Sabtan Knowledge Base/profile-matrix.html"
+  to = "/Sabtan Knowledge Base/profile.html"
+  status = 301
+
 # SPA-style fallback not needed — every route is a real HTML file

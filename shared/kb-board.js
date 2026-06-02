@@ -43,7 +43,7 @@
       sectionId: "sec-prof",
       title: "Executive Profile",
       hint: "SSM role, expertise, Vision 2030",
-      href: "Sabtan Knowledge Base/profile-strategic.html",
+      href: "profile.html",
       builtin: true,
     },
     {

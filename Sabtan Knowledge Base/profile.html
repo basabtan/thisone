@@ -1,631 +1,375 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Executive Profile — Professor Abdullah A. Sabtan</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --ink: #0c1014;
-      --ink-muted: #2a3239;
-      --ink-faint: #4d5863;
-      --paper: #ffffff;
-      --paper-warm: #ebe6dc;
-      --accent: #5c4528;
-      --accent-light: #9a7b4f;
-      --line: #c4b8a6;
-      --border-strong: #8a7d6b;
-      --max: 72rem;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Executive Capability Profile — Professor Abdullah A. Sabtan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,500&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ivory:#fbf7ef; --paper:#fffdf8; --paper2:#f5efe3;
+    --graphite:#232421; --muted:#4a453c; --soft:#bdb3a0; --line:#ded4c1;
+    --blue:#2f5367; --blue-dk:#1e3a4a;
+    --copper:#a5643a; --copper-dk:#7d4a28;
+    --gold:#b89344; --green:#496f61;
+    --teal-bg:#E1F5EE; --teal-ink:#085041; --teal-line:#0F6E56;
+    --amber-bg:#FAEEDA; --amber-ink:#633806; --amber-line:#854F0B;
+    --shadow:0 18px 45px rgba(55,45,30,0.11); --radius:22px;
+    --max:74rem;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{font-size:17px;scroll-behavior:smooth;}
+  body{
+    font-family:'Lora',serif; color:var(--graphite); line-height:1.85; font-size:1rem;
+    background:
+      radial-gradient(circle at top left, rgba(199,167,106,0.20), transparent 34%),
+      linear-gradient(135deg,#fffaf0 0%, var(--ivory) 46%, #f1eadb 100%);
+    -webkit-font-smoothing:antialiased; padding-top:52px;
+  }
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.13;mix-blend-mode:multiply;
+    background-image:
+      repeating-linear-gradient(145deg, transparent 0 18px, rgba(47,83,103,0.10) 19px, transparent 20px),
+      radial-gradient(circle at 80% 8%, rgba(165,100,58,0.18), transparent 24%);}
+  h1,h2,h3,h4{font-family:'Playfair Display',serif; color:#1a1c19; letter-spacing:-.01em; line-height:1.12;}
+  .serif{font-family:'Playfair Display',serif;}
+  p{max-width:42rem;}
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  /* —— top bar —— */
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 2rem;background:rgba(255,253,248,.92);border-bottom:1px solid var(--line);backdrop-filter:blur(8px);}
+  .topbar a{font-family:'Lora',serif;font-style:italic;font-size:.82rem;letter-spacing:.04em;color:var(--copper);text-decoration:none;}
+  .topbar a:hover{color:var(--graphite);}
+  .topbar span{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-style:italic;}
 
-    html {
-      font-size: 17px;
-      scroll-behavior: smooth;
-    }
+  .kicker{font-family:'Lora',serif;font-style:italic;font-size:.72rem;font-weight:600;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--copper);}
 
-    body {
-      font-family: "Source Sans 3", system-ui, sans-serif;
-      font-weight: 400;
-      color: var(--ink);
-      background: var(--paper);
-      line-height: 1.65;
-      -webkit-font-smoothing: antialiased;
-    }
+  section{max-width:var(--max);margin:0 auto;padding:4.5rem 2rem;}
+  section+section{border-top:1px solid var(--line);}
 
-    .serif { font-family: "Cormorant Garamond", Georgia, serif; }
+  /* —— masthead —— */
+  .mast{padding-top:5rem;display:grid;grid-template-columns:1fr auto;gap:3rem;align-items:end;}
+  .mast__name{font-size:clamp(2.6rem,5.4vw,4.6rem);font-weight:700;margin:.6rem 0 .2rem;}
+  .mast__title{font-family:'Playfair Display',serif;font-style:italic;font-weight:500;font-size:1.5rem;color:var(--blue);margin-bottom:1.6rem;}
+  .mast__thesis{font-size:1.08rem;color:var(--muted);max-width:40rem;}
+  .kpis{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--radius);
+    background:rgba(255,253,248,.7);box-shadow:var(--shadow);min-width:14rem;overflow:hidden;}
+  .kpi{padding:1.15rem 1.6rem;border-bottom:1px solid var(--line);}
+  .kpi:last-child{border-bottom:0;}
+  .kpi__v{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--copper);line-height:1;}
+  .kpi__l{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.4rem;font-style:italic;}
+  @media(max-width:820px){.mast{grid-template-columns:1fr;}.kpis{flex-direction:row;flex-wrap:wrap;}.kpi{flex:1 1 45%;border-bottom:1px solid var(--line);}}
 
-    .vault-topbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 2rem;
-      background: rgba(255, 255, 255, 0.97);
-      border-bottom: 2px solid var(--border-strong);
-      backdrop-filter: blur(8px);
-    }
+  /* —— chain —— */
+  .chain-claim{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2.1rem);font-weight:600;max-width:46rem;margin:.8rem 0 2rem;}
+  .chain{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem;}
+  .chain .node{font-family:'Lora',serif;font-style:italic;font-size:.98rem;padding:.55rem 1.15rem;border-radius:999px;
+    background:var(--paper);border:1px solid var(--line);color:var(--graphite);box-shadow:0 6px 16px rgba(55,45,30,.06);white-space:nowrap;}
+  .chain .node.b{border-color:var(--blue);color:var(--blue);}
+  .chain .node.c{border-color:var(--copper);color:var(--copper);}
+  .chain .node.g{border-color:var(--gold);color:var(--copper-dk);}
+  .chain .arr{color:var(--soft);font-family:'Playfair Display',serif;}
 
-    .vault-topbar a {
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--accent);
-      text-decoration: none;
-    }
+  /* —— capability framework —— */
+  .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-top:2.2rem;}
+  @media(max-width:900px){.pillars{grid-template-columns:1fr;}}
+  .pillar{background:rgba(255,253,248,.82);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:1.8rem 1.7rem;border-top:5px solid var(--blue);}
+  .pillar.c{border-top-color:var(--copper);} .pillar.g{border-top-color:var(--gold);}
+  .pillar h3{font-size:1.3rem;margin-bottom:.3rem;}
+  .pillar .lede{font-style:italic;color:var(--muted);font-size:.92rem;margin-bottom:1.1rem;}
+  .caps{display:flex;flex-wrap:wrap;gap:.45rem;}
+  .cap{font-size:.83rem;font-style:italic;padding:.4rem .85rem;border-radius:999px;background:rgba(47,83,103,.07);
+    color:var(--blue);border:1px solid rgba(47,83,103,.15);}
+  .pillar.c .cap{background:rgba(165,100,58,.08);color:var(--copper-dk);border-color:rgba(165,100,58,.2);}
+  .pillar.g .cap{background:rgba(184,147,68,.12);color:var(--copper-dk);border-color:rgba(184,147,68,.3);}
 
-    .vault-topbar a:hover { color: var(--ink); }
+  /* —— impact dashboard —— */
+  .impact{margin-top:2rem;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);background:rgba(255,253,248,.82);}
+  .irow{display:grid;grid-template-columns:1fr auto 1.3fr;align-items:center;gap:1.2rem;padding:1.15rem 1.6rem;border-bottom:1px solid var(--line);}
+  .irow:last-child{border-bottom:0;}
+  .irow .cap-name{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--blue-dk);}
+  .irow .arr{color:var(--copper);font-family:'Playfair Display',serif;font-size:1.2rem;}
+  .irow .out{color:var(--muted);font-size:.95rem;}
+  @media(max-width:720px){.irow{grid-template-columns:1fr;gap:.3rem;}.irow .arr{display:none;}}
+  .tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.6rem;}
+  .tag{font-size:.8rem;font-style:italic;padding:.4rem .95rem;border-radius:999px;background:var(--paper);border:1px solid var(--line);color:var(--muted);}
 
-    .vault-topbar span {
-      font-size: 0.72rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--ink-muted);
-      font-weight: 600;
-    }
+  /* —— career narrative —— */
+  .narr{display:grid;grid-template-columns:auto 1fr;gap:0 2rem;margin-top:1.5rem;}
+  .narr .when{font-family:'Lora',serif;font-style:italic;color:var(--copper);font-size:.85rem;padding-top:.35rem;white-space:nowrap;}
+  .narr .what{padding-bottom:2rem;border-left:2px solid var(--line);padding-left:2rem;position:relative;}
+  .narr .what::before{content:"";position:absolute;left:-7px;top:.55rem;width:12px;height:12px;border-radius:50%;background:var(--blue);border:3px solid var(--ivory);}
+  .narr .row:nth-child(2) .what::before{background:var(--copper);}
+  .narr .row:nth-child(3) .what::before{background:var(--gold);}
+  .narr .row:nth-child(4) .what::before{background:var(--green);}
+  .narr .row:last-child .what{border-left-color:transparent;}
+  .narr .row{display:contents;}
+  .narr h3{font-size:1.2rem;margin-bottom:.2rem;}
+  .narr p{color:var(--muted);font-size:.96rem;}
+  @media(max-width:720px){.narr{grid-template-columns:1fr;}.narr .when{padding-top:0;margin-bottom:.2rem;}.narr .what{border-left:0;padding-left:0;}.narr .what::before{display:none;}}
 
-    body { padding-top: 52px; }
+  /* —— forward mandate —— */
+  .phases{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-top:2rem;}
+  @media(max-width:900px){.phases{grid-template-columns:1fr;}}
+  .phase{background:linear-gradient(135deg,var(--blue),#283a43);color:#fffaf0;border-radius:var(--radius);padding:1.7rem 1.6rem;box-shadow:var(--shadow);}
+  .phase.c{background:linear-gradient(135deg,var(--copper),var(--copper-dk));}
+  .phase.g{background:linear-gradient(135deg,#c0a052,#8a6a2c);}
+  .phase .ph{font-style:italic;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;opacity:.85;}
+  .phase h3{color:#fffaf0;font-size:1.18rem;margin:.4rem 0 .2rem;}
+  .phase .yr{font-style:italic;font-size:.82rem;opacity:.85;margin-bottom:.8rem;}
+  .phase p{color:#f1e7d4;font-size:.92rem;}
+  .roleline{margin-top:2rem;font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--blue-dk);}
+  .roleline b{color:var(--copper-dk);}
 
-    /* —— Header —— */
-    .site-header {
-      border-bottom: 2px solid var(--border-strong);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      backdrop-filter: blur(8px);
-      background: rgba(255, 255, 255, 0.95);
-    }
+  /* —— expertise landscape —— */
+  .landscape{margin-top:2rem;background:rgba(255,253,248,.82);border:1px solid var(--line);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:1.4rem 1.2rem;}
+  .landscape svg{width:100%;height:auto;display:block;}
+  .land-legend{display:flex;flex-wrap:wrap;gap:1.1rem;margin-top:1.2rem;justify-content:center;}
+  .land-legend .ll{display:inline-flex;align-items:center;gap:.5rem;font-style:italic;font-size:.86rem;color:var(--muted);}
+  .land-legend .ll i{width:13px;height:13px;border-radius:50%;display:inline-block;}
 
-    .site-header__inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 1.25rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-    }
+  /* —— close · framed signet —— */
+  .close{padding:5rem 2rem 6rem;}
+  .signet{position:relative;max-width:62rem;margin:0 auto;text-align:center;
+    padding:clamp(2.6rem,6vw,4.6rem) clamp(2rem,7vw,6rem);
+    background:linear-gradient(135deg,#fffaf0 0%, var(--paper2) 100%);
+    border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);}
+  .signet .corner{position:absolute;width:34px;height:34px;border:0 solid var(--gold);}
+  .signet .corner.tl{top:18px;left:18px;border-top-width:2px;border-left-width:2px;}
+  .signet .corner.tr{top:18px;right:18px;border-top-width:2px;border-right-width:2px;}
+  .signet .corner.bl{bottom:18px;left:18px;border-bottom-width:2px;border-left-width:2px;}
+  .signet .corner.br{bottom:18px;right:18px;border-bottom-width:2px;border-right-width:2px;}
+  .signet__quote{font-family:'Playfair Display',serif;font-style:italic;font-weight:500;
+    font-size:clamp(1.5rem,3.1vw,2.35rem);line-height:1.42;color:var(--graphite);max-width:46rem;margin:0 auto;}
+  .signet .dropcap{font-style:normal;font-weight:700;font-size:1.5em;line-height:0;color:var(--copper);padding-right:.03em;}
+  .signet__by{margin-top:2.3rem;display:flex;flex-direction:column;gap:.55rem;}
+  .signet__name{font-family:'Playfair Display',serif;font-style:italic;font-size:1.1rem;color:var(--muted);}
+  .signet__role{font-family:'Lora',serif;font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--copper);}
+  @media(max-width:600px){.signet .corner{width:24px;height:24px;}
+    .signet .corner.tl,.signet .corner.bl{left:12px;} .signet .corner.tr,.signet .corner.br{right:12px;}
+    .signet .corner.tl,.signet .corner.tr{top:12px;} .signet .corner.bl,.signet .corner.br{bottom:12px;}}
 
-    .institution {
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
+  footer{max-width:var(--max);margin:0 auto;padding:2.5rem 2rem 4rem;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;font-style:italic;font-size:.8rem;color:var(--muted);}
 
-    .nav {
-      display: flex;
-      gap: 1.75rem;
-      list-style: none;
-      font-size: 0.75rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .nav a {
-      color: var(--ink);
-      font-weight: 500;
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .nav a:hover { color: var(--accent); }
-
-    /* —— Hero —— */
-    .hero {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 5rem 2rem 4rem;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 3rem;
-      align-items: end;
-    }
-
-    @media (max-width: 768px) {
-      .hero { grid-template-columns: 1fr; padding-top: 3rem; }
-      .nav { display: none; }
-    }
-
-    .hero__eyebrow {
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--ink-muted);
-      margin-bottom: 1rem;
-    }
-
-    .hero__name {
-      font-size: clamp(2.5rem, 5vw, 3.75rem);
-      font-weight: 500;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      color: var(--ink);
-      margin-bottom: 0.5rem;
-    }
-
-    .hero__title {
-      font-size: 1.35rem;
-      font-style: italic;
-      color: var(--ink);
-      font-weight: 500;
-      margin-bottom: 1.75rem;
-    }
-
-    .hero__summary {
-      max-width: 38rem;
-      font-size: 1.05rem;
-      color: var(--ink-muted);
-      font-weight: 400;
-    }
-
-    .hero__stats {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      border-left: 3px solid var(--border-strong);
-      padding-left: 2rem;
-      min-width: 12rem;
-      background: var(--paper-warm);
-      padding: 1.5rem 2rem;
-      border: 2px solid var(--border-strong);
-    }
-
-    .stat {
-      padding: 1.25rem 0;
-      border-bottom: 2px solid var(--line);
-    }
-
-    .stat:last-child { border-bottom: none; }
-
-    .stat__value {
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: 2.25rem;
-      font-weight: 600;
-      color: var(--accent);
-      line-height: 1;
-    }
-
-    .stat__label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--ink-muted);
-      margin-top: 0.35rem;
-    }
-
-    /* —— Sections —— */
-    section {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 4rem 2rem;
-    }
-
-    section + section {
-      border-top: 2px solid var(--border-strong);
-    }
-
-    .section-label {
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 0.75rem;
-    }
-
-    .section-title {
-      font-size: clamp(1.75rem, 3vw, 2.25rem);
-      font-weight: 600;
-      color: var(--ink);
-      margin-bottom: 2.5rem;
-      letter-spacing: -0.01em;
-    }
-
-    /* —— Credentials —— */
-    .credentials {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-    }
-
-    .credential-card {
-      padding: 2rem;
-      background: var(--paper-warm);
-      border: 2px solid var(--border-strong);
-      box-shadow: 0 2px 0 rgba(12, 16, 20, 0.06);
-    }
-
-    .credential-card h3 {
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: var(--ink);
-      margin-bottom: 0.75rem;
-    }
-
-    .credential-card p {
-      font-size: 0.95rem;
-      color: var(--ink-muted);
-      font-weight: 400;
-    }
-
-    .credential-card .period {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 0.5rem;
-    }
-
-    /* —— Strengths grid —— */
-    .strengths {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 2px;
-      background: var(--border-strong);
-      border: 2px solid var(--border-strong);
-    }
-
-    .strength {
-      background: var(--paper-warm);
-      padding: 2rem 1.75rem;
-    }
-
-    .strength h3 {
-      font-size: 1.05rem;
-      font-weight: 600;
-      margin-bottom: 0.6rem;
-      color: var(--ink);
-    }
-
-    .strength p {
-      font-size: 0.9rem;
-      color: var(--ink-muted);
-      font-weight: 400;
-      line-height: 1.55;
-    }
-
-    /* —— Outcomes —— */
-    .outcomes {
-      background: #060809;
-      color: var(--paper);
-      max-width: 100%;
-      padding: 5rem 2rem;
-    }
-
-    .outcomes__inner {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-
-    .outcomes .section-label { color: #e8c992; font-weight: 700; }
-
-    .outcomes .section-title { color: #ffffff; }
-
-    .outcomes-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 2.5rem;
-      margin-top: 1rem;
-    }
-
-    .outcome {
-      padding: 1.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.04);
-    }
-
-    .outcome h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 0.65rem;
-      color: #f0d4a8;
-    }
-
-    .outcome p {
-      font-size: 0.92rem;
-      color: rgba(255, 255, 255, 0.92);
-      line-height: 1.6;
-    }
-
-    .outcome ul {
-      list-style: none;
-      margin-top: 0.5rem;
-    }
-
-    .outcome li {
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.88);
-      padding: 0.35rem 0;
-      padding-left: 1rem;
-      position: relative;
-    }
-
-    .outcome li::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 0.85em;
-      width: 6px;
-      height: 2px;
-      background: #e8c992;
-    }
-
-    /* —— Vision 2030 —— */
-    .vision-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-top: 1rem;
-    }
-
-    .vision-tag {
-      font-size: 0.78rem;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      padding: 0.5rem 1rem;
-      border: 2px solid var(--border-strong);
-      color: var(--ink);
-      background: var(--paper-warm);
-    }
-
-    /* —— Differentiator chain —— */
-    .chain {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.5rem 0.25rem;
-      margin: 2rem 0;
-      font-size: 0.95rem;
-    }
-
-    .chain span {
-      padding: 0.4rem 0.85rem;
-      background: var(--paper-warm);
-      border: 2px solid var(--border-strong);
-      color: var(--ink);
-      font-weight: 500;
-    }
-
-    .chain .arrow {
-      color: var(--accent);
-      font-weight: 700;
-      font-family: "Cormorant Garamond", serif;
-      font-size: 1.1rem;
-      padding: 0;
-      background: none;
-      border: none;
-    }
-
-    .differentiator-quote {
-      font-size: 1.2rem;
-      font-style: italic;
-      color: var(--ink);
-      font-weight: 500;
-      max-width: 42rem;
-      margin-top: 1.5rem;
-      padding-left: 1.5rem;
-      border-left: 4px solid var(--accent);
-    }
-
-    /* —— Footer —— */
-    footer {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 3rem 2rem 4rem;
-      border-top: 2px solid var(--border-strong);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: gap;
-      gap: 1rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--ink-muted);
-    }
-  </style>
+  /* —— reveal —— */
+  @keyframes rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  section,.mast{animation:rise .7s ease both;}
+  section:nth-of-type(2){animation-delay:.05s;}
+  section:nth-of-type(3){animation-delay:.1s;}
+  @media(prefers-reduced-motion:reduce){section,.mast{animation:none;}}
+</style>
 </head>
 <body>
 
-  <nav class="vault-topbar" aria-label="Knowledge base">
-    <a href="index.html">← Knowledge Base</a>
-    <span>Executive Profile</span>
-  </nav>
+<nav class="topbar" aria-label="Knowledge base">
+  <a href="../index.html">← Knowledge Base</a>
+  <span>Executive Capability Profile</span>
+</nav>
 
-  <header class="site-header">
-    <div class="site-header__inner">
-      <span class="institution">Saudi School of Mines</span>
-      <nav>
-        <ul class="nav">
-          <li><a href="#experience">Experience</a></li>
-          <li><a href="#expertise">Expertise</a></li>
-          <li><a href="#outcomes">Outcomes</a></li>
-          <li><a href="#vision">Vision 2030</a></li>
-        </ul>
-      </nav>
+<main>
+
+  <!-- 1 · Masthead -->
+  <section class="mast" aria-labelledby="name">
+    <div>
+      <p class="kicker">Applied Geoscience · National Geological Strategy</p>
+      <h1 id="name" class="mast__name">Professor Abdullah A. Sabtan</h1>
+      <p class="mast__title">Geological Systems Architect</p>
+      <p class="mast__thesis">
+        A senior applied geoscientist who integrates geology, hydrogeology, geotechnics, infrastructure,
+        hazards, and government requirements into practical national frameworks — translating four-plus
+        decades of Saudi field experience into the leadership foundation of the Saudi School of Mines.
+      </p>
     </div>
-  </header>
+    <aside class="kpis" aria-label="Career highlights">
+      <div class="kpi"><div class="kpi__v">47+</div><div class="kpi__l">Years in Saudi Arabia</div></div>
+      <div class="kpi"><div class="kpi__v">PhD</div><div class="kpi__l">SD School of Mines &amp; Technology</div></div>
+      <div class="kpi"><div class="kpi__v">SGS</div><div class="kpi__l">National Consultant · 2012–2017</div></div>
+      <div class="kpi"><div class="kpi__v">3×</div><div class="kpi__l">Academia · Government · Industry</div></div>
+    </aside>
+  </section>
 
-  <main>
-    <section class="hero" aria-labelledby="profile-name">
-      <div>
-        <p class="hero__eyebrow">Applied Geoscience · National Geological Strategy</p>
-        <h1 id="profile-name" class="hero__name serif">Professor Abdullah A. Sabtan</h1>
-        <p class="hero__title serif">Geological Systems Architect</p>
-        <p class="hero__summary">
-          Senior applied geoscientist integrating geology, hydrogeology, geotechnics, infrastructure,
-          hazards, and government requirements into practical frameworks—bridging four decades of
-          Saudi field experience with the next generation of mining and earth-science leadership
-          at the Saudi School of Mines.
-        </p>
-      </div>
-      <aside class="hero__stats" aria-label="Career highlights">
-        <div class="stat">
-          <div class="stat__value serif">47+</div>
-          <div class="stat__label">Years in Saudi Arabia</div>
+  <!-- 2 · The Integrated Chain -->
+  <section aria-labelledby="chain-t">
+    <p class="kicker">The Differentiator</p>
+    <h2 id="chain-t" class="chain-claim">Most geologists specialise in one domain. Professor Sabtan operates across the entire integrated chain.</h2>
+    <div class="chain" aria-label="Integrated expertise chain">
+      <span class="node b">Geology</span><span class="arr">→</span>
+      <span class="node b">Geotechnics</span><span class="arr">→</span>
+      <span class="node c">Water</span><span class="arr">→</span>
+      <span class="node c">Infrastructure</span><span class="arr">→</span>
+      <span class="node c">Hazards</span><span class="arr">→</span>
+      <span class="node g">Government</span><span class="arr">→</span>
+      <span class="node g">Mining</span>
+    </div>
+  </section>
+
+  <!-- 3 · Capability Framework -->
+  <section aria-labelledby="cap-t">
+    <p class="kicker">Core Strategic Strengths</p>
+    <h2 id="cap-t" class="serif" style="font-size:clamp(1.8rem,3vw,2.3rem);">Capability Framework</h2>
+    <p style="color:var(--muted);margin-top:.6rem;">Decades of published research and applied consultation, consolidated into three deployable pillars.</p>
+    <div class="pillars">
+      <article class="pillar">
+        <h3 class="serif">Hazard &amp; Risk Intelligence</h3>
+        <p class="lede">Reading unstable ground before it fails.</p>
+        <div class="caps">
+          <span class="cap">Sinkholes &amp; karst</span><span class="cap">Earth fissures &amp; subsidence</span>
+          <span class="cap">Landslides &amp; slope stability</span><span class="cap">Terrain instability</span>
+          <span class="cap">Geological risk mapping</span><span class="cap">GIS &amp; remote-sensing monitoring</span>
         </div>
-        <div class="stat">
-          <div class="stat__value serif">PhD</div>
-          <div class="stat__label">SD School of Mines &amp; Technology</div>
+      </article>
+      <article class="pillar c">
+        <h3 class="serif">Infrastructure &amp; Geotechnical Resilience</h3>
+        <p class="lede">Founding mega-projects on difficult ground.</p>
+        <div class="caps">
+          <span class="cap">Geotechnical assessment</span><span class="cap">Expansive &amp; saline soils</span>
+          <span class="cap">Foundation risk</span><span class="cap">Dam geology &amp; integrity</span>
+          <span class="cap">Sabkha &amp; coastal (Red Sea)</span><span class="cap">Flood &amp; reservoir modeling</span>
+          <span class="cap">Mega-project foundations</span>
         </div>
-        <div class="stat">
-          <div class="stat__value serif">SGS</div>
-          <div class="stat__label">National Consultant (2012–2017)</div>
+      </article>
+      <article class="pillar g">
+        <h3 class="serif">Water, Materials &amp; Resource Security</h3>
+        <p class="lede">Protecting water and unlocking strategic materials.</p>
+        <div class="caps">
+          <span class="cap">Aquifer sustainability &amp; modeling</span><span class="cap">Groundwater protection</span>
+          <span class="cap">Contamination studies</span><span class="cap">Mine dewatering</span>
+          <span class="cap">Radiation-shielding materials</span><span class="cap">Mineral valorization</span>
+          <span class="cap">Tailings stability</span>
         </div>
-      </aside>
-    </section>
+      </article>
+    </div>
+  </section>
 
-    <section id="experience" aria-labelledby="exp-title">
-      <p class="section-label">Career &amp; Credentials</p>
-      <h2 id="exp-title" class="section-title serif">Experience &amp; Positioning</h2>
-      <div class="credentials">
-        <article class="credential-card">
-          <p class="period">Current</p>
-          <h3 class="serif">Professor of Engineering &amp; Environmental Geology</h3>
-          <p>King Abdulaziz University — advancing applied geoscience education and research across engineering geology and environmental systems.</p>
-        </article>
-        <article class="credential-card">
-          <p class="period">2012 – 2017</p>
-          <h3 class="serif">Geological Engineer Consultant</h3>
-          <p>Saudi Geological Survey — national geological governance, applied decision-making, and government-level geological risk frameworks.</p>
-        </article>
-        <article class="credential-card">
-          <p class="period">Doctoral Training</p>
-          <h3 class="serif">PhD, Geological / Geophysical Engineering</h3>
-          <p>South Dakota School of Mines &amp; Technology — foundational training aligned with the mission and rigor of the Saudi School of Mines.</p>
-        </article>
-        <article class="credential-card">
-          <p class="period">Cross-Sector Bridge</p>
-          <h3 class="serif">Academia · Government · Industry</h3>
-          <p>Recognized for translating geological science into practical national solutions spanning infrastructure, water systems, geohazards, and mining.</p>
-        </article>
-      </div>
-    </section>
+  <!-- 3b · Expertise Landscape (native SVG scatter) -->
+  <section aria-labelledby="land-t">
+    <p class="kicker">Capability Map</p>
+    <h2 id="land-t" class="serif" style="font-size:clamp(1.8rem,3vw,2.3rem);">Expertise Landscape</h2>
+    <p style="color:var(--muted);margin-top:.6rem;">Each capability positioned by academic depth against national &amp; mining impact — bubble size reflects the weight of published research and applied consultation behind it.</p>
+    <div class="landscape">
+      <svg viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Expertise landscape scatter" font-family="Lora, serif">
+      <line x1="72" y1="34" x2="72" y2="450" stroke="#ded4c1" stroke-width="1"/>
+      <line x1="72" y1="450" x2="770" y2="450" stroke="#ded4c1" stroke-width="1"/>
+      <text x="72" y="468" fill="#bdb3a0" font-size="11" text-anchor="middle">50</text>
+      <text x="62" y="454" fill="#bdb3a0" font-size="11" text-anchor="end">50</text>
+      <line x1="212" y1="34" x2="212" y2="450" stroke="#ded4c1" stroke-width="1"/>
+      <line x1="72" y1="367" x2="770" y2="367" stroke="#ded4c1" stroke-width="1"/>
+      <text x="212" y="468" fill="#bdb3a0" font-size="11" text-anchor="middle">60</text>
+      <text x="62" y="371" fill="#bdb3a0" font-size="11" text-anchor="end">60</text>
+      <line x1="351" y1="34" x2="351" y2="450" stroke="#ded4c1" stroke-width="1"/>
+      <line x1="72" y1="284" x2="770" y2="284" stroke="#ded4c1" stroke-width="1"/>
+      <text x="351" y="468" fill="#bdb3a0" font-size="11" text-anchor="middle">70</text>
+      <text x="62" y="288" fill="#bdb3a0" font-size="11" text-anchor="end">70</text>
+      <line x1="491" y1="34" x2="491" y2="450" stroke="#ded4c1" stroke-width="1"/>
+      <line x1="72" y1="200" x2="770" y2="200" stroke="#ded4c1" stroke-width="1"/>
+      <text x="491" y="468" fill="#bdb3a0" font-size="11" text-anchor="middle">80</text>
+      <text x="62" y="204" fill="#bdb3a0" font-size="11" text-anchor="end">80</text>
+      <line x1="630" y1="34" x2="630" y2="450" stroke="#ded4c1" stroke-width="1"/>
+      <line x1="72" y1="117" x2="770" y2="117" stroke="#ded4c1" stroke-width="1"/>
+      <text x="630" y="468" fill="#bdb3a0" font-size="11" text-anchor="middle">90</text>
+      <text x="62" y="121" fill="#bdb3a0" font-size="11" text-anchor="end">90</text>
+      <line x1="770" y1="34" x2="770" y2="450" stroke="#ded4c1" stroke-width="1"/>
+      <line x1="72" y1="34" x2="770" y2="34" stroke="#ded4c1" stroke-width="1"/>
+      <text x="770" y="468" fill="#bdb3a0" font-size="11" text-anchor="middle">100</text>
+      <text x="62" y="38" fill="#bdb3a0" font-size="11" text-anchor="end">100</text>
+      <line x1="72" y1="34" x2="72" y2="450" stroke="#4a453c" stroke-width="1.5"/>
+      <line x1="72" y1="450" x2="770" y2="450" stroke="#4a453c" stroke-width="1.5"/>
+      <text x="421" y="498" fill="#4a453c" font-size="13.5" font-style="italic" text-anchor="middle">Academic Depth &amp; Publication Base</text>
+      <text transform="translate(22,242) rotate(-90)" fill="#4a453c" font-size="13.5" font-style="italic" text-anchor="middle">National &amp; Mining Relevance (Impact)</text>
+      <circle cx="700" cy="76" r="28" fill="#a5643a" fill-opacity="0.80" stroke="#fffdf8" stroke-width="2"><title>Dam Safety — depth 95, impact 95</title></circle>
+      <circle cx="602" cy="101" r="27" fill="#2f5367" fill-opacity="0.80" stroke="#fffdf8" stroke-width="2"><title>Landslide Hazards — depth 88, impact 92</title></circle>
+      <circle cx="630" cy="159" r="25" fill="#496f61" fill-opacity="0.80" stroke="#fffdf8" stroke-width="2"><title>Groundwater Pollution — depth 90, impact 85</title></circle>
+      <circle cx="491" cy="117" r="22" fill="#a5643a" fill-opacity="0.80" stroke="#fffdf8" stroke-width="2"><title>Sabkha Mechanics — depth 80, impact 90</title></circle>
+      <circle cx="421" cy="284" r="18" fill="#496f61" fill-opacity="0.80" stroke="#fffdf8" stroke-width="2"><title>Aquifer Volume — depth 75, impact 70</title></circle>
+      <circle cx="561" cy="242" r="15" fill="#2f5367" fill-opacity="0.80" stroke="#fffdf8" stroke-width="2"><title>Remote Sensing — depth 85, impact 75</title></circle>
+      <circle cx="351" cy="367" r="12" fill="#b89344" fill-opacity="0.80" stroke="#fffdf8" stroke-width="2"><title>Radioactive Attenuation — depth 70, impact 60</title></circle>
+      <circle cx="281" cy="408" r="10" fill="#2f5367" fill-opacity="0.80" stroke="#fffdf8" stroke-width="2"><title>Earth Fissures — depth 65, impact 55</title></circle>
+      <text x="491" y="88" fill="#232421" font-size="12.5" text-anchor="middle">Sabkha Mechanics</text>
+      <text x="561" y="219" fill="#232421" font-size="12.5" text-anchor="middle">Remote Sensing</text>
+      <text x="700" y="40" fill="#232421" font-size="12.5" text-anchor="middle">Dam Safety</text>
+      <text x="351" y="347" fill="#232421" font-size="12.5" text-anchor="middle">Radioactive Attenuation</text>
+      <text x="630" y="200" fill="#232421" font-size="12.5" text-anchor="middle">Groundwater Pollution</text>
+      <text x="281" y="390" fill="#232421" font-size="12.5" text-anchor="middle">Earth Fissures</text>
+      <text x="602" y="66" fill="#232421" font-size="12.5" text-anchor="middle">Landslide Hazards</text>
+      <text x="421" y="257" fill="#232421" font-size="12.5" text-anchor="middle">Aquifer Volume</text>
+      </svg>
+    </div>
+    <div class="land-legend" aria-label="Legend">
+      <span class="ll"><i style="background:var(--blue)"></i>Hazard &amp; risk intelligence</span>
+      <span class="ll"><i style="background:var(--copper)"></i>Infrastructure &amp; geotechnics</span>
+      <span class="ll"><i style="background:var(--gold)"></i>Strategic materials</span>
+      <span class="ll"><i style="background:var(--green)"></i>Water &amp; hydrogeology</span>
+    </div>
+  </section>
 
-    <section id="expertise" aria-labelledby="exp-expertise">
-      <p class="section-label">Core Strategic Strengths</p>
-      <h2 id="exp-expertise" class="section-title serif">Domains of Expertise</h2>
-      <div class="strengths">
-        <article class="strength">
-          <h3 class="serif">Geological Hazard Intelligence</h3>
-          <p>Sinkholes, karst systems, earth fissures, subsidence, terrain instability, and geological risk mapping.</p>
-        </article>
-        <article class="strength">
-          <h3 class="serif">Infrastructure Resilience</h3>
-          <p>Geotechnical assessment, expansive soils, foundation risks, dam investigations, and flood-risk evaluation.</p>
-        </article>
-        <article class="strength">
-          <h3 class="serif">Hydrogeology &amp; Water Security</h3>
-          <p>Aquifer sustainability, groundwater protection, contamination studies, and water stewardship.</p>
-        </article>
-        <article class="strength">
-          <h3 class="serif">Sabkha &amp; Coastal Geotechnics</h3>
-          <p>Coastal sabkha studies, saline soils, and Red Sea coastal infrastructure support.</p>
-        </article>
-        <article class="strength">
-          <h3 class="serif">Remote Sensing &amp; Intelligence</h3>
-          <p>GIS, remote sensing, hazard mapping, and geological monitoring systems.</p>
-        </article>
-        <article class="strength">
-          <h3 class="serif">Dam &amp; Flood Systems</h3>
-          <p>Reservoir modeling, flood hazard assessment, dam geology, and resilience planning.</p>
-        </article>
-        <article class="strength">
-          <h3 class="serif">Strategic Minerals &amp; Materials</h3>
-          <p>Radiation shielding materials, mineral valorization, and geological materials engineering.</p>
-        </article>
-      </div>
-    </section>
+  <!-- 4 · Strategic Value Dashboard -->
+  <section aria-labelledby="val-t">
+    <p class="kicker">National Alignment · Vision 2030</p>
+    <h2 id="val-t" class="serif" style="font-size:clamp(1.8rem,3vw,2.3rem);">Strategic Value</h2>
+    <p style="color:var(--muted);margin-top:.6rem;">Where deep capability converts directly into measurable national outcomes.</p>
+    <div class="impact">
+      <div class="irow"><span class="cap-name">Geohazard intelligence</span><span class="arr">→</span><span class="out">Open-pit &amp; mine-wall stability; national hazard monitoring</span></div>
+      <div class="irow"><span class="cap-name">Geotechnics &amp; sabkha</span><span class="arr">→</span><span class="out">Giga-project foundations (NEOM, Red Sea) &amp; tailings-dam design</span></div>
+      <div class="irow"><span class="cap-name">Hydrogeology</span><span class="arr">→</span><span class="out">Mine dewatering &amp; aquifer stewardship during industrial operation</span></div>
+      <div class="irow"><span class="cap-name">Materials &amp; radiation</span><span class="arr">→</span><span class="out">Green-mining governance &amp; critical-minerals development</span></div>
+    </div>
+    <div class="tags" aria-label="Vision 2030 priorities">
+      <span class="tag">Mining sector expansion</span><span class="tag">Critical minerals</span>
+      <span class="tag">Water security</span><span class="tag">Infrastructure resilience</span>
+      <span class="tag">Environmental sustainability</span><span class="tag">Geological risk reduction</span>
+      <span class="tag">National hazard monitoring</span>
+    </div>
+  </section>
 
-    <section class="outcomes" id="outcomes" aria-labelledby="outcomes-title">
-      <div class="outcomes__inner">
-        <p class="section-label">Saudi School of Mines</p>
-        <h2 id="outcomes-title" class="section-title serif">Expected Contributions &amp; Outcomes</h2>
-        <div class="outcomes-grid">
-          <article class="outcome">
-            <h3 class="serif">Academic Leadership</h3>
-            <p>Mentor graduate researchers and shape curricula that connect classical geology with modern mining, geotechnics, and national resource strategy.</p>
-          </article>
-          <article class="outcome">
-            <h3 class="serif">Applied Research Programs</h3>
-            <p>Lead investigations in hazards, hydrogeology, and geotechnical systems directly relevant to Saudi terrain and Vision 2030 mining expansion.</p>
-          </article>
-          <article class="outcome">
-            <h3 class="serif">Industry &amp; Government Liaison</h3>
-            <p>Leverage SGS and cross-sector experience to align school research with national geological surveys, infrastructure agencies, and mineral developers.</p>
-          </article>
-          <article class="outcome">
-            <h3 class="serif">National Capability Building</h3>
-            <ul>
-              <li>Critical minerals and geological materials engineering</li>
-              <li>Geological risk reduction and hazard monitoring</li>
-              <li>Water security and aquifer stewardship frameworks</li>
-              <li>Infrastructure resilience for dams, coasts, and foundations</li>
-              <li>Decision-ready geological intelligence for policymakers</li>
-            </ul>
-          </article>
-        </div>
-      </div>
-    </section>
+  <!-- 5 · Career & Credibility -->
+  <section aria-labelledby="car-t">
+    <p class="kicker">Career &amp; Credibility</p>
+    <h2 id="car-t" class="serif" style="font-size:clamp(1.8rem,3vw,2.3rem);margin-bottom:.4rem;">A Trajectory Built Across Sectors</h2>
+    <div class="narr">
+      <div class="row"><div class="when">Current</div><div class="what"><h3 class="serif">Professor of Engineering &amp; Environmental Geology</h3><p>King Abdulaziz University — advancing applied geoscience education and research across engineering geology and environmental systems.</p></div></div>
+      <div class="row"><div class="when">2012–2017</div><div class="what"><h3 class="serif">Geological Engineer Consultant, Saudi Geological Survey</h3><p>National geological governance and government-level geological-risk frameworks — the bridge from the lab to state decision-making.</p></div></div>
+      <div class="row"><div class="when">Doctoral</div><div class="what"><h3 class="serif">PhD, Geological / Geophysical Engineering</h3><p>South Dakota School of Mines &amp; Technology — foundational training aligned to the very mission of the Saudi School of Mines.</p></div></div>
+      <div class="row"><div class="when">Throughout</div><div class="what"><h3 class="serif">Academia · Government · Industry</h3><p>Recognised for translating geological science into practical national solutions spanning infrastructure, water, geohazards, and mining.</p></div></div>
+    </div>
+  </section>
 
-    <section id="vision" aria-labelledby="vision-title">
-      <p class="section-label">National Alignment</p>
-      <h2 id="vision-title" class="section-title serif">Strategic Value to Saudi Arabia</h2>
-      <p style="color: var(--ink-muted); max-width: 40rem;">
-        Supports Vision 2030 priorities by connecting earth-science research to measurable national outcomes—
-        from mining sector growth to environmental sustainability and geological risk governance.
-      </p>
-      <div class="vision-list" role="list">
-        <span class="vision-tag" role="listitem">Mining sector expansion</span>
-        <span class="vision-tag" role="listitem">Critical minerals development</span>
-        <span class="vision-tag" role="listitem">Water security</span>
-        <span class="vision-tag" role="listitem">Infrastructure resilience</span>
-        <span class="vision-tag" role="listitem">Environmental sustainability</span>
-        <span class="vision-tag" role="listitem">Geological risk reduction</span>
-        <span class="vision-tag" role="listitem">National hazard monitoring</span>
-      </div>
+  <!-- 6 · Forward Mandate -->
+  <section aria-labelledby="fwd-t">
+    <p class="kicker">Proposed Strategic Role</p>
+    <h2 id="fwd-t" class="serif" style="font-size:clamp(1.8rem,3vw,2.3rem);">Forward Mandate</h2>
+    <p style="color:var(--muted);margin-top:.6rem;">A staged activation that converts a consulting legacy into institutional capability.</p>
+    <div class="phases">
+      <article class="phase"><div class="ph">Phase I · 0–12 months</div><h3 class="serif">Knowledge Capitalisation</h3><div class="yr">Modernisation</div><p>Convert decades of consulting reports and hazard mappings into Geological Digital Twins; apply machine learning to existing remote-sensing datasets for automated hazard prediction.</p></article>
+      <article class="phase c"><div class="ph">Phase II · 1–2 years</div><h3 class="serif">Institutional Advisory</h3><div class="yr">Restructuring</div><p>Establish the Applied Environmental Risk Consortium within the School; secure advisory positions with the Saudi Geological Survey and national infrastructure authorities.</p></article>
+      <article class="phase g"><div class="ph">Phase III · 2–5 years</div><h3 class="serif">Executive Leadership</h3><div class="yr">Consolidation</div><p>Chief Geological Risk Officer for mega-projects, directing national policy on tailings-dam safety, groundwater preservation, and geotechnical standards for new industrial cities.</p></article>
+    </div>
+    <p class="roleline">Best deployed as <b>Chief Geological Risk Officer</b> &amp; <b>VP, Applied Mining Projects</b> — the institution's bridge to Ma'aden, the Ministry, and the Saudi Geological Survey.</p>
+  </section>
 
-      <p class="section-label" style="margin-top: 3.5rem;">Unique Differentiator</p>
-      <h3 class="section-title serif" style="font-size: 1.5rem; margin-bottom: 1rem;">The Full Geological Chain</h3>
-      <p style="color: var(--ink-muted); max-width: 36rem; margin-bottom: 0.5rem;">
-        Most geologists specialize in one domain. Professor Sabtan operates across the integrated chain:
-      </p>
-      <div class="chain" aria-label="Integrated expertise chain">
-        <span>Geology</span><span class="arrow">→</span>
-        <span>Geotechnics</span><span class="arrow">→</span>
-        <span>Water</span><span class="arrow">→</span>
-        <span>Infrastructure</span><span class="arrow">→</span>
-        <span>Hazards</span><span class="arrow">→</span>
-        <span>Government</span><span class="arrow">→</span>
-        <span>Mining</span>
-      </div>
-      <blockquote class="differentiator-quote serif">
-        Transforming geological knowledge into national capability—where science meets stewardship,
-        and research serves the Kingdom's earth-resource future.
-      </blockquote>
-    </section>
-  </main>
+  <!-- 7 · Close -->
+  <section class="close" aria-label="Signature statement">
+    <figure class="signet">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
+      <blockquote class="signet__quote"><span class="dropcap">T</span>ransforming geological knowledge into national capability — where science meets stewardship, and research serves the Kingdom's earth-resource future.</blockquote>
+      <figcaption class="signet__by">
+        <span class="signet__name">Professor Abdullah A. Sabtan</span>
+        <span class="signet__role">Geological Systems Architect · Saudi School of Mines</span>
+      </figcaption>
+    </figure>
+  </section>
 
-  <footer>
-    <span>Professor Abdullah A. Sabtan</span>
-    <span>Saudi School of Mines · Strategic Profile</span>
-  </footer>
+</main>
+
+<footer>
+  <span>Professor Abdullah A. Sabtan</span>
+  <span>Saudi School of Mines · Executive Capability Profile</span>
+</footer>
 
 </body>
 </html>
