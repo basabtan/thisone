@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GeoStrength — GSI & Slope Stability</title>
+  
+  <link rel="icon" href="/favicon.ico" sizes="48x48"/>
+  <link rel="icon" href="/assets/favicon/favicon.svg" type="image/svg+xml"/>
+  <link rel="icon" href="/assets/favicon/favicon-32.png" type="image/png" sizes="32x32"/>
+  <link rel="icon" href="/assets/favicon/favicon-16.png" type="image/png" sizes="16x16"/>
+  <link rel="apple-touch-icon" href="/assets/favicon/favicon-180.png"/>
+<title>GeoStrength — GSI & Slope Stability</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -356,6 +362,22 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opac
 }
 .vault-back:hover{color:var(--clay)}
 
+.lem-extension-callout{
+  margin-top:28px;padding:20px 22px;border:1px dashed var(--line);
+  border-radius:var(--radius-sm);background:color-mix(in srgb,var(--clay) 8%,var(--surface));
+  display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;
+}
+.lem-extension-callout p{margin:0;flex:1 1 220px;font-size:.92rem;color:var(--ink-soft);line-height:1.55}
+.lem-extension-callout a{
+  font-family:var(--font-accent);font-weight:600;font-size:.88rem;color:var(--primary-deep);
+  text-decoration:none;white-space:nowrap;
+}
+.lem-extension-callout a:hover{color:var(--clay)}
+.lem-ext-tag{
+  font-family:var(--font-accent);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--clay);font-weight:600;
+}
+
 </style>
   <link rel="stylesheet" href="/shared/nav-strip.css"/>
   <script>
@@ -677,6 +699,12 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opac
               FS = (c·A + (W·cos β − U)·tan φ) / (W·sin β + T)
             </p>
           </aside>
+        </div>
+
+        <div class="lem-extension-callout" role="complementary" aria-label="GeoStrength extension">
+          <span class="lem-ext-tag">Extension</span>
+          <p><strong>Rock Slope Reinforcement Helper</strong> — uses planar LEM outputs to estimate bolt capacity, spacing, and target FS with design charts (per-metre run).</p>
+          <a href="rock-slope-reinforcement-najd.html">Open reinforcement helper &#8594;</a>
         </div>
       </section>
 
@@ -1014,7 +1042,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opac
 
           <section class="about-block">
             <h3>Module II — Planar LEM</h3>
-            <p>Planar block on a daylighting joint. Advanced adds tension crack, crack water, and pseudo-static seismic force.</p>
+            <p>Planar block on a daylighting joint. Advanced adds tension crack, crack water, and pseudo-static seismic force. For bolt spacing and target FS design charts, use the linked <a href="rock-slope-reinforcement-najd.html">Rock Slope Reinforcement Helper</a> (GeoStrength extension).</p>
             <p class="equation">FS = (c·A + (W cos β − U) tan φ) / (W sin β + T + k<sub>h</sub>·W)</p>
           </section>
 

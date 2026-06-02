@@ -1,0 +1,17 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sabtan Knowledge Base">
+  <title>Sabtan Knowledge Base</title>
+  <rect x="0" y="0" width="512" height="512" rx="114" fill="#F4F1E9"/>
+  <circle cx="256" cy="256" r="174" fill="none" stroke="#A4683C" stroke-width="3.4"/>
+  <circle cx="256" cy="256" r="163" fill="none" stroke="#A4683C" stroke-width="1.1" opacity="0.35"/>
+  <g transform="translate(256,256) scale(0.9) translate(-256,-256)">
+    <g stroke-linecap="round" fill="none" stroke-width="12">
+      <line x1="180" y1="227" x2="248" y2="227" stroke="#B0934C"/>
+      <line x1="160" y1="255" x2="250" y2="255" stroke="#3C536B"/>
+      <line x1="162" y1="283" x2="242" y2="283" stroke="#3C536B"/>
+      <line x1="262" y1="241" x2="364" y2="241" stroke="#B0934C"/>
+      <line x1="266" y1="269" x2="352" y2="269" stroke="#3C536B"/>
+      <line x1="286" y1="297" x2="352" y2="297" stroke="#3C536B"/>
+    </g>
+    <line x1="238" y1="416" x2="286" y2="100" stroke="#A4683C" stroke-width="7.5" stroke-linecap="round"/>
+  </g>
+</svg>

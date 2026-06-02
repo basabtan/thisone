@@ -50,6 +50,7 @@ Catalogue page: **`instruments.html`**
 | `vtest-najd.html` | V-test Dashboard | Preferred orientation (μ₀) for Najd sites — compass, presets, circular statistics |
 | `najd-tilt-level.html` | Surface Tilt Level | Phone sensors — tilt, slope, roll, pitch, lower direction (HTTPS on mobile) |
 | `geostrength.html` | GeoStrength | Rock mass classification, GSI, Hoek–Brown, wedge analysis, Najd Δθ |
+| `rock-slope-reinforcement-najd.html` | Rock Slope Reinforcement Helper | **Extension of GeoStrength** — planar LEM + bolt spacing, target FS, design charts |
 | `geo-pavement-toolkit.html` | Geotechnical & Pavement Toolkit | Bearing capacity, CBR, plate bearing test, flexible pavement design |
 
 Typical intents:
@@ -60,6 +61,7 @@ Typical intents:
 | V-test / circular statistics / μ₀ | `vtest-najd.html` |
 | Tilt level / bubble level / phone slope | `najd-tilt-level.html` |
 | GSI / slope stability / Hoek–Brown | `geostrength.html` |
+| Rock slope bolts / reinforcement / target FS after LEM | `rock-slope-reinforcement-najd.html` |
 | CBR / pavement / foundation design | `geo-pavement-toolkit.html` |
 
 ---

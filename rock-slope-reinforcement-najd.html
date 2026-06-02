@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.ico" sizes="48x48"/>
+<link rel="icon" href="/assets/favicon/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="/assets/favicon/favicon-32.png" type="image/png" sizes="32x32"/>
+<link rel="icon" href="/assets/favicon/favicon-16.png" type="image/png" sizes="16x16"/>
+<link rel="apple-touch-icon" href="/assets/favicon/favicon-180.png"/>
+<title>Rock Slope Reinforcement — GeoStrength Extension</title>
+<link rel="stylesheet" href="/shared/nav-strip.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font-display:'Playfair Display',serif; --font-body:'Lora',serif;
+  --font-accent:'Lora',serif; --font-num:'Lora',serif;
+  --ink:#232421; --ink-soft:#4a453c; --ink-faint:#bdb3a0;
+  --surface:#fffdf8; --surface-2:#f5efe3; --line:#ded4c1; --line-soft:#e7e2d6;
+  --primary:#2f5367; --primary-deep:#1e3a4a; --accent:#a5643a; --accent-2:#b89344;
+  --radius:18px; --radius-sm:12px; --radius-pill:999px;
+  --shadow:0 18px 45px rgba(55,45,30,.12);
+  --result-bg:#f5efe3; --result-ink:#232421; --result-ink-soft:#6f6757; --result-label:#a5643a;
+  --result-accent:linear-gradient(180deg,#a5643a,#b89344);
+  --r-ok:#3c6b54; --r-warn:#9a7320; --r-bad:#9a3b2c;
+  --chart-1:#2f5367; --chart-2:#a5643a; --chart-3:#b89344;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  color:var(--ink); font-family:var(--font-body); line-height:1.6;
+  -webkit-font-smoothing:antialiased; padding:48px 22px 96px; min-height:100vh;
+  background:
+    radial-gradient(circle at top left, rgba(199,167,106,.22), transparent 32%),
+    linear-gradient(135deg,#fffaf0 0%,#fbf7ef 46%,#f1eadb 100%);
+}
+.wrap{max-width:1000px;margin:0 auto}
+.vault-nav-top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-bottom:22px;font-size:.88rem}
+.vault-back{color:var(--primary);text-decoration:none;font-family:var(--font-accent);font-weight:600;letter-spacing:.04em}
+.vault-back:hover{color:var(--accent)}
+.vault-back.parent{color:var(--ink-soft);font-weight:500}
+.vault-nav-sep{color:var(--ink-faint);user-select:none}
+
+/* ════ MASTHEAD ════ */
+.masthead{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;
+  padding-bottom:20px;margin-bottom:30px;border-bottom:2px solid var(--ink)}
+.kicker{font-family:var(--font-accent);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--accent);font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:12px}
+.kicker::after{content:"";flex:1;height:1px;background:var(--line);max-width:120px}
+.masthead h1{font-family:var(--font-display);font-weight:700;font-size:clamp(1.7rem,4vw,2.6rem);
+  line-height:1.04;letter-spacing:-.01em;color:#1a1c19}
+.masthead .sub{color:var(--ink-soft);margin-top:8px;max-width:48ch;font-size:.96rem}
+.adv-toggle{display:flex;align-items:center;gap:10px;flex-shrink:0;font-family:var(--font-accent);
+  font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap}
+.switch{position:relative;width:46px;height:24px;cursor:pointer}
+.switch input{opacity:0;width:0;height:0}
+.track{position:absolute;inset:0;background:var(--line);border-radius:24px;transition:.2s}
+.track::before{content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;
+  border-radius:50%;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.switch input:checked + .track{background:var(--primary)}
+.switch input:checked + .track::before{transform:translateX(22px)}
+
+/* ════ PANEL ════ */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:32px 32px 36px;margin-bottom:24px;box-shadow:var(--shadow)}
+.panel-intro{display:flex;gap:18px;align-items:flex-start;margin-bottom:26px}
+.section-mark{font-family:var(--font-accent);font-weight:600;font-size:.8rem;color:#fff;
+  background:var(--primary);min-width:36px;height:36px;border-radius:var(--radius-sm);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;padding:0 8px}
+.panel-intro h3{font-family:var(--font-display);font-weight:700;font-size:1.34rem;margin-bottom:5px;line-height:1.1}
+.hint{font-size:.9rem;color:var(--ink-soft);max-width:64ch;font-style:italic}
+
+.layout-two-col{display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:start}
+@media(max-width:780px){.layout-two-col{grid-template-columns:1fr}}
+.inputs-stack{display:flex;flex-direction:column;gap:24px}
+.input-group{border:0}
+.input-group legend{display:flex;align-items:center;gap:10px;margin-bottom:14px;
+  font-family:var(--font-accent);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--primary-deep);font-weight:600}
+.legend-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+  border:1px solid var(--primary);border-radius:50%;font-size:.66rem;color:var(--primary)}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:480px){.field-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.84rem;color:var(--ink-soft)}
+.field .unit{font-family:var(--font-accent);font-size:.74rem;color:var(--primary)}
+.field .unit sub{font-size:.62rem}
+.field input{font-family:var(--font-num);font-variant-numeric:tabular-nums lining-nums;
+  font-size:.98rem;color:var(--ink);background:#fff;border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:9px 11px;transition:border-color .15s,box-shadow .15s}
+.field input:focus{outline:0;border-color:var(--primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 16%,transparent)}
+
+/* buttons */
+.btn-row{margin-top:2px}
+.btn-primary{font-family:var(--font-accent);font-size:.92rem;font-style:italic;cursor:pointer;border:0;
+  color:#fffaf0;background:var(--primary);font-weight:600;padding:13px 26px;border-radius:var(--radius-pill);
+  box-shadow:0 6px 24px rgba(47,83,103,.28);transition:all .2s}
+.btn-primary:hover{background:var(--primary-deep);transform:translateY(-1px)}
+
+/* ════ RESULT CARD ════ */
+.result-card{position:relative;background:var(--result-bg);color:var(--result-ink);
+  border:1px solid var(--line);border-radius:var(--radius);padding:26px 26px 22px;overflow:hidden}
+.result-accent{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--result-accent)}
+.result-label{font-family:var(--font-accent);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--result-label);margin-bottom:16px;font-weight:600}
+.result-breakdown{display:flex;flex-direction:column;gap:11px}
+.result-breakdown > div{display:flex;justify-content:space-between;align-items:baseline;gap:14px}
+.result-breakdown dt{font-size:.86rem;color:var(--result-ink-soft)}
+.result-breakdown dd{font-family:var(--font-num);font-variant-numeric:tabular-nums lining-nums;
+  font-size:1.02rem;font-weight:600;color:var(--result-ink);text-align:right}
+.result-divider-line{height:1px;background:color-mix(in srgb,var(--result-ink) 16%,transparent);margin:18px 0}
+.formula-note{font-size:.74rem;color:var(--result-ink-soft);margin-top:16px;line-height:1.5}
+#reinf-status,#lem-status{font-size:.84rem;line-height:1.45}
+dd.fs-ok,.status-ok{color:var(--r-ok)!important}
+dd.fs-warn,.status-warn{color:var(--r-warn)!important}
+dd.fs-bad,.status-bad{color:var(--r-bad)!important}
+
+/* advanced sub-section */
+.adv-field[hidden]{display:none}
+.lem-reinf{margin-top:32px;padding-top:30px;border-top:1px dashed var(--line)}
+.lem-reinf .panel-intro h3{font-size:1.16rem}
+.extends-tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-accent);
+  font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 12%,transparent);
+  border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
+  border-radius:999px;padding:3px 10px;margin-bottom:8px;font-weight:600}
+.extends-tag::before{content:"↳";font-size:.82rem}
+
+/* ════ CHARTS ════ */
+.charts-block{margin-top:30px;padding-top:28px;border-top:1px dashed var(--line)}
+.charts-head{font-family:var(--font-accent);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--primary-deep);font-weight:600;margin-bottom:16px}
+.charts{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:780px){.charts{grid-template-columns:1fr}}
+.chart-card{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:18px 18px 16px;position:relative;overflow:hidden}
+.chart-card .ck{font-family:var(--font-accent);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--accent);font-weight:600;margin-bottom:3px}
+.chart-card h5{font-family:var(--font-display);font-weight:700;font-size:1rem;margin-bottom:14px;line-height:1.15}
+.chart-card svg{width:100%;height:auto;display:block;overflow:visible}
+.chart-card svg .grid{stroke:var(--line);stroke-width:1}
+.chart-card svg .ax{stroke:var(--ink-faint);stroke-width:1;opacity:.6}
+.chart-card svg .s1{fill:none;stroke:var(--chart-1);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+.chart-card svg .mk{stroke:var(--chart-2);stroke-width:1.4;stroke-dasharray:4 3}
+.chart-card svg .dot1{fill:var(--chart-2);stroke:var(--surface);stroke-width:1.5}
+.chart-card svg text{font-family:var(--font-accent);font-size:9px;fill:var(--ink-faint)}
+.chart-card svg .vlabel{fill:var(--ink-soft);font-weight:600;font-size:9.5px}
+.chart-card svg .mklbl{fill:var(--chart-2);font-weight:600;font-size:9px}
+.chart-card svg .empty-t{fill:var(--ink-faint);font-size:11px;font-family:var(--font-body)}
+
+.fsbars{display:flex;flex-direction:column;gap:13px;margin-top:4px}
+.fsbar-row{display:grid;grid-template-columns:58px 1fr auto;align-items:center;gap:10px}
+.fsbar-name{font-family:var(--font-accent);font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.fsbar-track{position:relative;height:16px;background:color-mix(in srgb,var(--ink) 9%,transparent);border-radius:999px;overflow:hidden}
+.fsbar-fill{height:100%;border-radius:inherit;transition:width .4s ease}
+.fsbar-fill.bar-ok{background:var(--r-ok)} .fsbar-fill.bar-warn{background:var(--r-warn)}
+.fsbar-fill.bar-bad{background:var(--r-bad)} .fsbar-fill.bar-target{background:var(--chart-2)}
+.fsbar-marker{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink);opacity:.55}
+.fsbar-val{font-family:var(--font-num);font-variant-numeric:tabular-nums lining-nums;font-size:.82rem;font-weight:600;color:var(--ink);min-width:34px;text-align:right}
+.chart-cap{font-size:.74rem;color:var(--ink-soft);margin-top:8px}
+.chart-empty{font-size:.8rem;color:var(--ink-faint);padding:14px 0}
+
+.foot{font-family:var(--font-accent);font-size:.7rem;color:var(--ink-faint);text-align:center;
+  margin-top:28px;letter-spacing:.06em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="vault-nav-top" aria-label="Vault navigation">
+    <a class="vault-back parent" href="instruments.html">&#8592; Instruments</a>
+    <span class="vault-nav-sep" aria-hidden="true">·</span>
+    <a class="vault-back" href="geostrength.html">&#8592; GeoStrength</a>
+  </nav>
+
+  <header class="masthead">
+    <div>
+      <p class="kicker">Engineering Geology · Slope Stability</p>
+      <h1>Planar Limit-Equilibrium Analysis</h1>
+      <p class="sub">Dry planar failure through the toe, per unit run of slope. Toggle advanced mode for the reinforcement helper. Extends <a href="geostrength.html" style="color:var(--primary);font-weight:600">GeoStrength</a> Module II (planar LEM).</p>
+    </div>
+    <label class="adv-toggle">
+      Advanced
+      <span class="switch"><input type="checkbox" id="adv-mode"><span class="track"></span></span>
+    </label>
+  </header>
+
+  <!-- ════ PANEL II — PLANAR LEM ════ -->
+  <section class="panel" id="panel-lem">
+    <header class="panel-intro">
+      <span class="section-mark">II</span>
+      <div>
+        <h3>Planar slope — factor of safety</h3>
+        <p class="hint">Computes the resisting and driving shear on a single planar discontinuity and the resulting factor of safety.</p>
+      </div>
+    </header>
+
+    <div class="layout-two-col">
+      <div class="inputs-stack">
+        <fieldset class="input-group">
+          <legend><span class="legend-num">1</span> Slope geometry</legend>
+          <div class="field-grid">
+            <div class="field"><label for="lem-H">Slope height <span class="unit">H (m)</span></label>
+              <input type="number" id="lem-H" value="12" min="1" step="0.5"></div>
+            <div class="field"><label for="lem-psif">Face angle <span class="unit">ψ<sub>f</sub> (°)</span></label>
+              <input type="number" id="lem-psif" value="65" min="1" max="89" step="1"></div>
+            <div class="field"><label for="lem-psip">Plane dip <span class="unit">ψ<sub>p</sub> (°)</span></label>
+              <input type="number" id="lem-psip" value="35" min="1" max="89" step="1"></div>
+            <div class="field"><label for="lem-gamma">Unit weight <span class="unit">γ (kN/m³)</span></label>
+              <input type="number" id="lem-gamma" value="26" min="10" step="0.5"></div>
+          </div>
+        </fieldset>
+
+        <fieldset class="input-group">
+          <legend><span class="legend-num">2</span> Shear strength on plane</legend>
+          <div class="field-grid">
+            <div class="field"><label for="lem-c">Cohesion <span class="unit">c (kPa)</span></label>
+              <input type="number" id="lem-c" value="25" min="0" step="1"></div>
+            <div class="field"><label for="lem-phi">Friction angle <span class="unit">φ (°)</span></label>
+              <input type="number" id="lem-phi" value="32" min="0" max="60" step="1"></div>
+          </div>
+        </fieldset>
+
+        <div class="btn-row"><button type="button" class="btn-primary" id="btn-lem-calc">Recompute LEM</button></div>
+      </div>
+
+      <aside class="result-card" aria-live="polite">
+        <div class="result-accent" aria-hidden="true"></div>
+        <p class="result-label">Planar LEM result</p>
+        <dl class="result-breakdown">
+          <div><dt>Block weight W</dt><dd id="lem-W">— kN/m</dd></div>
+          <div><dt>Plane length A</dt><dd id="lem-A">— m</dd></div>
+          <div><dt>Resisting shear R</dt><dd id="lem-R">— kN/m</dd></div>
+          <div><dt>Driving shear T<sub>d</sub></dt><dd id="lem-Td">— kN/m</dd></div>
+        </dl>
+        <div class="result-divider-line"></div>
+        <dl class="result-breakdown"><div><dt>Factor of safety</dt><dd id="lem-FS">—</dd></div></dl>
+        <p class="formula-note" id="lem-status">FS = (cA + W·cosψ<sub>p</sub>·tanφ) / (W·sinψ<sub>p</sub>)</p>
+      </aside>
+    </div>
+
+    <!-- ════ IIb — REINFORCEMENT HELPER (advanced) ════ -->
+    <section class="lem-reinf adv-field" id="lem-reinf-helper" hidden>
+      <header class="panel-intro">
+        <span class="section-mark">IIb</span>
+        <div>
+          <span class="extends-tag">Extends the planar LEM above</span>
+          <h3>Rock Slope Reinforcement Helper</h3>
+          <p class="hint">Reads the current planar FS, R and T<sub>d</sub> from the result above and estimates how much bolt support is needed to reach a target FS.</p>
+        </div>
+      </header>
+
+      <div class="layout-two-col">
+        <div class="inputs-stack">
+          <fieldset class="input-group">
+            <legend><span class="legend-num">1</span> Design target</legend>
+            <div class="field-grid">
+              <div class="field"><label for="reinf-fs-target">Target factor of safety <span class="unit">FS<sub>target</sub></span></label>
+                <input type="number" id="reinf-fs-target" value="1.30" min="1" step="0.05"></div>
+              <div class="field"><label for="reinf-Ldesign">Slope length considered <span class="unit">L (m)</span></label>
+                <input type="number" id="reinf-Ldesign" value="1.0" min="0.5" step="0.5"></div>
+            </div>
+          </fieldset>
+          <fieldset class="input-group">
+            <legend><span class="legend-num">2</span> Bolt / anchor assumptions</legend>
+            <p class="hint" style="margin-bottom:12px">Mode A — average bolt capacity and spacing along the slope face.</p>
+            <div class="field-grid">
+              <div class="field"><label for="reinf-Tbolt">Bolt capacity <span class="unit">T<sub>bolt</sub> (kN)</span></label>
+                <input type="number" id="reinf-Tbolt" value="120" min="1" step="5"></div>
+              <div class="field"><label for="reinf-sh">Trial spacing along slope <span class="unit">s<sub>h</sub> (m)</span></label>
+                <input type="number" id="reinf-sh" value="2.0" min="0.2" step="0.1"></div>
+            </div>
+          </fieldset>
+          <div class="btn-row"><button type="button" class="btn-primary" id="btn-reinf-calc">Compute reinforcement</button></div>
+        </div>
+
+        <aside class="result-card" aria-live="polite">
+          <div class="result-accent" aria-hidden="true"></div>
+          <p class="result-label">Reinforcement summary</p>
+          <dl class="result-breakdown">
+            <div><dt>Current FS</dt><dd id="reinf-fs-current">—</dd></div>
+            <div><dt>Target FS</dt><dd id="reinf-fs-target-out">—</dd></div>
+            <div><dt>Extra resistance needed</dt><dd id="reinf-dR">— kN</dd></div>
+            <div><dt>Support per metre</dt><dd id="reinf-dR-per-m">— kN/m</dd></div>
+          </dl>
+          <div class="result-divider-line"></div>
+          <dl class="result-breakdown">
+            <div><dt>Bolts per metre required</dt><dd id="reinf-n-required">— bolts/m</dd></div>
+            <div><dt>Max spacing along slope</dt><dd id="reinf-sh-required">— m/bolt</dd></div>
+            <div><dt>Status</dt><dd id="reinf-status">—</dd></div>
+          </dl>
+          <p class="formula-note">Teaching-only estimate. Real designs must follow project codes and detailed stability checks (planar, wedge, toppling) by a qualified engineer.</p>
+        </aside>
+      </div>
+
+      <div class="charts-block">
+        <p class="charts-head">Design charts</p>
+        <div class="charts">
+          <div class="chart-card">
+            <p class="ck">Where you stand</p>
+            <h5>Current FS vs target</h5>
+            <div class="fsbars" id="chart-fsbars"></div>
+          </div>
+          <div class="chart-card">
+            <p class="ck">Demand</p>
+            <h5>Required bolts/m vs target FS</h5>
+            <svg id="chart-bolts" viewBox="0 0 320 180" role="img" aria-label="Required bolts per metre versus target factor of safety"></svg>
+          </div>
+          <div class="chart-card">
+            <p class="ck">Trade-off</p>
+            <h5>Required spacing vs bolt capacity</h5>
+            <svg id="chart-spacing" viewBox="0 0 320 180" role="img" aria-label="Required spacing versus bolt capacity"></svg>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <p class="foot">Planar LEM + Reinforcement Helper · per-metre run · dry through-toe failure</p>
+</div>
+
+<script>
+const el  = (id) => document.getElementById(id);
+const fmt = (v, d=2) => (isFinite(v) ? Number(v).toFixed(d) : "—");
+const DEG = Math.PI / 180;
+
+/* ── advanced-mode plumbing ── */
+let advancedMode = false;
+function setAdvancedMode(on){
+  advancedMode = on;
+  document.querySelectorAll(".adv-field").forEach(n => { n.hidden = !on; });
+  if (on) updateLEM();
+}
+
+/* ── cached LEM state ── */
+let lemResisting = null, lemDriving = null, lemFs = null;
+
+/* ── Planar LEM (parent tool) ──
+   A = H/sinψp ; W = ½γH²(cotψp−cotψf) ; R = cA + W cosψp tanφ ; Td = W sinψp ; FS = R/Td */
+function updateLEM(){
+  const H=+el("lem-H").value, psif=+el("lem-psif").value*DEG, psip=+el("lem-psip").value*DEG;
+  const gamma=+el("lem-gamma").value, c=+el("lem-c").value, phi=+el("lem-phi").value*DEG;
+  const area = 0.5*H*H*(1/Math.tan(psip)-1/Math.tan(psif));
+  const valid = (psip>0 && psif>psip && area>0);
+
+  if(!valid){
+    lemResisting=lemDriving=lemFs=null;
+    ["lem-W","lem-A","lem-R","lem-Td"].forEach(i=>el(i).textContent="—");
+    el("lem-FS").textContent="—"; el("lem-FS").className="";
+    el("lem-status").textContent="Geometry invalid — the failure plane must daylight (ψp < ψf).";
+    if(advancedMode && el("lem-reinf-helper")) computeReinforcement();
+    return;
+  }
+
+  const A=H/Math.sin(psip), W=gamma*area;
+  const res=c*A + W*Math.cos(psip)*Math.tan(phi);
+  const drv=W*Math.sin(psip);
+  const fs=res/drv;
+  lemResisting=res; lemDriving=drv; lemFs=fs;
+
+  el("lem-W").textContent=`${fmt(W,1)} kN/m`;
+  el("lem-A").textContent=`${fmt(A,2)} m`;
+  el("lem-R").textContent=`${fmt(res,1)} kN/m`;
+  el("lem-Td").textContent=`${fmt(drv,1)} kN/m`;
+  el("lem-FS").textContent=fmt(fs,2);
+  el("lem-FS").className = fs>=1.3?"fs-ok":(fs>=1.0?"fs-warn":"fs-bad");
+  el("lem-status").textContent = fs>=1.3?"Stable by usual planar criteria (FS ≥ 1.3)."
+    : fs>=1.0?"Marginal — above limit but below typical design FS."
+    : "Unstable — FS below 1.0 on this plane.";
+
+  if(advancedMode && el("lem-reinf-helper")) computeReinforcement();
+}
+
+/* ─── Rock Slope Reinforcement Helper ─── */
+function computeReinforcement(){
+  if(!lemResisting || !lemDriving || !lemFs || !isFinite(lemFs)){
+    el("reinf-status").textContent="Run the planar LEM first."; el("reinf-status").className="status-warn";
+    el("reinf-fs-current").textContent="—"; el("reinf-fs-target-out").textContent="—";
+    el("reinf-dR").textContent="— kN"; el("reinf-dR-per-m").textContent="— kN/m";
+    el("reinf-n-required").textContent="— bolts/m"; el("reinf-sh-required").textContent="— m/bolt";
+    drawReinfCharts();
+    return;
+  }
+  const FS_target=+el("reinf-fs-target").value||1.3;
+  const Ldesign=+el("reinf-Ldesign").value||1.0;
+  const Tbolt=+el("reinf-Tbolt").value||1.0;
+  const R=lemResisting, Td=lemDriving;
+
+  const R_target=FS_target*Td;
+  let dR=R_target-R; if(dR<=0) dR=0;
+  const dR_per_m = Ldesign>0 ? dR/Ldesign : dR;
+
+  let n_required=0, sh_required=Infinity;
+  if(Tbolt>0 && dR_per_m>0){ n_required=dR_per_m/Tbolt; sh_required=n_required>0?1/n_required:Infinity; }
+
+  let status, cls;
+  if(dR===0){ status="FS_current ≥ FS_target · no extra reinforcement required by this simple check."; cls="status-ok"; }
+  else if(!isFinite(sh_required)||sh_required<=0){ status="Increase bolt capacity or reduce target FS — current assumptions cannot reach FS_target."; cls="status-bad"; }
+  else { status="Provide at least the indicated number of bolts per metre or tighter spacing."; cls="status-warn"; }
+
+  el("reinf-fs-current").textContent=fmt(lemFs,2);
+  el("reinf-fs-target-out").textContent=fmt(FS_target,2);
+  el("reinf-dR").textContent=`${fmt(dR,1)} kN`;
+  el("reinf-dR-per-m").textContent=`${fmt(dR_per_m,1)} kN/m`;
+  el("reinf-n-required").textContent = n_required>0?`${fmt(n_required,2)} bolts/m`:"0 bolts/m";
+  el("reinf-sh-required").textContent = isFinite(sh_required)?`${fmt(sh_required,2)} m/bolt`:"— m/bolt";
+  el("reinf-status").textContent=status; el("reinf-status").className=cls;
+  drawReinfCharts();
+}
+
+/* ─── Design charts ─── */
+function niceMax(v){
+  if(!(v>0)) return 1;
+  const p=Math.pow(10,Math.floor(Math.log10(v))), n=v/p;
+  const m = n<=1?1 : n<=2?2 : n<=2.5?2.5 : n<=5?5 : 10;
+  return m*p;
+}
+const tick = (v)=> Number(v.toFixed(2)).toString();
+function svgEmpty(svg,msg){ svg.innerHTML=`<text class="empty-t" x="160" y="92" text-anchor="middle">${msg}</text>`; }
+
+function scaffold({x0,x1,ymax,xticks,yticks,xlabel,ylabel}){
+  const W=320,H=180,ML=48,MR=14,MT=12,MB=30,PW=W-ML-MR,PH=H-MT-MB;
+  const mx=x=>ML+(x-x0)/(x1-x0)*PW, my=y=>MT+PH-(y/ymax)*PH;
+  let s="";
+  yticks.forEach(v=>{const Y=my(v);
+    s+=`<line class="grid" x1="${ML}" y1="${Y.toFixed(1)}" x2="${W-MR}" y2="${Y.toFixed(1)}"/>`;
+    s+=`<text x="${ML-6}" y="${(Y+3).toFixed(1)}" text-anchor="end">${tick(v)}</text>`;});
+  xticks.forEach(v=>{const X=mx(v);
+    s+=`<text x="${X.toFixed(1)}" y="${H-MB+14}" text-anchor="middle">${tick(v)}</text>`;});
+  s+=`<line class="ax" x1="${ML}" y1="${MT}" x2="${ML}" y2="${MT+PH}"/>`;
+  s+=`<line class="ax" x1="${ML}" y1="${MT+PH}" x2="${W-MR}" y2="${MT+PH}"/>`;
+  s+=`<text class="vlabel" x="${ML+PW/2}" y="${H-1}" text-anchor="middle">${xlabel}</text>`;
+  s+=`<text class="vlabel" transform="rotate(-90 11 ${MT+PH/2})" x="11" y="${MT+PH/2}" text-anchor="middle">${ylabel}</text>`;
+  return {s,mx,my};
+}
+function series(fn,x0,x1,mx,my,N=56){
+  let d="";
+  for(let i=0;i<=N;i++){const x=x0+(x1-x0)*i/N; let y=fn(x); if(!isFinite(y)||y<0)y=0;
+    d+=(i?"L":"M")+mx(x).toFixed(1)+" "+my(y).toFixed(1)+" ";}
+  return `<path class="s1" d="${d.trim()}"/>`;
+}
+function marker(x,fn,mx,my,label,topY=12){
+  const X=mx(x); let y=fn(x); if(!isFinite(y)||y<0)y=0;
+  return `<line class="mk" x1="${X.toFixed(1)}" y1="${topY}" x2="${X.toFixed(1)}" y2="${my(0).toFixed(1)}"/>`
+       + `<circle class="dot1" cx="${X.toFixed(1)}" cy="${my(y).toFixed(1)}" r="4"/>`
+       + `<text class="mklbl" x="${X.toFixed(1)}" y="${topY-2}" text-anchor="middle">${label}</text>`;
+}
+
+function drawFsBars(){
+  const host=el("chart-fsbars");
+  if(!lemFs||!isFinite(lemFs)){ host.innerHTML=`<p class="chart-empty">Run the planar LEM first.</p>`; return; }
+  const cur=lemFs, tgt=+el("reinf-fs-target").value||1.3;
+  const scaleMax=Math.max(1.6,cur,tgt)*1.04;
+  const meets=cur>=tgt;
+  const curCls=meets?"bar-ok":(cur>=1.0?"bar-warn":"bar-bad");
+  const curPct=Math.min(100,cur/scaleMax*100), tgtPct=Math.min(100,tgt/scaleMax*100);
+  host.innerHTML=`
+    <div class="fsbar-row">
+      <span class="fsbar-name">Current</span>
+      <div class="fsbar-track">
+        <div class="fsbar-fill ${curCls}" style="width:${curPct.toFixed(1)}%"></div>
+        <div class="fsbar-marker" style="left:${tgtPct.toFixed(1)}%"></div>
+      </div>
+      <span class="fsbar-val">${fmt(cur,2)}</span>
+    </div>
+    <div class="fsbar-row">
+      <span class="fsbar-name">Target</span>
+      <div class="fsbar-track"><div class="fsbar-fill bar-target" style="width:${tgtPct.toFixed(1)}%"></div></div>
+      <span class="fsbar-val">${fmt(tgt,2)}</span>
+    </div>
+    <p class="chart-cap">${meets?"Target already met.":`Gap to close: +${fmt(tgt-cur,2)} on FS (vertical mark = target).`}</p>`;
+}
+
+function drawBoltsChart(){
+  const svg=el("chart-bolts");
+  if(!lemFs||!isFinite(lemFs)){ svgEmpty(svg,"Run the planar LEM first."); return; }
+  const Td=lemDriving,R=lemResisting,L=+el("reinf-Ldesign").value||1,Tb=+el("reinf-Tbolt").value||1;
+  const tgt=Math.min(1.6,Math.max(1.05,+el("reinf-fs-target").value||1.3));
+  const x0=1.05,x1=1.6;
+  const fn=FS=>Math.max(0,(FS*Td-R))/L/Tb;
+  let ymax=niceMax(Math.max(fn(x1),1e-6));
+  const {s,mx,my}=scaffold({x0,x1,ymax,
+    xticks:[1.1,1.2,1.3,1.4,1.5,1.6],yticks:[0,ymax/2,ymax],
+    xlabel:"target FS",ylabel:"bolts / m"});
+  svg.innerHTML = s + series(fn,x0,x1,mx,my) + marker(tgt,fn,mx,my,"now");
+}
+
+function drawSpacingChart(){
+  const svg=el("chart-spacing");
+  if(!lemFs||!isFinite(lemFs)){ svgEmpty(svg,"Run the planar LEM first."); return; }
+  const Td=lemDriving,R=lemResisting,L=+el("reinf-Ldesign").value||1;
+  const tgt=+el("reinf-fs-target").value||1.3;
+  const dR_per_m=Math.max(0,(tgt*Td-R))/L;
+  if(dR_per_m<=0){ svgEmpty(svg,"Target met — no bolts needed."); return; }
+  const Tb=Math.min(300,Math.max(40,+el("reinf-Tbolt").value||120));
+  const x0=40,x1=300;
+  const fn=cap=>cap/dR_per_m;
+  let ymax=niceMax(fn(x1));
+  const {s,mx,my}=scaffold({x0,x1,ymax,
+    xticks:[50,100,150,200,250,300],yticks:[0,ymax/2,ymax],
+    xlabel:"bolt capacity (kN)",ylabel:"spacing sₕ (m)"});
+  svg.innerHTML = s + series(fn,x0,x1,mx,my) + marker(Tb,fn,mx,my,"now");
+}
+
+function drawReinfCharts(){ drawFsBars(); drawBoltsChart(); drawSpacingChart(); }
+
+/* ── init ── */
+function init(){
+  ["lem-H","lem-psif","lem-psip","lem-gamma","lem-c","lem-phi"].forEach(id=>el(id).addEventListener("input",updateLEM));
+  el("btn-lem-calc").addEventListener("click",updateLEM);
+  const btnReinf=el("btn-reinf-calc"); if(btnReinf) btnReinf.addEventListener("click",computeReinforcement);
+  ["reinf-fs-target","reinf-Ldesign","reinf-Tbolt","reinf-sh"].forEach(id=>{
+    const node=el(id); if(node) node.addEventListener("input",()=>{ if(advancedMode) computeReinforcement(); });
+  });
+  el("adv-mode").addEventListener("change",e=>setAdvancedMode(e.target.checked));
+  updateLEM();
+}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+<script src="/shared/nav-strip.js"></script>
+<script src="/shared/assistant-chat.js"></script>
+</body>
+</html>
