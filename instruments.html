@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Instruments — Sabtan Knowledge Base</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/shared/nav-strip.css"/>
+  <style>
+    :root {
+      --ivory: #fbf7ef;
+      --paper: #fffdf8;
+      --graphite: #232421;
+      --muted: #4a453c;
+      --soft: #bdb3a0;
+      --line: #ded4c1;
+      --blue: #2f5367;
+      --blue-dk: #1e3a4a;
+      --copper: #a5643a;
+      --green: #496f61;
+      --shadow: 0 18px 45px rgba(55, 45, 30, 0.11);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      padding-bottom: 88px;
+      color: var(--graphite);
+      font-family: "Lora", serif;
+      background:
+        radial-gradient(circle at top left, rgba(199, 167, 106, 0.22), transparent 32%),
+        linear-gradient(135deg, #fffaf0 0%, var(--ivory) 46%, #f1eadb 100%);
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.13;
+      background-image:
+        repeating-linear-gradient(145deg, transparent 0 18px, rgba(47, 83, 103, 0.1) 19px, transparent 20px),
+        radial-gradient(circle at 78% 12%, rgba(165, 100, 58, 0.18), transparent 24%);
+      mix-blend-mode: multiply;
+    }
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 72px 28px 48px;
+    }
+    .kicker {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--copper);
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(28px, 4.5vw, 44px);
+      line-height: 1.08;
+      margin-bottom: 10px;
+    }
+    .lead {
+      font-size: 16px;
+      line-height: 1.75;
+      color: var(--muted);
+      max-width: 640px;
+      margin-bottom: 32px;
+    }
+    .divider {
+      width: 56px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--copper), #b89344);
+      border-radius: 2px;
+      margin-bottom: 28px;
+    }
+
+    .tools-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .tool-row {
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .tool-nav-item {
+      display: grid;
+      grid-template-columns: min(168px, 34vw) 1fr auto;
+      grid-template-rows: auto auto;
+      gap: 6px 20px;
+      align-items: center;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, 0.92);
+      box-shadow: var(--shadow);
+      text-decoration: none;
+      color: inherit;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      min-width: 0;
+    }
+
+    .tool-row:has(.tool-nav-link:hover) .tool-nav-item,
+    .tool-nav-item:has(.tool-nav-link:hover) {
+      transform: translateY(-2px);
+      border-color: var(--green);
+      box-shadow: 0 22px 48px rgba(55, 45, 30, 0.14);
+    }
+
+    .tool-nav-link {
+      display: contents;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .tool-nav-art {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+      width: 168px;
+      min-height: 120px;
+      align-self: stretch;
+      background-color: #e8e2d6;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+      border-right: 1px solid var(--line);
+      transition: background-image 0.35s ease;
+    }
+
+    .tool-art-switch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 253, 248, 0.92);
+      box-shadow: 0 8px 20px rgba(55, 45, 30, 0.06);
+    }
+
+    .tool-art-switch-label {
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--copper);
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    .tool-art-switch-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tool-art-switch-btn {
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--paper);
+      color: var(--blue);
+      font-family: "Lora", serif;
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .tool-art-switch-btn:hover {
+      border-color: var(--green);
+      background: rgba(73, 111, 97, 0.08);
+    }
+
+    .tool-art-switch-btn:focus-visible {
+      outline: 2px solid var(--green);
+      outline-offset: 1px;
+    }
+
+    .tool-art-switch-status {
+      min-width: 2.8em;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--graphite);
+      text-align: center;
+    }
+
+    .tool-art-switch-caption {
+      font-size: 10px;
+      line-height: 1.35;
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+    }
+
+    .tool-art-switch-dots {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .tool-art-switch-dot {
+      width: 7px;
+      height: 7px;
+      padding: 0;
+      border: none;
+      border-radius: 999px;
+      background: var(--line);
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .tool-art-switch-dot.is-active {
+      background: var(--green);
+      transform: scale(1.15);
+    }
+
+    .tool-art-switch-dot:hover {
+      background: var(--copper);
+    }
+
+    .tool-art-switch-dot:focus-visible {
+      outline: 2px solid var(--green);
+      outline-offset: 1px;
+    }
+
+    .tool-nav-name {
+      grid-column: 2;
+      grid-row: 1;
+      padding: 16px 0 0;
+      font-family: "Playfair Display", serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--graphite);
+    }
+
+    .tool-nav-desc {
+      grid-column: 2;
+      grid-row: 2;
+      padding: 0 0 16px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .tool-nav-go {
+      grid-column: 3;
+      grid-row: 1 / span 2;
+      padding: 0 18px 0 0;
+      font-size: 13px;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--blue);
+      white-space: nowrap;
+      align-self: center;
+    }
+
+    .tool-nav-item:hover .tool-nav-go,
+    .tool-nav-item:has(.tool-nav-link:hover) .tool-nav-go {
+      color: var(--blue-dk);
+    }
+
+    .tool-nav-badge {
+      display: inline-block;
+      margin-left: 8px;
+      font-family: "Lora", serif;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 600;
+      font-style: normal;
+      vertical-align: middle;
+      color: #fffaf0;
+      background: var(--green);
+      border-radius: 999px;
+      padding: 3px 8px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--soft);
+      margin-bottom: 12px;
+    }
+
+    .note {
+      margin-top: 36px;
+      padding: 18px 20px;
+      border-left: 4px solid var(--green);
+      background: rgba(255, 253, 248, 0.75);
+      border-radius: 0 14px 14px 0;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    @media (max-width: 720px) {
+      .tool-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .tool-art-switch {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 10px 12px;
+        gap: 8px 10px;
+      }
+
+      .tool-art-switch-controls {
+        flex-direction: row;
+      }
+
+      .tool-art-switch-dots {
+        flex-direction: row;
+      }
+
+      .tool-art-switch-caption {
+        flex: 1 1 100%;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .tool-nav-item {
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto auto auto;
+      }
+
+      .tool-nav-art {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        width: 100%;
+        min-height: 100px;
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .tool-nav-name {
+        grid-column: 1;
+        grid-row: 2;
+        padding: 14px 16px 0;
+      }
+
+      .tool-nav-desc {
+        grid-column: 1;
+        grid-row: 3;
+        padding: 0 16px 14px;
+      }
+
+      .tool-nav-go {
+        grid-column: 2;
+        grid-row: 2 / span 2;
+        align-self: start;
+        padding: 14px 16px 0 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <p class="kicker">Geological tools</p>
+    <h1>Instruments</h1>
+    <p class="lead">Small applications for calculating geological variables — stress, slip, focal mechanisms, and related quantities used across the Najd programme.</p>
+    <div class="divider" aria-hidden="true"></div>
+
+    <p class="section-label">Available now</p>
+
+    <nav class="tools-nav" aria-label="Available instruments">
+      <div class="tool-row">
+        <div class="tool-art-switch" data-tool="vtest" aria-label="V-test featured art">
+          <span class="tool-art-switch-label">Featured art</span>
+          <div class="tool-art-switch-controls">
+            <button type="button" class="tool-art-switch-btn" data-action="prev" aria-label="Previous V-test art">&#8592;</button>
+            <span class="tool-art-switch-status" aria-live="polite">1 / 4</span>
+            <button type="button" class="tool-art-switch-btn" data-action="next" aria-label="Next V-test art">&#8594;</button>
+          </div>
+          <div class="tool-art-switch-dots" role="tablist" aria-label="V-test art styles">
+            <button type="button" class="tool-art-switch-dot is-active" data-index="0" role="tab" aria-selected="true" aria-label="Style 1"></button>
+            <button type="button" class="tool-art-switch-dot" data-index="1" role="tab" aria-selected="false" aria-label="Style 2"></button>
+            <button type="button" class="tool-art-switch-dot" data-index="2" role="tab" aria-selected="false" aria-label="Style 3"></button>
+            <button type="button" class="tool-art-switch-dot" data-index="3" role="tab" aria-selected="false" aria-label="Style 4"></button>
+          </div>
+          <span class="tool-art-switch-caption">Compass dial</span>
+        </div>
+        <article class="tool-nav-item">
+          <div class="tool-nav-art" data-tool="vtest" role="img" aria-label="V-test artwork"></div>
+          <a class="tool-nav-link" href="vtest-najd.html">
+            <span class="tool-nav-name">V-test Dashboard<span class="tool-nav-badge">Live</span></span>
+            <span class="tool-nav-desc">Test preferred orientation (μ₀) for Najd fault sites — interactive compass, presets, and live statistics.</span>
+            <span class="tool-nav-go">Open &#8594;</span>
+          </a>
+        </article>
+      </div>
+      <div class="tool-row">
+        <div class="tool-art-switch" data-tool="tilt" aria-label="Tilt level featured art">
+          <span class="tool-art-switch-label">Featured art</span>
+          <div class="tool-art-switch-controls">
+            <button type="button" class="tool-art-switch-btn" data-action="prev" aria-label="Previous tilt art">&#8592;</button>
+            <span class="tool-art-switch-status" aria-live="polite">1 / 4</span>
+            <button type="button" class="tool-art-switch-btn" data-action="next" aria-label="Next tilt art">&#8594;</button>
+          </div>
+          <div class="tool-art-switch-dots" role="tablist" aria-label="Tilt art styles">
+            <button type="button" class="tool-art-switch-dot is-active" data-index="0" role="tab" aria-selected="true" aria-label="Style 1"></button>
+            <button type="button" class="tool-art-switch-dot" data-index="1" role="tab" aria-selected="false" aria-label="Style 2"></button>
+            <button type="button" class="tool-art-switch-dot" data-index="2" role="tab" aria-selected="false" aria-label="Style 3"></button>
+            <button type="button" class="tool-art-switch-dot" data-index="3" role="tab" aria-selected="false" aria-label="Style 4"></button>
+          </div>
+          <span class="tool-art-switch-caption">Bubble level</span>
+        </div>
+        <article class="tool-nav-item">
+          <div class="tool-nav-art" data-tool="tilt" role="img" aria-label="Surface tilt level artwork"></div>
+          <a class="tool-nav-link" href="najd-tilt-level.html">
+            <span class="tool-nav-name">Surface Tilt Level<span class="tool-nav-badge">Live</span></span>
+            <span class="tool-nav-desc">Field utility using your phone sensors — read total tilt, slope, roll, pitch, and lower direction on a surface.</span>
+            <span class="tool-nav-go">Open &#8594;</span>
+          </a>
+        </article>
+      </div>
+      <div class="tool-row">
+        <div class="tool-art-switch" data-tool="geostrength" aria-label="GeoStrength featured art">
+          <span class="tool-art-switch-label">Featured art</span>
+          <div class="tool-art-switch-controls">
+            <button type="button" class="tool-art-switch-btn" data-action="prev" aria-label="Previous GeoStrength art">&#8592;</button>
+            <span class="tool-art-switch-status" aria-live="polite">1 / 4</span>
+            <button type="button" class="tool-art-switch-btn" data-action="next" aria-label="Next GeoStrength art">&#8594;</button>
+          </div>
+          <div class="tool-art-switch-dots" role="tablist" aria-label="GeoStrength art styles">
+            <button type="button" class="tool-art-switch-dot is-active" data-index="0" role="tab" aria-selected="true" aria-label="Style 1"></button>
+            <button type="button" class="tool-art-switch-dot" data-index="1" role="tab" aria-selected="false" aria-label="Style 2"></button>
+            <button type="button" class="tool-art-switch-dot" data-index="2" role="tab" aria-selected="false" aria-label="Style 3"></button>
+            <button type="button" class="tool-art-switch-dot" data-index="3" role="tab" aria-selected="false" aria-label="Style 4"></button>
+          </div>
+          <span class="tool-art-switch-caption">Slope wedge</span>
+        </div>
+        <article class="tool-nav-item">
+          <div class="tool-nav-art" data-tool="geostrength" role="img" aria-label="GeoStrength artwork"></div>
+          <a class="tool-nav-link" href="geostrength.html">
+            <span class="tool-nav-name">GeoStrength<span class="tool-nav-badge">Live</span></span>
+            <span class="tool-nav-desc">Rock mass classification and slope stability — GSI, Hoek–Brown, wedge analysis, and Najd Δθ modules.</span>
+            <span class="tool-nav-go">Open &#8594;</span>
+          </a>
+        </article>
+      </div>
+      <div class="tool-row">
+        <div class="tool-art-switch" data-tool="pavement" aria-label="Pavement toolkit featured art">
+          <span class="tool-art-switch-label">Featured art</span>
+          <div class="tool-art-switch-controls">
+            <button type="button" class="tool-art-switch-btn" data-action="prev" aria-label="Previous pavement art">&#8592;</button>
+            <span class="tool-art-switch-status" aria-live="polite">1 / 4</span>
+            <button type="button" class="tool-art-switch-btn" data-action="next" aria-label="Next pavement art">&#8594;</button>
+          </div>
+          <div class="tool-art-switch-dots" role="tablist" aria-label="Pavement art styles">
+            <button type="button" class="tool-art-switch-dot is-active" data-index="0" role="tab" aria-selected="true" aria-label="Style 1"></button>
+            <button type="button" class="tool-art-switch-dot" data-index="1" role="tab" aria-selected="false" aria-label="Style 2"></button>
+            <button type="button" class="tool-art-switch-dot" data-index="2" role="tab" aria-selected="false" aria-label="Style 3"></button>
+            <button type="button" class="tool-art-switch-dot" data-index="3" role="tab" aria-selected="false" aria-label="Style 4"></button>
+          </div>
+          <span class="tool-art-switch-caption">Layer stack</span>
+        </div>
+        <article class="tool-nav-item">
+          <div class="tool-nav-art" data-tool="pavement" role="img" aria-label="Pavement toolkit artwork"></div>
+          <a class="tool-nav-link" href="geo-pavement-toolkit.html">
+            <span class="tool-nav-name">Geotechnical &amp; Pavement Toolkit<span class="tool-nav-badge">Live</span></span>
+            <span class="tool-nav-desc">Foundation bearing capacity, subgrade CBR, plate bearing test, and flexible-pavement design — live calculations with working shown.</span>
+            <span class="tool-nav-go">Open &#8594;</span>
+          </a>
+        </article>
+      </div>
+    </nav>
+
+    <p class="note">More calculators will be added to this list as they are built.</p>
+  </main>
+
+  <script src="/shared/nav-strip.js"></script>
+  <script src="/shared/assistant-chat.js"></script>
+  <script>
+    (function () {
+      var STORAGE_KEY = "sabtan-instruments-art";
+      var ART = {
+        vtest: ["vtest-art.svg", "vtest-art-2.svg", "vtest-art-3.svg", "vtest-art-4.svg"],
+        tilt: ["tilt-art.svg", "tilt-art-2.svg", "tilt-art-3.svg", "tilt-art-4.svg"],
+        geostrength: ["geostrength-art.svg", "geostrength-art-2.svg", "geostrength-art-3.svg", "geostrength-art-4.svg"],
+        pavement: ["pavement-art.svg", "pavement-art-2.svg", "pavement-art-3.svg", "pavement-art-4.svg"]
+      };
+      var CAPTIONS = {
+        vtest: ["Compass dial", "Rose diagram", "Polar histogram", "Confidence arc"],
+        tilt: ["Bubble level", "Inclinometer", "Tilted section", "Dual-axis readout"],
+        geostrength: ["Slope wedge", "Stereonet", "GSI scale", "Mohr circle"],
+        pavement: ["Layer stack", "Plate bearing", "CBR mold", "Road section"]
+      };
+      var state = { vtest: 0, tilt: 0, geostrength: 0, pavement: 0 };
+
+      function clamp(value, total) {
+        return ((value % total) + total) % total;
+      }
+
+      function loadState() {
+        try {
+          var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+          Object.keys(state).forEach(function (tool) {
+            if (typeof saved[tool] === "number") state[tool] = clamp(saved[tool], CAPTIONS[tool].length);
+          });
+        } catch (err) {}
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (err) {}
+      }
+
+      function applyArt(tool, nextIndex, switchEl) {
+        var total = CAPTIONS[tool].length;
+        var index = clamp(nextIndex, total);
+        state[tool] = index;
+
+        if (!switchEl) {
+          switchEl = document.querySelector('.tool-art-switch[data-tool="' + tool + '"]');
+        }
+        var row = switchEl ? switchEl.closest(".tool-row") : null;
+        var panel = row ? row.querySelector('.tool-nav-art[data-tool="' + tool + '"]') : null;
+        if (!panel || !switchEl) return;
+
+        panel.style.backgroundImage = 'url("assets/instruments/' + ART[tool][index] + '")';
+        switchEl.querySelector(".tool-art-switch-status").textContent = (index + 1) + " / " + total;
+        switchEl.querySelector(".tool-art-switch-caption").textContent = CAPTIONS[tool][index];
+
+        Array.prototype.forEach.call(switchEl.querySelectorAll(".tool-art-switch-dot"), function (dot, i) {
+          var active = i === index;
+          dot.classList.toggle("is-active", active);
+          dot.setAttribute("aria-selected", active ? "true" : "false");
+        });
+
+        saveState();
+      }
+
+      function initSwitch(switchEl) {
+        var tool = switchEl.getAttribute("data-tool");
+        if (!ART[tool]) return;
+
+        switchEl.addEventListener("click", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          var prevBtn = event.target.closest('[data-action="prev"]');
+          var nextBtn = event.target.closest('[data-action="next"]');
+          var dotBtn = event.target.closest(".tool-art-switch-dot");
+
+          if (prevBtn) applyArt(tool, state[tool] - 1, switchEl);
+          else if (nextBtn) applyArt(tool, state[tool] + 1, switchEl);
+          else if (dotBtn) applyArt(tool, Number(dotBtn.getAttribute("data-index")), switchEl);
+        });
+
+        applyArt(tool, state[tool], switchEl);
+      }
+
+      loadState();
+      Array.prototype.forEach.call(document.querySelectorAll(".tool-art-switch"), initSwitch);
+    })();
+  </script>
+</body>
+</html>

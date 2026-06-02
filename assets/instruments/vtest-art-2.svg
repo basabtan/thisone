@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="">
+  <defs>
+    <radialGradient id="bg2" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#fffdf8"/>
+      <stop offset="100%" stop-color="#ddd2c0"/>
+    </radialGradient>
+  </defs>
+  <rect width="320" height="200" fill="url(#bg2)"/>
+  <g transform="translate(160,100)">
+    <path d="M0,-68 L8,-24 A68,68 0 0,1 52,-44 Z" fill="#2f5367" opacity="0.55"/>
+    <path d="M52,-44 A68,68 0 0,1 64,8 L8,-24 Z" fill="#496f61" opacity="0.65"/>
+    <path d="M64,8 A68,68 0 0,1 18,62 L8,-24 Z" fill="#a5643a" opacity="0.55"/>
+    <path d="M18,62 A68,68 0 0,1 -58,22 L8,-24 Z" fill="#b5544a" opacity="0.45"/>
+    <path d="M-58,22 A68,68 0 0,1 0,-68 L8,-24 Z" fill="#8a7d6c" opacity="0.4"/>
+    <circle r="68" fill="none" stroke="rgba(47,83,103,0.25)" stroke-width="1.5"/>
+    <circle r="42" fill="none" stroke="rgba(47,83,103,0.12)" stroke-width="1"/>
+    <line x1="0" y1="-78" x2="0" y2="-62" stroke="#a5643a" stroke-width="2"/>
+    <text x="0" y="-82" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="#a5643a" font-style="italic">N</text>
+    <line x1="0" y1="0" x2="36" y2="-28" stroke="#2f5367" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="36" cy="-28" r="5" fill="#2f5367"/>
+  </g>
+  <text x="24" y="186" font-family="Georgia,serif" font-size="10" fill="#5a4c3b" font-style="italic" opacity="0.7">rose diagram - preferred strike</text>
+</svg>

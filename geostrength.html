@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="scholar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoStrength — GSI & Slope Stability</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+/* ════════════════════════════════════════════════════════════════
+   GeoStrength — Najd × Lustre theme
+   warm editorial · pearlescent surfaces · serif display + grotesk data
+   ════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* paper & ink */
+  --vellum:#FBFAF5; --paper:#FCFBF7; --ivory:#fbf7ef;
+  --ink:#23211b; --ink-soft:#5a4c3b; --ink-faint:#8a7d6c;
+  --line:rgba(34,22,8,.13); --line-soft:rgba(34,22,8,.07);
+  /* spine */
+  --slate:#2f5367; --slate-dk:#1e3a4a;
+  --clay:#a5643a; --clay-dk:#7d4a28;
+  --gold:#b89344;
+  --green:#4f7163; --green-dk:#3a584c;
+  --red:#b5544a;  --amber:#b07d2e;
+  /* surfaces */
+  --pearl:linear-gradient(145deg,#fbfaf6 0%,#f2f0e9 44%,#e8e5dc 100%);
+  --pearl-radial:radial-gradient(circle at 37% 30%,#fdfcf9 0%,#f1efe8 46%,#e4e0d6 100%);
+  --shadow-lift:0 22px 48px -18px rgba(40,28,12,.22), 0 4px 12px -4px rgba(40,28,12,.10), inset 0 1px 0 rgba(255,255,255,.92);
+  --shadow-soft:0 16px 36px -18px rgba(40,28,12,.18), 0 2px 6px rgba(40,28,12,.05);
+  --serif:'Newsreader',Georgia,serif;
+  --sans:'Hanken Grotesk',system-ui,sans-serif;
+  --radius:22px;
+
+  /* semantic vars consumed inline by app.js — must exist */
+  --quality-poor:#b5544a; --quality-fair:#b07d2e; --quality-good:#4f7163; --quality-vg:#3a584c;
+  --fs-unsafe:#b5544a; --fs-marginal:#b07d2e; --fs-safe:#4f7163;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans); color:var(--ink); line-height:1.6; min-height:100vh;
+  -webkit-font-smoothing:antialiased; position:relative; overflow-x:hidden;
+  padding:0 22px 96px;
+  background:
+    radial-gradient(circle at 82% 4%, rgba(165,100,58,.13), transparent 30%),
+    radial-gradient(ellipse 80% 44% at 50% -6%, rgba(205,162,120,.12), transparent 70%),
+    linear-gradient(140deg,#fffaf0 0%, var(--vellum) 48%, #efe9dc 100%);
+}
+/* grain */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.045;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+/* faint diagonal hatch */
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05;mix-blend-mode:multiply;
+  background-image:repeating-linear-gradient(146deg, transparent 0 22px, rgba(47,83,103,.10) 23px, transparent 24px);}
+
+/* legacy ambient layers from old build — neutralise */
+.ambient-bg,.ambient-grain,.glass-orbs,.terminal-scanlines{display:none !important}
+
+/* selection */
+::selection{background:rgba(165,100,58,.22)}
+
+.app-shell{max-width:1080px;margin:0 auto;position:relative;z-index:1}
+
+/* ─────────────────────────────── header ─────────────────────────── */
+.site-header{max-width:1080px;margin:0 auto;position:relative;z-index:1;padding:46px 0 0}
+.header-inner{display:flex;align-items:flex-end;justify-content:space-between;gap:28px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:18px}
+.brand-emblem{width:54px;height:54px;border-radius:16px;background:var(--pearl);
+  box-shadow:var(--shadow-lift);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-emblem svg{width:34px;height:34px}
+.emblem-ring{stroke:var(--clay);opacity:.5;fill:none}
+.emblem-line{stroke:var(--slate);fill:none}
+.emblem-line-faint{stroke:var(--ink-faint);opacity:.4}
+.brand-overline{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.26em;
+  text-transform:uppercase;color:var(--clay);margin-bottom:5px}
+.brand-text h1{font-family:var(--serif);font-weight:400;font-size:clamp(34px,5vw,50px);line-height:.95;
+  letter-spacing:-.02em;color:var(--ink)}
+.header-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+
+/* advanced mode toggle */
+.mode-toggle-wrap{display:flex;align-items:center;gap:11px}
+.mode-label{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);transition:color .25s}
+.mode-toggle{width:54px;height:30px;border-radius:100px;border:none;cursor:pointer;position:relative;
+  background:var(--pearl);box-shadow:var(--shadow-soft),inset 0 0 0 1px var(--line);transition:background .3s}
+.mode-toggle-thumb{position:absolute;top:4px;left:4px;width:22px;height:22px;border-radius:50%;
+  background:#fdf6ef;box-shadow:0 2px 6px rgba(40,28,12,.32);transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+.mode-toggle.is-on{background:linear-gradient(135deg,#b27551,var(--clay-dk));box-shadow:0 8px 18px -8px rgba(125,74,40,.55)}
+.mode-toggle.is-on .mode-toggle-thumb{transform:translateX(24px)}
+.mode-toggle.is-on ~ .mode-label-adv,.mode-toggle-wrap:has(.is-on) .mode-label-adv{color:var(--clay)}
+
+.header-note{font-family:var(--serif);font-style:italic;font-size:16px;color:var(--ink-soft);margin-top:14px}
+.header-rule{height:2px;width:72px;border-radius:2px;margin-top:18px;
+  background:linear-gradient(90deg,var(--clay),var(--gold))}
+
+/* ── info bar (v-test signature pill) ── */
+.info-bar{background:var(--paper);border-radius:999px;padding:12px 22px;margin-top:30px;
+  font-family:var(--serif);font-style:italic;font-size:14.5px;color:var(--ink-soft);
+  display:flex;align-items:center;gap:11px;justify-content:center;text-align:center;
+  box-shadow:inset 0 0 0 1px var(--line), 0 2px 8px rgba(40,28,12,.04)}
+.info-bar svg{width:17px;height:17px;flex-shrink:0;color:var(--clay)}
+.info-bar em{font-style:italic;color:var(--clay);font-weight:500}
+
+/* ─────────────────────────────── tabs ───────────────────────────── */
+.tabs{display:flex;gap:12px;margin:20px 0 26px;flex-wrap:wrap}
+.tab{display:flex;align-items:center;gap:13px;background:var(--paper);border:none;cursor:pointer;
+  border-radius:16px;padding:13px 18px;text-align:left;
+  box-shadow:var(--shadow-soft),inset 0 0 0 1px var(--line-soft);
+  transition:transform .22s cubic-bezier(.2,.7,.2,1),box-shadow .22s}
+.tab:hover{transform:translateY(-2px);box-shadow:var(--shadow-lift)}
+.tab-index{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--gold);line-height:1;flex-shrink:0}
+.tab-copy{display:flex;flex-direction:column;line-height:1.15}
+.tab-label{font-family:var(--serif);font-size:17px;color:var(--ink);letter-spacing:-.01em}
+.tab-desc{font-family:var(--sans);font-size:10.5px;font-weight:500;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--ink-faint);margin-top:3px}
+.tab.active{box-shadow:var(--shadow-lift),inset 0 0 0 1.5px rgba(165,100,58,.5);
+  background:linear-gradient(150deg,#fdfcf8,#f1ece1)}
+.tab.active .tab-index{color:var(--clay)}
+.tab.active .tab-label{color:var(--slate)}
+.tab[hidden]{display:none}
+
+/* ─────────────────────────────── panels ─────────────────────────── */
+.panel{animation:rise .6s cubic-bezier(.2,.7,.2,1) both}
+.panel[hidden]{display:none}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.panel-intro{display:flex;align-items:flex-start;gap:18px;margin-bottom:30px}
+.section-mark{font-family:var(--serif);font-style:italic;font-size:30px;color:var(--gold);line-height:1;
+  flex-shrink:0;margin-top:2px}
+.panel-intro h2{font-family:var(--serif);font-weight:400;font-size:clamp(26px,3.6vw,34px);
+  letter-spacing:-.015em;color:var(--ink);line-height:1.1}
+.panel-intro p{font-family:var(--serif);font-style:italic;font-size:16px;color:var(--ink-soft);
+  margin-top:6px;max-width:64ch}
+
+/* two-column layout */
+.layout-two-col{display:grid;grid-template-columns:1.35fr 1fr;gap:26px;align-items:start}
+.inputs-panel{min-width:0}
+.inputs-stack{display:flex;flex-direction:column;gap:20px;min-width:0}
+
+/* ─────────────────────────── fieldsets ──────────────────────────── */
+.input-group{background:var(--paper);border:none;border-radius:var(--radius);padding:26px 28px;
+  box-shadow:var(--shadow-soft),inset 0 0 0 1px var(--line-soft)}
+.input-group legend{font-family:var(--serif);font-size:20px;color:var(--ink);letter-spacing:-.01em;
+  display:flex;align-items:center;gap:11px;margin-bottom:6px;padding:0}
+.legend-num{font-family:var(--sans);font-size:12px;font-weight:700;color:var(--clay);
+  width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(165,100,58,.12);box-shadow:inset 0 0 0 1px rgba(165,100,58,.3);flex-shrink:0}
+.optional-tag{font-family:var(--serif);font-style:italic;font-size:12px;font-weight:400;color:var(--ink-faint);
+  margin-left:auto;text-transform:none;letter-spacing:0}
+.hint{font-family:var(--serif);font-style:italic;font-size:13.5px;color:var(--ink-faint);margin:2px 0 18px}
+
+/* number fields */
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{display:flex;flex-direction:column;gap:7px;min-width:0}
+.field label{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--ink-soft);
+  display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.field .unit,.unit{font-family:var(--sans);font-size:11px;font-weight:500;color:var(--ink-faint);letter-spacing:0}
+.field input{font-family:var(--sans);font-size:15px;font-weight:500;color:var(--ink);
+  background:var(--vellum);border:none;border-radius:13px;padding:13px 15px;width:100%;
+  box-shadow:inset 0 0 0 1px var(--line);outline:none;transition:box-shadow .25s;
+  font-variant-numeric:tabular-nums}
+.field input::placeholder{color:var(--ink-faint);font-weight:400}
+.field input:focus{box-shadow:inset 0 0 0 1.6px var(--clay), 0 0 0 4px rgba(165,100,58,.10)}
+.field input[type=number]::-webkit-inner-spin-button{opacity:.4}
+.adv-result-line{font-family:var(--sans);font-size:13px;color:var(--slate);margin-top:14px;font-weight:500;
+  padding:10px 14px;background:var(--vellum);border-radius:11px;box-shadow:inset 0 0 0 1px var(--line-soft)}
+.adv-field[hidden]{display:none}
+
+/* ──────────────────────── structure switch ──────────────────────── */
+.structure-switch{margin-top:4px}
+.structure-switch-inner{position:relative;display:grid;grid-template-columns:repeat(5,1fr);
+  background:var(--vellum);border-radius:14px;padding:5px;box-shadow:inset 0 0 0 1px var(--line),inset 0 2px 4px rgba(40,28,12,.05)}
+.structure-switch-indicator{position:absolute;top:5px;left:5px;width:calc((100% - 10px)/5);height:calc(100% - 10px);
+  border-radius:10px;background:var(--pearl);box-shadow:var(--shadow-lift);
+  transition:transform .32s cubic-bezier(.2,.7,.2,1);z-index:0}
+.structure-switch-option{position:relative;z-index:1;background:transparent;border:none;cursor:pointer;
+  font-family:var(--sans);font-size:12.5px;font-weight:600;color:var(--ink-faint);
+  padding:12px 6px;border-radius:10px;transition:color .25s;letter-spacing:.01em}
+.structure-switch-option.active{color:var(--slate)}
+.structure-switch-option:hover:not(.active){color:var(--ink-soft)}
+
+/* ──────────────────────── marble sliders ────────────────────────── */
+.slider-field{margin-bottom:22px}
+.slider-field:last-child{margin-bottom:0}
+.slider-header{margin-bottom:12px}
+.slider-header label{font-family:var(--serif);font-size:16px;color:var(--ink)}
+.slider-row{display:flex}
+.slider-control{flex:1;min-width:0}
+.marble-slider{position:relative;padding:6px 0}
+.marble-track{position:relative;height:30px;cursor:pointer;touch-action:none;outline:none}
+.marble-track-rail{position:absolute;top:50%;left:0;right:0;height:7px;transform:translateY(-50%);
+  background:var(--vellum);border-radius:100px;box-shadow:inset 0 0 0 1px var(--line),inset 0 2px 3px rgba(40,28,12,.06)}
+.scale-ticks{position:absolute;top:50%;left:0;right:0;transform:translateY(-50%);
+  display:flex;justify-content:space-between;padding:0 3px;pointer-events:none}
+.scale-ticks span{width:2px;height:2px;border-radius:50%;background:var(--ink-faint);opacity:.4;transition:.2s}
+.scale-ticks span.is-active{opacity:0}
+.marble-track-fill{position:absolute;top:50%;left:0;height:7px;width:40%;transform:translateY(-50%);
+  background:linear-gradient(90deg,var(--gold),var(--clay));border-radius:100px;pointer-events:none;
+  transition:width .12s ease}
+.marble-thumb{position:absolute;top:50%;left:40%;width:24px;height:24px;border-radius:50%;
+  transform:translate(-50%,-50%);background:var(--paper);pointer-events:none;
+  box-shadow:0 3px 9px rgba(40,28,12,.32), inset 0 0 0 5px var(--slate);transition:left .12s ease}
+.marble-track:focus-visible .marble-thumb{box-shadow:0 3px 9px rgba(40,28,12,.32), inset 0 0 0 5px var(--slate), 0 0 0 5px rgba(47,83,103,.18)}
+.marble-slider.is-dragging .marble-thumb{transition:none;box-shadow:0 5px 14px rgba(40,28,12,.4), inset 0 0 0 5px var(--clay)}
+.marble-slider.is-dragging .marble-track-fill{transition:none}
+.slider-value{font-family:var(--serif);font-size:22px;color:var(--slate);font-variant-numeric:tabular-nums;
+  min-width:40px;text-align:center;margin-top:8px;display:block}
+.scale-steps{display:flex;justify-content:space-between;padding:0 1px;margin-top:4px}
+.scale-steps span{font-family:var(--sans);font-size:11px;font-weight:500;color:var(--ink-faint);
+  width:18px;text-align:center;transition:.2s;font-variant-numeric:tabular-nums}
+.scale-steps span.is-active{color:var(--clay);font-weight:700}
+
+/* ─────────────────────────── result card ────────────────────────── */
+.result-card{position:relative;background:var(--pearl-radial);border-radius:var(--radius);
+  padding:30px 30px 28px;box-shadow:var(--shadow-lift);overflow:hidden;position:sticky;top:18px}
+.result-card::after{content:"";position:absolute;right:-70px;top:-80px;width:220px;height:220px;border-radius:50%;
+  border:1px solid rgba(47,83,103,.10);box-shadow:0 0 0 22px rgba(47,83,103,.03);pointer-events:none}
+.result-accent{position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--clay),var(--gold))}
+.result-label{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--clay);position:relative}
+.result-value{font-family:var(--serif);font-weight:300;font-size:62px;line-height:1;color:var(--slate);
+  letter-spacing:-.02em;margin:8px 0 4px;font-variant-numeric:tabular-nums;position:relative}
+.result-quality{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--ink-soft);
+  margin-bottom:22px;position:relative}
+
+.result-breakdown{display:flex;flex-direction:column;gap:1px;position:relative}
+.result-breakdown > div{display:flex;align-items:baseline;justify-content:space-between;gap:14px;
+  padding:11px 0;border-bottom:1px solid var(--line-soft)}
+.result-breakdown > div:last-child{border-bottom:none}
+.result-breakdown dt{font-family:var(--sans);font-size:12.5px;font-weight:500;color:var(--ink-soft)}
+.result-breakdown dd{font-family:var(--serif);font-size:18px;color:var(--ink);text-align:right;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.result-divider-line{height:1px;background:var(--line);margin:6px 0;border:none}
+.result-breakdown .result-divider-line{padding:0;border:none}
+
+.quality-bar{height:8px;border-radius:100px;background:var(--vellum);margin-top:24px;overflow:hidden;
+  box-shadow:inset 0 0 0 1px var(--line-soft);position:relative}
+.quality-fill{height:100%;border-radius:100px;width:0;
+  background:linear-gradient(90deg,var(--red),var(--amber) 45%,var(--gold) 65%,var(--green));
+  transition:width .4s cubic-bezier(.2,.7,.2,1)}
+.quality-scale{display:flex;justify-content:space-between;margin-top:9px;position:relative}
+.quality-scale span{font-family:var(--sans);font-size:10px;font-weight:500;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--ink-faint)}
+
+.formula-note{font-family:var(--serif);font-style:italic;font-size:13px;line-height:1.6;color:var(--ink-faint);
+  margin-top:22px;padding-top:18px;border-top:1px solid var(--line);position:relative}
+
+/* Hoek-Brown dense param row */
+.result-breakdown--dense{flex-direction:row;gap:14px;margin-bottom:4px}
+.result-breakdown--dense > div{flex:1;flex-direction:column;align-items:center;border-bottom:none;
+  background:var(--paper);border-radius:14px;padding:16px 8px;box-shadow:inset 0 0 0 1px var(--line-soft);gap:2px}
+.hb-param-block dt{font-family:var(--serif);font-style:italic;font-size:17px;color:var(--clay)}
+.hb-param-block dd{font-family:var(--serif);font-size:22px;color:var(--slate)}
+.hb-param-note{font-family:var(--sans);font-size:9.5px;font-weight:500;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--ink-faint);text-align:center;margin-top:2px}
+.result-card--hb .result-value{font-size:48px}
+
+/* ───────────────────────── najd zonation ────────────────────────── */
+.najd-slopes-table{margin-top:6px}
+.najd-slope-header,.najd-slope-row{display:grid;
+  grid-template-columns:1.2fr .9fr 1fr .9fr 1.5fr auto;gap:9px;align-items:center}
+.najd-slope-header{padding:0 4px 10px;border-bottom:1px solid var(--line)}
+.najd-slope-header span{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-faint)}
+.najd-slope-row{padding:10px 4px}
+.najd-input{font-family:var(--sans);font-size:13px;font-weight:500;color:var(--ink);background:var(--vellum);
+  border:none;border-radius:10px;padding:9px 10px;width:100%;min-width:0;
+  box-shadow:inset 0 0 0 1px var(--line);outline:none;transition:box-shadow .2s;font-variant-numeric:tabular-nums}
+.najd-input:focus{box-shadow:inset 0 0 0 1.5px var(--clay)}
+.najd-label-input{font-family:var(--serif);font-size:14px}
+.najd-dt-cell{font-family:var(--serif);font-size:16px;color:var(--ink);text-align:center;font-variant-numeric:tabular-nums}
+.najd-class-cell{font-family:var(--sans);font-size:11px;font-weight:600;line-height:1.2}
+.najd-remove-btn{background:transparent;border:none;cursor:pointer;color:var(--ink-faint);
+  font-size:18px;width:26px;height:26px;border-radius:50%;line-height:1;transition:.2s;flex-shrink:0}
+.najd-remove-btn:hover{background:rgba(181,84,74,.12);color:var(--red)}
+.btn-add-slope{margin-top:14px;font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.02em;
+  color:var(--clay);background:rgba(165,100,58,.10);border:none;border-radius:100px;padding:11px 22px;cursor:pointer;
+  box-shadow:inset 0 0 0 1px rgba(165,100,58,.3);transition:transform .2s,background .2s}
+.btn-add-slope:hover{transform:translateY(-1px);background:rgba(165,100,58,.16)}
+
+.najd-legend{display:flex;flex-direction:column;gap:13px}
+.najd-legend-item{display:flex;gap:12px;align-items:flex-start;font-family:var(--sans);font-size:13px;color:var(--ink-soft)}
+.najd-legend-item strong{color:var(--ink);font-weight:700}
+.najd-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;margin-top:3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.najd-red .najd-dot{background:var(--red)}
+.najd-amber .najd-dot{background:var(--amber)}
+.najd-green .najd-dot{background:var(--green)}
+.hint-inline{font-family:var(--serif);font-style:italic;font-size:12.5px;color:var(--ink-faint)}
+
+.result-card--najd .najd-compass{display:flex;justify-content:center;margin:6px 0 24px}
+.najd-compass svg{width:220px;height:220px;max-width:100%}
+.compass-ring{fill:var(--paper);stroke:var(--line);stroke-width:1}
+.compass-center{fill:var(--clay)}
+.compass-label{font-family:var(--serif);font-style:italic;font-size:13px;fill:var(--ink-soft);
+  text-anchor:middle;dominant-baseline:middle}
+.red-text{color:var(--red) !important}.amber-text{color:var(--amber) !important}.green-text{color:var(--green) !important}
+.result-card--najd .result-breakdown dt.red-text,
+.result-card--najd .result-breakdown dt.amber-text,
+.result-card--najd .result-breakdown dt.green-text{font-weight:700}
+
+/* ─────────────────────────────── about ──────────────────────────── */
+.about-content{display:flex;flex-direction:column;gap:18px;max-width:820px}
+.about-block{background:var(--paper);border-radius:var(--radius);padding:24px 28px;
+  box-shadow:var(--shadow-soft),inset 0 0 0 1px var(--line-soft)}
+.about-block h3{font-family:var(--serif);font-size:21px;color:var(--slate);letter-spacing:-.01em;margin-bottom:8px}
+.about-block p{font-family:var(--sans);font-weight:300;font-size:15px;line-height:1.7;color:var(--ink-soft);margin-top:6px}
+.about-block p strong{color:var(--ink);font-weight:600}
+.about-block .equation{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink);
+  background:var(--vellum);border-radius:12px;padding:13px 18px;margin-top:12px;
+  box-shadow:inset 0 0 0 1px var(--line-soft);overflow-x:auto}
+.about-block--note{border-left:4px solid var(--clay);background:rgba(165,100,58,.05)}
+.about-block--note h3{color:var(--clay)}
+
+/* ─────────────────────────────── footer ─────────────────────────── */
+.site-footer{margin-top:46px;text-align:center}
+.footer-rule{height:1px;background:var(--line);margin-bottom:18px}
+.site-footer p{font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink-faint)}
+
+/* ─────────────────────────── responsive ─────────────────────────── */
+@media(max-width:880px){
+  .layout-two-col{grid-template-columns:1fr;gap:20px}
+  .result-card{position:relative;top:0}
+}
+@media(max-width:640px){
+  body{padding:0 16px 60px}
+  .header-inner{align-items:flex-start}
+  .field-grid{grid-template-columns:1fr}
+  .tab{flex:1 1 140px}
+  /* structure switch stacks vertically — JS uses translateY here */
+  .structure-switch-inner{grid-template-columns:1fr}
+  .structure-switch-indicator{width:calc(100% - 10px);height:calc((100% - 10px)/5)}
+  .structure-switch-option{padding:11px 6px}
+  .result-value{font-size:50px}
+  .najd-slope-header{display:none}
+  .najd-slope-row{grid-template-columns:1fr 1fr;gap:8px;padding:14px;background:var(--paper);
+    border-radius:14px;margin-bottom:10px;box-shadow:inset 0 0 0 1px var(--line-soft);position:relative}
+  .najd-dt-cell,.najd-class-cell{grid-column:span 1}
+  .najd-remove-btn{position:absolute;top:8px;right:8px}
+  .result-breakdown--dense{flex-direction:column}
+}
+
+.vault-back{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-bottom:16px;
+  font-family:var(--sans);
+  font-size:13px;
+  font-style:italic;
+  color:var(--ink-soft);
+  text-decoration:none;
+  transition:color .2s;
+}
+.vault-back:hover{color:var(--clay)}
+
+</style>
+  <link rel="stylesheet" href="/shared/nav-strip.css"/>
+  <script>
+    (function () {
+      var t = localStorage.getItem("geostrength-theme");
+      var valid = ["heritage","mineral","scholar","terminal"];
+      if (valid.includes(t)) document.documentElement.setAttribute("data-theme", t);
+      else document.documentElement.setAttribute("data-theme", "scholar");
+    })();
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="vault-back" href="instruments.html">&#8592; Instruments</a>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-emblem" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <circle class="emblem-ring" cx="24" cy="24" r="22" stroke-width="0.75"/>
+            <path class="emblem-line emblem-line-faint" d="M8 38 L40 38" stroke-width="0.75"/>
+            <path class="emblem-line" d="M8 38 L18 26 L26 30 L34 16 L40 20" stroke-width="1" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <p class="brand-overline">Sabtan Research Programme · Geotechnics</p>
+          <h1>GeoStrength</h1>
+        </div>
+      </div>
+      <div class="header-actions">
+        <!-- Advanced Mode Toggle -->
+        <div class="mode-toggle-wrap">
+          <span class="mode-label">Standard</span>
+          <button type="button" class="mode-toggle" id="mode-toggle" role="switch" aria-checked="false" aria-label="Toggle advanced mode">
+            <span class="mode-toggle-thumb"></span>
+          </button>
+          <span class="mode-label mode-label-adv">Advanced</span>
+        </div>
+      </div>
+    </div>
+    <p class="header-note">Rock mass classification &amp; slope stability</p>
+    <div class="header-rule" aria-hidden="true"></div>
+  </header>
+
+  <div class="app-shell">
+    <div class="info-bar">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="4.6" r="0.95" fill="currentColor"/><rect x="7.1" y="6.6" width="1.8" height="5.2" rx="0.9" fill="currentColor"/></svg>
+      Pick a module below — inputs on the left update the result card live. Toggle <em>Advanced</em> for Hoek–Brown, Wedge &amp; Najd&nbsp;Δθ.
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Calculator modules">
+      <button class="tab active" role="tab" aria-selected="true" aria-controls="panel-gsi" id="tab-gsi" data-panel="gsi">
+        <span class="tab-index">01</span>
+        <span class="tab-copy">
+          <span class="tab-label">GSI</span>
+          <span class="tab-desc">Geological Strength Index</span>
+        </span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="panel-lem" id="tab-lem" data-panel="lem">
+        <span class="tab-index">02</span>
+        <span class="tab-copy">
+          <span class="tab-label">LEM</span>
+          <span class="tab-desc">Factor of Safety</span>
+        </span>
+      </button>
+      <button class="tab adv-tab" role="tab" aria-selected="false" aria-controls="panel-hb" id="tab-hb" data-panel="hb" hidden>
+        <span class="tab-index">03</span>
+        <span class="tab-copy">
+          <span class="tab-label">Hoek–Brown</span>
+          <span class="tab-desc">Rock mass strength</span>
+        </span>
+      </button>
+      <button class="tab adv-tab" role="tab" aria-selected="false" aria-controls="panel-wedge" id="tab-wedge" data-panel="wedge" hidden>
+        <span class="tab-index">04</span>
+        <span class="tab-copy">
+          <span class="tab-label">Wedge</span>
+          <span class="tab-desc">Wedge failure</span>
+        </span>
+      </button>
+      <button class="tab adv-tab" role="tab" aria-selected="false" aria-controls="panel-najd" id="tab-najd" data-panel="najd" hidden>
+        <span class="tab-index">05</span>
+        <span class="tab-copy">
+          <span class="tab-label">Najd Δθ</span>
+          <span class="tab-desc">Structural zonation</span>
+        </span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="panel-about" id="tab-about" data-panel="about">
+        <span class="tab-index adv-index">06</span>
+        <span class="tab-copy">
+          <span class="tab-label">About</span>
+          <span class="tab-desc">Methods &amp; equations</span>
+        </span>
+      </button>
+    </nav>
+
+    <main>
+      <!-- ═══════════════════════════════════════════ GSI PANEL ═══════ -->
+      <section id="panel-gsi" class="panel active" role="tabpanel" aria-labelledby="tab-gsi">
+        <header class="panel-intro">
+          <span class="section-mark">I</span>
+          <div>
+            <h2>Geological Strength Index</h2>
+            <p>Evaluate rock mass quality from structure and discontinuity surface condition.</p>
+          </div>
+        </header>
+
+        <div class="layout-two-col">
+          <div class="inputs-panel">
+          <div class="inputs-stack">
+            <fieldset class="input-group">
+              <legend><span class="legend-num">1</span> Rock mass structure</legend>
+              <p class="hint">Select one structure type · five-point scale</p>
+              <div class="structure-switch" id="structure-options" role="radiogroup" aria-label="Rock mass structure"></div>
+            </fieldset>
+
+            <fieldset class="input-group">
+              <legend><span class="legend-num">2</span> Discontinuity surface condition</legend>
+              <p class="hint">Rate each factor from 1 (poorest) to 6 (best)</p>
+
+              <div class="slider-field">
+                <div class="slider-header"><label for="roughness">Roughness of joints</label></div>
+                <div class="slider-row"><div class="slider-control">
+                  <div class="marble-slider" data-input="roughness" data-min="1" data-max="6" data-value="3">
+                    <div class="marble-track" tabindex="0" role="slider" aria-label="Roughness" aria-valuemin="1" aria-valuemax="6" aria-valuenow="3">
+                      <div class="marble-track-rail"></div>
+                      <div class="scale-ticks" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                      <div class="marble-track-fill"></div>
+                      <div class="marble-thumb"></div>
+                    </div>
+                  </div>
+                  <output class="slider-value" id="roughness-val" for="roughness">3</output>
+                  <div class="scale-steps" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+                </div></div>
+                <input type="hidden" id="roughness" value="3" />
+              </div>
+
+              <div class="slider-field">
+                <div class="slider-header"><label for="weathering">Degree of weathering</label></div>
+                <div class="slider-row"><div class="slider-control">
+                  <div class="marble-slider" data-input="weathering" data-min="1" data-max="6" data-value="3">
+                    <div class="marble-track" tabindex="0" role="slider" aria-label="Weathering" aria-valuemin="1" aria-valuemax="6" aria-valuenow="3">
+                      <div class="marble-track-rail"></div>
+                      <div class="scale-ticks" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                      <div class="marble-track-fill"></div>
+                      <div class="marble-thumb"></div>
+                    </div>
+                  </div>
+                  <output class="slider-value" id="weathering-val" for="weathering">3</output>
+                  <div class="scale-steps" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+                </div></div>
+                <input type="hidden" id="weathering" value="3" />
+              </div>
+
+              <div class="slider-field">
+                <div class="slider-header"><label for="infilling">Infilling materials</label></div>
+                <div class="slider-row"><div class="slider-control">
+                  <div class="marble-slider" data-input="infilling" data-min="1" data-max="6" data-value="3">
+                    <div class="marble-track" tabindex="0" role="slider" aria-label="Infilling" aria-valuemin="1" aria-valuemax="6" aria-valuenow="3">
+                      <div class="marble-track-rail"></div>
+                      <div class="scale-ticks" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                      <div class="marble-track-fill"></div>
+                      <div class="marble-thumb"></div>
+                    </div>
+                  </div>
+                  <output class="slider-value" id="infilling-val" for="infilling">3</output>
+                  <div class="scale-steps" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+                </div></div>
+                <input type="hidden" id="infilling" value="3" />
+              </div>
+            </fieldset>
+
+            <!-- ADVANCED: extra GSI inputs (hidden in standard) -->
+            <fieldset class="input-group adv-field" id="gsi-adv-rmr" hidden>
+              <legend><span class="legend-num">3</span> RMR cross-check <span class="optional-tag">Advanced</span></legend>
+              <p class="hint">Enter RMR₈₉ to cross-verify GSI estimate</p>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="rmr89">RMR₈₉ value</label>
+                  <input type="number" id="rmr89" value="" min="0" max="100" step="1" placeholder="0–100" />
+                </div>
+              </div>
+              <p class="adv-result-line" id="rmr-gsi-equiv">—</p>
+            </fieldset>
+          </div>
+          </div>
+
+          <aside class="result-card" aria-live="polite">
+            <div class="result-accent" aria-hidden="true"></div>
+            <p class="result-label">Estimated GSI</p>
+            <p class="result-value" id="gsi-value">—</p>
+            <p class="result-quality" id="gsi-quality">—</p>
+
+            <dl class="result-breakdown">
+              <div><dt>Structure score</dt><dd id="structure-score">—</dd></div>
+              <div><dt>Surface condition</dt><dd id="surface-total">— <span class="unit">/ 18</span></dd></div>
+            </dl>
+
+            <!-- ADVANCED: extra GSI outputs -->
+            <dl class="result-breakdown adv-field" id="gsi-adv-outputs" hidden>
+              <div class="result-divider-line"></div>
+              <div><dt>Tunnel support class</dt><dd id="tunnel-class">—</dd></div>
+              <div><dt>RMR equiv. (GSI+5)</dt><dd id="rmr-equiv">—</dd></div>
+              <div><dt>Q rough estimate</dt><dd id="q-rough">—</dd></div>
+            </dl>
+
+            <div class="quality-bar" aria-hidden="true">
+              <div class="quality-fill" id="gsi-bar"></div>
+            </div>
+            <div class="quality-scale" aria-hidden="true">
+              <span>Poor</span><span>Fair</span><span>Good</span><span>Very Good</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ LEM PANEL ═══════ -->
+      <section id="panel-lem" class="panel" role="tabpanel" aria-labelledby="tab-lem" hidden>
+        <header class="panel-intro">
+          <span class="section-mark">II</span>
+          <div>
+            <h2>Limit Equilibrium Method</h2>
+            <p>Planar failure — factor of safety against sliding on a daylighting joint plane.</p>
+          </div>
+        </header>
+
+        <div class="layout-two-col">
+          <div class="inputs-stack">
+            <fieldset class="input-group">
+              <legend><span class="legend-num">1</span> Slope geometry</legend>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="slope-height">Slope height <span class="unit">H (m)</span></label>
+                  <input type="number" id="slope-height" value="40" min="0" step="0.1" />
+                </div>
+                <div class="field">
+                  <label for="dip-angle">Failure plane dip <span class="unit">β (°)</span></label>
+                  <input type="number" id="dip-angle" value="45" min="0" max="90" step="0.1" />
+                </div>
+                <div class="field">
+                  <label for="unit-weight">Unit weight <span class="unit">γ (kN/m³)</span></label>
+                  <input type="number" id="unit-weight" value="26" min="0" step="0.1" />
+                </div>
+                <div class="field">
+                  <label for="block-thickness">Block thickness <span class="unit">t (m)</span></label>
+                  <input type="number" id="block-thickness" value="1" min="0" step="0.1" />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="input-group">
+              <legend><span class="legend-num">2</span> Strength along failure plane</legend>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="cohesion">Cohesion <span class="unit">c (kPa)</span></label>
+                  <input type="number" id="cohesion" value="25" min="0" step="0.1" />
+                </div>
+                <div class="field">
+                  <label for="friction">Friction angle <span class="unit">φ (°)</span></label>
+                  <input type="number" id="friction" value="35" min="0" max="90" step="0.1" />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="input-group optional-group">
+              <legend><span class="legend-num">3</span> Optional loads <span class="optional-tag">dry slope default</span></legend>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="pore-water">Pore water force <span class="unit">U (kN)</span></label>
+                  <input type="number" id="pore-water" value="0" min="0" step="0.1" />
+                </div>
+                <div class="field">
+                  <label for="external-force">External force <span class="unit">T (kN)</span></label>
+                  <input type="number" id="external-force" value="0" step="0.1" />
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- ADVANCED: tension crack + seismic -->
+            <fieldset class="input-group optional-group adv-field" id="lem-adv-inputs" hidden>
+              <legend><span class="legend-num">4</span> Advanced loads <span class="optional-tag">Advanced</span></legend>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="tension-crack">Tension crack depth <span class="unit">z (m)</span></label>
+                  <input type="number" id="tension-crack" value="0" min="0" step="0.1" />
+                </div>
+                <div class="field">
+                  <label for="crack-water">Crack water depth <span class="unit">zw (m)</span></label>
+                  <input type="number" id="crack-water" value="0" min="0" step="0.1" />
+                </div>
+                <div class="field">
+                  <label for="seismic-k">Seismic coeff. <span class="unit">k<sub>h</sub></span></label>
+                  <input type="number" id="seismic-k" value="0" min="0" max="1" step="0.01" placeholder="0.0–0.3" />
+                </div>
+              </div>
+              <p class="hint">Seismic force = k<sub>h</sub> · W (horizontal, destabilising)</p>
+            </fieldset>
+          </div>
+
+          <aside class="result-card" aria-live="polite">
+            <div class="result-accent" aria-hidden="true"></div>
+            <p class="result-label">Factor of Safety</p>
+            <p class="result-value" id="fs-value">—</p>
+            <p class="result-quality" id="fs-verdict">—</p>
+
+            <dl class="result-breakdown">
+              <div><dt>Block weight <span class="unit">W</span></dt><dd id="block-weight">— <span class="unit">kN</span></dd></div>
+              <div><dt>Failure plane area <span class="unit">A</span></dt><dd id="plane-area">— <span class="unit">m²</span></dd></div>
+              <div><dt>Resisting shear</dt><dd id="resisting-shear">— <span class="unit">kN</span></dd></div>
+              <div><dt>Driving shear</dt><dd id="driving-shear">— <span class="unit">kN</span></dd></div>
+            </dl>
+
+            <!-- ADVANCED extra LEM outputs -->
+            <dl class="result-breakdown adv-field" id="lem-adv-outputs" hidden>
+              <div class="result-divider-line"></div>
+              <div><dt>FS with seismic</dt><dd id="fs-seismic">— </dd></div>
+              <div><dt>Critical φ for FS=1.0</dt><dd id="critical-phi">—</dd></div>
+              <div><dt>Required bolt force</dt><dd id="bolt-force">— <span class="unit">kN</span></dd></div>
+            </dl>
+
+            <p class="formula-note">
+              FS = (c·A + (W·cos β − U)·tan φ) / (W·sin β + T)
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ HOEK-BROWN PANEL ═══════ -->
+      <section id="panel-hb" class="panel adv-panel" role="tabpanel" aria-labelledby="tab-hb" hidden>
+        <header class="panel-intro">
+          <span class="section-mark">III</span>
+          <div>
+            <h2>Hoek–Brown Parameters</h2>
+            <p>Derive rock mass strength envelope and deformation modulus from GSI, intact UCS, and rock type.</p>
+          </div>
+        </header>
+
+        <div class="layout-two-col">
+          <div class="inputs-stack">
+            <fieldset class="input-group">
+              <legend><span class="legend-num">1</span> Rock mass classification</legend>
+              <p class="hint">GSI is carried from the GSI tab automatically — or override it here</p>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="hb-gsi">GSI <span class="unit">(0–100)</span></label>
+                  <input type="number" id="hb-gsi" value="55" min="0" max="100" step="1" />
+                </div>
+                <div class="field">
+                  <label for="hb-D">Disturbance D <span class="unit">(0–1)</span></label>
+                  <input type="number" id="hb-D" value="0" min="0" max="1" step="0.05" placeholder="0=undisturbed" />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="input-group">
+              <legend><span class="legend-num">2</span> Intact rock properties</legend>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="hb-ucs">Intact UCS <span class="unit">σci (MPa)</span></label>
+                  <input type="number" id="hb-ucs" value="80" min="0" step="1" />
+                </div>
+                <div class="field">
+                  <label for="hb-mi">m<sub>i</sub> constant</label>
+                  <input type="number" id="hb-mi" value="25" min="1" step="1" />
+                </div>
+              </div>
+              <p class="hint">Typical m<sub>i</sub>: granite 32, granodiorite 29, gneiss 28, sandstone 17, limestone 12</p>
+            </fieldset>
+
+            <fieldset class="input-group">
+              <legend><span class="legend-num">3</span> Confining stress (for σcm)</legend>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="hb-depth">Depth / overburden <span class="unit">z (m)</span></label>
+                  <input type="number" id="hb-depth" value="20" min="0" step="1" />
+                </div>
+                <div class="field">
+                  <label for="hb-gamma">Unit weight <span class="unit">γ (kN/m³)</span></label>
+                  <input type="number" id="hb-gamma" value="26" min="0" step="0.1" />
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Schmidt hammer quick converter -->
+            <fieldset class="input-group optional-group">
+              <legend><span class="legend-num">4</span> Schmidt hammer → UCS <span class="optional-tag">field converter</span></legend>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="schmidt-r">Rebound value R</label>
+                  <input type="number" id="schmidt-r" value="" min="10" max="70" step="1" placeholder="10–70" />
+                </div>
+                <div class="field">
+                  <label for="schmidt-gamma">Rock density <span class="unit">g/cm³</span></label>
+                  <input type="number" id="schmidt-gamma" value="2.65" min="2.0" max="3.5" step="0.01" />
+                </div>
+              </div>
+              <p class="adv-result-line" id="schmidt-ucs">Enter R to estimate UCS</p>
+            </fieldset>
+          </div>
+
+          <aside class="result-card result-card--hb" aria-live="polite">
+            <div class="result-accent" aria-hidden="true"></div>
+            <p class="result-label">Hoek–Brown Parameters</p>
+
+            <dl class="result-breakdown result-breakdown--dense">
+              <div class="hb-param-block">
+                <dt>m<sub>b</sub></dt>
+                <dd id="hb-mb">—</dd>
+                <span class="hb-param-note">reduced m<sub>i</sub></span>
+              </div>
+              <div class="hb-param-block">
+                <dt>s</dt>
+                <dd id="hb-s">—</dd>
+                <span class="hb-param-note">intactness</span>
+              </div>
+              <div class="hb-param-block">
+                <dt>a</dt>
+                <dd id="hb-a">—</dd>
+                <span class="hb-param-note">curve shape</span>
+              </div>
+            </dl>
+
+            <div class="result-divider-line"></div>
+
+            <dl class="result-breakdown">
+              <div><dt>Rock mass UCS <span class="unit">σcm</span></dt><dd id="hb-sigcm">— <span class="unit">MPa</span></dd></div>
+              <div><dt>Tensile strength <span class="unit">σt</span></dt><dd id="hb-sigt">— <span class="unit">MPa</span></dd></div>
+              <div><dt>Deformation modulus <span class="unit">Erm</span></dt><dd id="hb-erm">— <span class="unit">GPa</span></dd></div>
+              <div><dt>Confinement <span class="unit">σ₃ at depth</span></dt><dd id="hb-sig3">— <span class="unit">MPa</span></dd></div>
+            </dl>
+
+            <div class="result-divider-line"></div>
+
+            <dl class="result-breakdown">
+              <div><dt>Equiv. Mohr-Coulomb c'</dt><dd id="hb-cprime">— <span class="unit">MPa</span></dd></div>
+              <div><dt>Equiv. Mohr-Coulomb φ'</dt><dd id="hb-phiprime">— <span class="unit">°</span></dd></div>
+            </dl>
+
+            <p class="formula-note">
+              m<sub>b</sub> = m<sub>i</sub>·exp((GSI−100)/(28−14D)) &nbsp;|&nbsp; a = 0.5 + (e<sup>−GSI/15</sup>−e<sup>−20/3</sup>)/6
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ WEDGE PANEL ═══════ -->
+      <section id="panel-wedge" class="panel adv-panel" role="tabpanel" aria-labelledby="tab-wedge" hidden>
+        <header class="panel-intro">
+          <span class="section-mark">IV</span>
+          <div>
+            <h2>Wedge Failure Analysis</h2>
+            <p>Factor of safety for a rock wedge defined by two intersecting joint planes daylighting on a slope face.</p>
+          </div>
+        </header>
+
+        <div class="layout-two-col">
+          <div class="inputs-stack">
+            <fieldset class="input-group">
+              <legend><span class="legend-num">1</span> Slope face</legend>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="w-slope-dip">Slope dip <span class="unit">αf (°)</span></label>
+                  <input type="number" id="w-slope-dip" value="70" min="0" max="90" step="1" />
+                </div>
+                <div class="field">
+                  <label for="w-slope-dir">Slope dip direction <span class="unit">(°)</span></label>
+                  <input type="number" id="w-slope-dir" value="300" min="0" max="360" step="1" />
+                </div>
+                <div class="field">
+                  <label for="w-height">Slope height <span class="unit">H (m)</span></label>
+                  <input type="number" id="w-height" value="30" min="1" step="1" />
+                </div>
+                <div class="field">
+                  <label for="w-gamma">Unit weight <span class="unit">γ (kN/m³)</span></label>
+                  <input type="number" id="w-gamma" value="26" min="0" step="0.1" />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="input-group">
+              <legend><span class="legend-num">2</span> Joint plane A</legend>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="w-ja-dip">Dip <span class="unit">(°)</span></label>
+                  <input type="number" id="w-ja-dip" value="45" min="0" max="90" step="1" />
+                </div>
+                <div class="field">
+                  <label for="w-ja-dir">Dip direction <span class="unit">(°)</span></label>
+                  <input type="number" id="w-ja-dir" value="270" min="0" max="360" step="1" />
+                </div>
+                <div class="field">
+                  <label for="w-ja-c">Cohesion cA <span class="unit">(kPa)</span></label>
+                  <input type="number" id="w-ja-c" value="0" min="0" step="1" />
+                </div>
+                <div class="field">
+                  <label for="w-ja-phi">Friction φA <span class="unit">(°)</span></label>
+                  <input type="number" id="w-ja-phi" value="30" min="0" max="90" step="1" />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="input-group">
+              <legend><span class="legend-num">3</span> Joint plane B</legend>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="w-jb-dip">Dip <span class="unit">(°)</span></label>
+                  <input type="number" id="w-jb-dip" value="35" min="0" max="90" step="1" />
+                </div>
+                <div class="field">
+                  <label for="w-jb-dir">Dip direction <span class="unit">(°)</span></label>
+                  <input type="number" id="w-jb-dir" value="330" min="0" max="360" step="1" />
+                </div>
+                <div class="field">
+                  <label for="w-jb-c">Cohesion cB <span class="unit">(kPa)</span></label>
+                  <input type="number" id="w-jb-c" value="0" min="0" step="1" />
+                </div>
+                <div class="field">
+                  <label for="w-jb-phi">Friction φB <span class="unit">(°)</span></label>
+                  <input type="number" id="w-jb-phi" value="28" min="0" max="90" step="1" />
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <aside class="result-card" aria-live="polite">
+            <div class="result-accent" aria-hidden="true"></div>
+            <p class="result-label">Wedge FS</p>
+            <p class="result-value" id="wedge-fs">—</p>
+            <p class="result-quality" id="wedge-verdict">—</p>
+
+            <dl class="result-breakdown">
+              <div><dt>Line of intersection plunge</dt><dd id="wedge-plunge">—</dd></div>
+              <div><dt>Line of intersection trend</dt><dd id="wedge-trend">—</dd></div>
+              <div><dt>Kinematic check</dt><dd id="wedge-kinematic">—</dd></div>
+              <div><dt>Wedge weight W</dt><dd id="wedge-weight">— <span class="unit">kN</span></dd></div>
+              <div><dt>Normal on A</dt><dd id="wedge-na">— <span class="unit">kN</span></dd></div>
+              <div><dt>Normal on B</dt><dd id="wedge-nb">— <span class="unit">kN</span></dd></div>
+            </dl>
+
+            <p class="formula-note">
+              FS = (cA·SA + NA·tan φA + cB·SB + NB·tan φB) / W·sin(plunge)
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ NAJD ZONATION ═══════ -->
+      <section id="panel-najd" class="panel adv-panel" role="tabpanel" aria-labelledby="tab-najd" hidden>
+        <header class="panel-intro">
+          <span class="section-mark">V</span>
+          <div>
+            <h2>Najd Structural Zonation — Δθ Classifier</h2>
+            <p>Traffic-light slope risk classification based on angular relationship between slope dip direction and Najd-parallel joint dip direction.</p>
+          </div>
+        </header>
+
+        <div class="layout-two-col">
+          <div class="inputs-stack">
+            <fieldset class="input-group">
+              <legend><span class="legend-num">1</span> Najd fabric reference</legend>
+              <p class="hint">Default: Makkah region Najd-parallel joints ≈ 300° (dip direction)</p>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="najd-ref-dir">Najd joint dip direction <span class="unit">(°)</span></label>
+                  <input type="number" id="najd-ref-dir" value="300" min="0" max="360" step="1" />
+                </div>
+                <div class="field">
+                  <label for="najd-ref-dip">Najd joint dip <span class="unit">(°)</span></label>
+                  <input type="number" id="najd-ref-dip" value="80" min="0" max="90" step="1" />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="input-group">
+              <legend><span class="legend-num">2</span> Proposed slope(s)</legend>
+              <p class="hint">Add up to 5 slopes along a corridor — each row gives a Δθ and class</p>
+
+              <div class="najd-slopes-table">
+                <div class="najd-slope-header">
+                  <span>Label</span><span>Dip (°)</span><span>Dip dir (°)</span><span>Δθ</span><span>Class</span>
+                </div>
+                <div id="najd-slopes-rows"></div>
+                <button type="button" class="btn-add-slope" id="btn-add-slope">+ Add slope</button>
+              </div>
+            </fieldset>
+
+            <fieldset class="input-group optional-group">
+              <legend><span class="legend-num">3</span> Design guidance by class</legend>
+              <div class="najd-legend">
+                <div class="najd-legend-item najd-red">
+                  <span class="najd-dot"></span>
+                  <div><strong>Red — Najd-unfavourable</strong> Δθ ≤ 20°<br><span class="hint-inline">Systematic bolts, shotcrete, drainage holes; conservative FS ≥ 1.5</span></div>
+                </div>
+                <div class="najd-legend-item najd-amber">
+                  <span class="najd-dot"></span>
+                  <div><strong>Amber — Intermediate</strong> 20° &lt; Δθ ≤ 60°<br><span class="hint-inline">Targeted wedge reinforcement; FS ≥ 1.3</span></div>
+                </div>
+                <div class="najd-legend-item najd-green">
+                  <span class="najd-dot"></span>
+                  <div><strong>Green — Najd-favourable</strong> Δθ &gt; 60°<br><span class="hint-inline">Spot bolting; check toppling and non-Najd sets; FS ≥ 1.25</span></div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <aside class="result-card result-card--najd" aria-live="polite">
+            <div class="result-accent" aria-hidden="true"></div>
+            <p class="result-label">Zonation summary</p>
+
+            <div class="najd-compass" id="najd-compass" aria-hidden="true">
+              <svg id="najd-compass-svg" viewBox="0 0 220 220" width="220" height="220">
+                <circle cx="110" cy="110" r="100" class="compass-ring"/>
+                <circle cx="110" cy="110" r="2" class="compass-center"/>
+                <!-- Cardinal labels -->
+                <text x="110" y="18" class="compass-label">N</text>
+                <text x="205" y="114" class="compass-label">E</text>
+                <text x="110" y="210" class="compass-label">S</text>
+                <text x="12" y="114" class="compass-label">W</text>
+                <!-- Tick marks -->
+                <g id="compass-ticks"></g>
+                <!-- Najd reference arrow -->
+                <g id="najd-arrow"></g>
+                <!-- Slope arrows -->
+                <g id="slope-arrows"></g>
+              </svg>
+            </div>
+
+            <dl class="result-breakdown" id="najd-summary-dl">
+              <div><dt>Slopes entered</dt><dd id="najd-count">0</dd></div>
+              <div><dt class="red-text">Red (high risk)</dt><dd id="najd-red-count">0</dd></div>
+              <div><dt class="amber-text">Amber (intermediate)</dt><dd id="najd-amber-count">0</dd></div>
+              <div><dt class="green-text">Green (favourable)</dt><dd id="najd-green-count">0</dd></div>
+            </dl>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ ABOUT PANEL ═══════ -->
+      <section id="panel-about" class="panel" role="tabpanel" aria-labelledby="tab-about" hidden>
+        <header class="panel-intro">
+          <span class="section-mark">VI</span>
+          <div>
+            <h2>About this app</h2>
+            <p>GeoStrength combines rock mass classification, planar and wedge stability analysis, Hoek–Brown derivation, and Najd structural zonation.</p>
+          </div>
+        </header>
+
+        <div class="about-content">
+          <section class="about-block">
+            <h3>Overview</h3>
+            <p>GeoStrength provides linked calculators for GSI classification, planar LEM stability, Hoek–Brown rock mass characterisation, wedge failure analysis, and Najd fault structural zonation. Results update instantly. <strong>Advanced mode</strong> reveals additional panels and deeper outputs; Standard mode keeps only the core GSI and planar LEM tools.</p>
+          </section>
+
+          <section class="about-block">
+            <h3>Module I — GSI</h3>
+            <p>Chart-based method: structure type (score 1–5) plus three surface condition sliders (roughness, weathering, infilling, each 1–6). GSI = interpolated from anchor points. Advanced mode adds tunnel class, RMR cross-check, and Q rough estimate.</p>
+            <p class="equation">J<sub>s</sub> = R + W + F &nbsp;|&nbsp; GSI = f(structure, J<sub>s</sub>)</p>
+          </section>
+
+          <section class="about-block">
+            <h3>Module II — Planar LEM</h3>
+            <p>Planar block on a daylighting joint. Advanced adds tension crack, crack water, and pseudo-static seismic force.</p>
+            <p class="equation">FS = (c·A + (W cos β − U) tan φ) / (W sin β + T + k<sub>h</sub>·W)</p>
+          </section>
+
+          <section class="about-block">
+            <h3>Module III — Hoek–Brown (Advanced)</h3>
+            <p>Derives m<sub>b</sub>, s, a from GSI, D, m<sub>i</sub>. Computes rock mass UCS (σcm), tensile strength (σt), deformation modulus (Erm), and equivalent Mohr-Coulomb c′, φ′ at the given depth. Schmidt hammer → UCS converter uses the Deere-Miller / ISRM correlation.</p>
+            <p class="equation">m<sub>b</sub> = m<sub>i</sub>·exp((GSI−100)/(28−14D)) &nbsp;|&nbsp; E<sub>rm</sub> = (1−D/2)·√(σci/100)·10<sup>(GSI−10)/40</sup></p>
+          </section>
+
+          <section class="about-block">
+            <h3>Module IV — Wedge Failure (Advanced)</h3>
+            <p>Two-plane wedge using vector algebra. The line of intersection (LOI) is found from the two plane normals. FS is computed as total resisting force on both planes divided by the component of weight acting along the LOI.</p>
+          </section>
+
+          <section class="about-block">
+            <h3>Module V — Najd Δθ Zonation (Advanced)</h3>
+            <p>For each slope, Δθ = min(|slope_dir − Najd_dir|, 360° − |slope_dir − Najd_dir|). Red: Δθ ≤ 20° (Najd planes can daylight — high planar/wedge risk). Amber: 20° &lt; Δθ ≤ 60° (wedge-forming). Green: Δθ &gt; 60° (Najd planes dip into slope — favourable). The compass diagram visualises all slopes relative to the Najd reference direction.</p>
+          </section>
+
+          <section class="about-block about-block--note">
+            <h3>Note</h3>
+            <p>These tools support preliminary assessment and research. All design should follow site investigation, applicable codes, and qualified engineering judgement. Najd reference direction and Hoek-Brown anchor values should be calibrated to each project site.</p>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-rule" aria-hidden="true"></div>
+      <p>Professional geotechnical assessment · GSI · LEM · Hoek–Brown · Wedge · Najd Zonation</p>
+    </footer>
+  </div>
+
+  <script>
+/* GeoStrength Advanced — GSI · LEM · Hoek-Brown · Wedge · Najd Zonation */
+
+/* ─── constants ───────────────────────────────────────────────────── */
+const STRUCTURES = [
+  { id: "sheared",      label: "Sheared",      score: 1 },
+  { id: "disintegrated",label: "Disintegrated",score: 2 },
+  { id: "disturbed",    label: "Disturbed",    score: 3 },
+  { id: "blocky",       label: "Blocky",       score: 4 },
+  { id: "very-blocky",  label: "Very blocky",  score: 5 },
+];
+
+const GSI_ANCHORS = {
+  disturbed:      [{ surface:6,gsi:40 },{ surface:9,gsi:47 }],
+  "very-blocky":  [{ surface:9,gsi:55 },{ surface:16,gsi:70 }],
+  blocky:         [{ surface:16,gsi:75 },{ surface:18,gsi:80 }],
+  disintegrated:  [{ surface:6,gsi:25 },{ surface:9,gsi:32 }],
+  sheared:        [{ surface:6,gsi:20 },{ surface:9,gsi:28 }],
+};
+
+let advancedMode = false;
+let currentGSI   = 47;
+let slopeRows    = [];   // Najd panel slope list
+
+/* ─── helpers ─────────────────────────────────────────────────────── */
+const degToRad = d => d * Math.PI / 180;
+const radToDeg = r => r * 180 / Math.PI;
+const fmt = (v, d=2) => (v==null||isNaN(v)) ? "—" : (v===Infinity?"∞":v.toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d}));
+const el  = id => document.getElementById(id);
+
+/* ─── GSI interpolation ───────────────────────────────────────────── */
+function interpolateGSI(structureId, surfaceTotal) {
+  const anchors = GSI_ANCHORS[structureId];
+  if (!anchors) return null;
+  const s = [...anchors].sort((a,b)=>a.surface-b.surface);
+  if (surfaceTotal <= s[0].surface) {
+    const slope = (s[1].gsi-s[0].gsi)/(s[1].surface-s[0].surface);
+    return Math.max(0, Math.round(s[0].gsi + slope*(surfaceTotal-s[0].surface)));
+  }
+  if (surfaceTotal >= s[s.length-1].surface) {
+    const last=s[s.length-1], prev=s[s.length-2];
+    const slope=(last.gsi-prev.gsi)/(last.surface-prev.surface);
+    return Math.min(100, Math.round(last.gsi + slope*(surfaceTotal-last.surface)));
+  }
+  for (let i=0;i<s.length-1;i++) {
+    if (surfaceTotal>=s[i].surface && surfaceTotal<=s[i+1].surface) {
+      const t=(surfaceTotal-s[i].surface)/(s[i+1].surface-s[i].surface);
+      return Math.round(s[i].gsi+t*(s[i+1].gsi-s[i].gsi));
+    }
+  }
+  return s[0].gsi;
+}
+
+function gsiQuality(gsi) {
+  if (gsi<40)  return { label:"Poor",            color:"var(--quality-poor)" };
+  if (gsi<55)  return { label:"Poor — Fair",      color:"var(--quality-fair)" };
+  if (gsi<70)  return { label:"Fair — Good",      color:"var(--quality-good)" };
+  if (gsi<80)  return { label:"Good — Very Good", color:"var(--quality-good)" };
+  return           { label:"Very Good",          color:"var(--quality-vg)" };
+}
+
+function tunnelClass(gsi) {
+  if (gsi>=75) return "Class I — Very Good (minimal support)";
+  if (gsi>=60) return "Class II — Good (spot bolting)";
+  if (gsi>=40) return "Class III — Fair (systematic bolting)";
+  if (gsi>=20) return "Class IV — Poor (heavy support)";
+  return           "Class V — Very Poor (intensive support)";
+}
+
+function updateGSI() {
+  const R = +el("roughness").value;
+  const W = +el("weathering").value;
+  const F = +el("infilling").value;
+  const struct = getSelectedStructure();
+  const Js = R+W+F;
+
+  el("roughness-val").textContent = R;
+  el("weathering-val").textContent = W;
+  el("infilling-val").textContent = F;
+
+  const gsi = interpolateGSI(struct.id, Js);
+  currentGSI = gsi;
+  const q = gsiQuality(gsi);
+
+  el("gsi-value").textContent = fmt(gsi,0);
+  el("gsi-quality").textContent = q.label;
+  el("gsi-quality").style.color = q.color;
+  el("structure-score").textContent = fmt(struct.score,0);
+  el("surface-total").innerHTML = `${fmt(Js,0)} <span class="unit">/ 18</span>`;
+  el("gsi-bar").style.width = `${Math.min(100,gsi)}%`;
+
+  /* sync HB panel GSI field */
+  if (el("hb-gsi") && !el("hb-gsi").dataset.overridden) el("hb-gsi").value = gsi;
+
+  /* advanced GSI outputs */
+  if (advancedMode) {
+    el("tunnel-class").textContent = tunnelClass(gsi);
+    el("rmr-equiv").textContent = fmt(gsi+5, 0);
+    // rough Q: Q ≈ 10^((GSI-44)/21)  (Barton approximation)
+    const Qrough = Math.pow(10, (gsi-44)/21);
+    el("q-rough").textContent = fmt(Qrough,2) + " (approx.)";
+
+    const rmr89 = +el("rmr89").value;
+    if (rmr89 > 0) {
+      const gsiFromRmr = rmr89 - 5;
+      el("rmr-gsi-equiv").textContent = `RMR₈₉ ${rmr89} → GSI ≈ ${gsiFromRmr} (diff: ${fmt(gsi-gsiFromRmr,0)})`;
+    } else {
+      el("rmr-gsi-equiv").textContent = "Enter RMR₈₉ value above";
+    }
+  }
+
+  updateHoekBrown();
+}
+
+/* ─── LEM ──────────────────────────────────────────────────────────── */
+function fsVerdict(fs) {
+  if (fs<1.0)   return { label:"Unstable · FS < 1.0",   color:"var(--fs-unsafe)" };
+  if (fs<1.25)  return { label:"Marginally stable",      color:"var(--fs-marginal)" };
+  return            { label:"Stable slope",              color:"var(--fs-safe)" };
+}
+
+function updateLEM() {
+  const H     = +el("slope-height").value||0;
+  const beta  = +el("dip-angle").value||0;
+  const gamma = +el("unit-weight").value||0;
+  const t     = +el("block-thickness").value||1;
+  const c     = +el("cohesion").value||0;
+  const phi   = +el("friction").value||0;
+  const U     = +el("pore-water").value||0;
+  const T     = +el("external-force").value||0;
+
+  const bR  = degToRad(beta);
+  const phR = degToRad(phi);
+  const Ab  = (H*H)/(2*Math.tan(bR));
+  const vol = Ab*t;
+  const Wt  = gamma*vol;
+  const A   = (H/Math.sin(bR))*t;
+  const res = c*A+(Wt*Math.cos(bR)-U)*Math.tan(phR);
+  const drv = Wt*Math.sin(bR)+T;
+  const fs  = drv>0 ? res/drv : Infinity;
+  const vrd = fsVerdict(fs);
+
+  el("fs-value").textContent  = fs===Infinity?"∞":fmt(fs,2);
+  el("fs-verdict").textContent= vrd.label;
+  el("fs-verdict").style.color= vrd.color;
+  el("block-weight").innerHTML = `${fmt(Wt,1)} <span class="unit">kN</span>`;
+  el("plane-area").innerHTML   = `${fmt(A,1)} <span class="unit">m²</span>`;
+  el("resisting-shear").innerHTML = `${fmt(res,1)} <span class="unit">kN</span>`;
+  el("driving-shear").innerHTML   = `${fmt(drv,1)} <span class="unit">kN</span>`;
+
+  /* advanced LEM */
+  if (advancedMode) {
+    const kh   = +el("seismic-k").value||0;
+    const drv_s = drv + kh*Wt;
+    const fs_s  = drv_s>0 ? res/drv_s : Infinity;
+    el("fs-seismic").innerHTML = `${fmt(fs_s,2)} <span class="unit">(k=${fmt(kh,2)})</span>`;
+
+    /* critical phi: c·A/(Wt·sin β−Wt·cos β·tan φ) = 1 → solve φcrit */
+    /* FS=1 → (c·A + Wt·cos β·tan φ) = Wt·sin β  → tan φ = (Wt·sin β − c·A)/(Wt·cos β) */
+    const tanPhiCrit = (Wt*Math.sin(bR) - c*A) / (Wt*Math.cos(bR));
+    const phiCrit = tanPhiCrit > 0 ? radToDeg(Math.atan(tanPhiCrit)) : 0;
+    el("critical-phi").textContent = `${fmt(phiCrit,1)}°`;
+
+    /* required bolt force T_req for FS target 1.3 with current phi,c */
+    const fsTarget = 1.3;
+    const T_req = (res - fsTarget*drv) / (-fsTarget); // T added to driving; negative = need anchor
+    el("bolt-force").innerHTML = T_req < 0 ? `${fmt(-T_req,1)} <span class="unit">kN (anchor)</span>` : `Not required`;
+  }
+}
+
+/* ─── Hoek–Brown ───────────────────────────────────────────────────── */
+function updateHoekBrown() {
+  if (!advancedMode) return;
+  const GSI   = +el("hb-gsi").value||0;
+  const D     = +el("hb-D").value||0;
+  const sci   = +el("hb-ucs").value||0;   // MPa
+  const mi    = +el("hb-mi").value||1;
+  const depth = +el("hb-depth").value||0;
+  const gammaR= +el("hb-gamma").value||26;
+
+  const mb  = mi * Math.exp((GSI-100)/(28-14*D));
+  const s   = GSI>=100 ? 1 : Math.exp((GSI-100)/(9-3*D));
+  const a   = 0.5 + (Math.exp(-GSI/15) - Math.exp(-20/3))/6;
+
+  // rock mass UCS: σcm = sci * (mb + 4s - a(mb - 8s)) * ((mb/4 + s)^(a-1)) / (2(1+a)(2+a))
+  // Simplified field version: σcm ≈ sci * s^a
+  const sigcm = sci * Math.pow(s, a);
+  const sigt  = -s * sci / mb;  // tensile strength
+  const sig3  = (gammaR * depth) / 1000; // MPa
+
+  // Erm (Hoek 2002): (1 - D/2) * sqrt(sci/100) * 10^((GSI-10)/40)  GPa
+  const Erm = (1 - D/2) * Math.sqrt(sci/100) * Math.pow(10, (GSI-10)/40);
+
+  // Equivalent MC at given depth (σ3 = overburden)
+  // Balmer equations for instantaneous c', phi'
+  const sig3max = 0.72 * sigcm * Math.pow(sigcm / (gammaR * depth / 1000 * 100 + 0.001), -0.91);
+  // approx c' and phi' from Hoek 2002 Eq 11-12
+  const num1 = 6*a*mb * Math.pow(s + mb*0, a-1);
+  const den1 = 2*(1+a)*(2+a);
+  const sinphi_prime = num1/(den1+num1);
+  const phi_prime = radToDeg(Math.asin(sinphi_prime));
+  const c_prime = (sigcm * ((1+2*a)*s + (1-a)*mb*0) * Math.pow(s + mb*0, a-1)) /
+                  ((1+a)*(2+a)*Math.sqrt(1 + (6*a*mb*Math.pow(s+mb*0,a-1))/((1+a)*(2+a))));
+
+  el("hb-mb").textContent   = fmt(mb,3);
+  el("hb-s").textContent    = fmt(s,5);
+  el("hb-a").textContent    = fmt(a,4);
+  el("hb-sigcm").innerHTML  = `${fmt(sigcm,2)} <span class="unit">MPa</span>`;
+  el("hb-sigt").innerHTML   = `${fmt(sigt,3)} <span class="unit">MPa</span>`;
+  el("hb-erm").innerHTML    = `${fmt(Erm,2)} <span class="unit">GPa</span>`;
+  el("hb-sig3").innerHTML   = `${fmt(sig3,3)} <span class="unit">MPa</span>`;
+  el("hb-cprime").innerHTML = `${fmt(c_prime,3)} <span class="unit">MPa</span>`;
+  el("hb-phiprime").innerHTML = `${fmt(phi_prime,1)} <span class="unit">°</span>`;
+
+  // Schmidt hammer
+  const R  = +el("schmidt-r").value;
+  const rho= +el("schmidt-gamma").value||2.65;
+  if (R >= 10) {
+    // ISRM / Deere-Miller: log10(UCS) = 0.00014*ρ*R^2 + 0.019*R - 0.78  (MPa, ρ in kg/m³)
+    const rho_kgm3 = rho * 1000;
+    const logUCS = 0.00014*rho_kgm3/1000*R*R + 0.019*R - 0.78;
+    const schmidtUCS = Math.pow(10, logUCS) * 10; // convert to MPa approx
+    el("schmidt-ucs").textContent = `Estimated UCS ≈ ${fmt(schmidtUCS,0)} MPa (update σci above if appropriate)`;
+  }
+}
+
+/* ─── Wedge failure ──────────────────────────────────────────────────*/
+function vecCross(a,b) {
+  return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+}
+function vecDot(a,b){ return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
+function vecMag(v){ return Math.sqrt(vecDot(v,v)); }
+function vecNorm(v){ const m=vecMag(v); return m<1e-10?[0,0,0]:v.map(x=>x/m); }
+function planeNormal(dip, dipDir) {
+  const d=degToRad(dip), dd=degToRad(dipDir);
+  return [-Math.sin(d)*Math.sin(dd), -Math.sin(d)*Math.cos(dd), Math.cos(d)];
+}
+
+function updateWedge() {
+  if (!advancedMode) return;
+  const slopeDip = +el("w-slope-dip").value||70;
+  const slopeDir = +el("w-slope-dir").value||300;
+  const H        = +el("w-height").value||30;
+  const gam      = +el("w-gamma").value||26;
+  const jaDip    = +el("w-ja-dip").value||45;
+  const jaDir    = +el("w-ja-dir").value||270;
+  const jaC      = +el("w-ja-c").value||0;
+  const jaPhi    = degToRad(+el("w-ja-phi").value||30);
+  const jbDip    = +el("w-jb-dip").value||35;
+  const jbDir    = +el("w-jb-dir").value||330;
+  const jbC      = +el("w-jb-c").value||0;
+  const jbPhi    = degToRad(+el("w-jb-phi").value||28);
+
+  const nA = planeNormal(jaDip, jaDir);
+  const nB = planeNormal(jbDip, jbDir);
+  const LOI= vecCross(nA, nB);
+  const loiMag = vecMag(LOI);
+  if (loiMag < 1e-8) {
+    el("wedge-fs").textContent="—"; el("wedge-verdict").textContent="Planes parallel";
+    el("wedge-plunge").textContent="—"; el("wedge-trend").textContent="—";
+    el("wedge-kinematic").textContent="—"; return;
+  }
+  const loiN = vecNorm(LOI);
+  // plunge = arcsin(|z-component|), trend = atan2 of x,y
+  let plunge = radToDeg(Math.asin(Math.abs(loiN[2])));
+  let trend  = radToDeg(Math.atan2(loiN[0], loiN[1]));
+  if (trend < 0) trend += 360;
+
+  // kinematic check: LOI must plunge less than slope dip AND daylight on face
+  const kinematic = (plunge < slopeDip) ? "Daylights — kinematically possible" : "Does not daylight — wedge stable";
+
+  // Simplified wedge weight (triangular wedge approximation)
+  const Wt = 0.5 * gam * H * H * H * (1/(6*Math.tan(degToRad(slopeDip))));
+
+  // Normal forces on each plane (simplified Hoek & Bray two-plane analysis)
+  const dotAB = vecDot(nA,nB);
+  const sin2loi = 1 - dotAB*dotAB;
+  let fsVal = Infinity;
+  if (sin2loi > 0 && plunge < slopeDip) {
+    // Driving = W·sin(plunge)
+    const driving = Wt * Math.sin(degToRad(plunge));
+    // Normal on A and B (symmetric approximation)
+    const Na = Wt * Math.cos(degToRad(plunge)) * Math.sin(degToRad((jbDir-jaDir+360)%360/2)) / (2*Math.sqrt(sin2loi));
+    const Nb = Wt * Math.cos(degToRad(plunge)) * Math.sin(degToRad((jaDir-jbDir+360)%360/2)) / (2*Math.sqrt(sin2loi));
+    const sA  = H*H/(2*Math.sin(degToRad(jaDip)));
+    const sB  = H*H/(2*Math.sin(degToRad(jbDip)));
+    const resisting = jaC*sA + Math.max(0,Na)*Math.tan(jaPhi) + jbC*sB + Math.max(0,Nb)*Math.tan(jbPhi);
+    fsVal = driving>0 ? resisting/driving : Infinity;
+    el("wedge-na").innerHTML = `${fmt(Math.max(0,Na),1)} <span class="unit">kN</span>`;
+    el("wedge-nb").innerHTML = `${fmt(Math.max(0,Nb),1)} <span class="unit">kN</span>`;
+  } else {
+    el("wedge-na").innerHTML="—"; el("wedge-nb").innerHTML="—";
+  }
+
+  const vrd = fsVerdict(fsVal);
+  el("wedge-fs").textContent    = fsVal===Infinity?"∞":fmt(fsVal,2);
+  el("wedge-verdict").textContent = vrd.label;
+  el("wedge-verdict").style.color = vrd.color;
+  el("wedge-plunge").textContent  = `${fmt(plunge,1)}°`;
+  el("wedge-trend").textContent   = `${fmt(trend,1)}°`;
+  el("wedge-kinematic").textContent= kinematic;
+  el("wedge-weight").innerHTML    = `${fmt(Wt,1)} <span class="unit">kN</span>`;
+}
+
+/* ─── Najd zonation ──────────────────────────────────────────────────*/
+let slopeIdCounter = 0;
+
+function najdDeltaTheta(slopeDir, najdDir) {
+  const diff = Math.abs(slopeDir - najdDir) % 360;
+  return Math.min(diff, 360 - diff);
+}
+
+function najdClass(dt) {
+  if (dt <= 20)  return { cls:"RED",   label:"Red — High risk",    color:"#b5544a" };
+  if (dt <= 60)  return { cls:"AMBER", label:"Amber — Intermediate",color:"#b07d2e" };
+  return              { cls:"GREEN",  label:"Green — Favourable",  color:"#4f7163" };
+}
+
+function addSlopeRow() {
+  const id = ++slopeIdCounter;
+  const row = { id, label:`S${id}`, dip:70, dir:300 };
+  slopeRows.push(row);
+  renderSlopeRows();
+  updateNajd();
+}
+
+function removeSlopeRow(id) {
+  slopeRows = slopeRows.filter(r=>r.id!==id);
+  renderSlopeRows();
+  updateNajd();
+}
+
+function renderSlopeRows() {
+  const container = el("najd-slopes-rows");
+  container.innerHTML = "";
+  slopeRows.forEach(row => {
+    const div = document.createElement("div");
+    div.className = "najd-slope-row";
+    div.innerHTML = `
+      <input class="najd-input najd-label-input" type="text"  value="${row.label}" placeholder="Label" data-id="${row.id}" data-field="label" />
+      <input class="najd-input" type="number" value="${row.dip}"   min="0" max="90"  step="1" data-id="${row.id}" data-field="dip" />
+      <input class="najd-input" type="number" value="${row.dir}"   min="0" max="360" step="1" data-id="${row.id}" data-field="dir" />
+      <span class="najd-dt-cell" id="najd-dt-${row.id}">—</span>
+      <span class="najd-class-cell" id="najd-cls-${row.id}">—</span>
+      <button type="button" class="najd-remove-btn" data-id="${row.id}" aria-label="Remove slope">×</button>`;
+    div.querySelectorAll("input").forEach(inp => {
+      inp.addEventListener("input", e => {
+        const sid = +e.target.dataset.id;
+        const field = e.target.dataset.field;
+        const r = slopeRows.find(x=>x.id===sid);
+        if (r) { r[field] = field==="label"?e.target.value:+e.target.value; }
+        updateNajd();
+      });
+    });
+    div.querySelector(".najd-remove-btn").addEventListener("click", e => removeSlopeRow(+e.target.dataset.id));
+    container.appendChild(div);
+  });
+}
+
+function updateNajd() {
+  const najdDir = +el("najd-ref-dir").value||300;
+  let red=0, amber=0, green=0;
+  slopeRows.forEach(row => {
+    const dt  = najdDeltaTheta(row.dir, najdDir);
+    const cls = najdClass(dt);
+    const dtEl  = el(`najd-dt-${row.id}`);
+    const clsEl = el(`najd-cls-${row.id}`);
+    if (dtEl)  dtEl.textContent  = `${fmt(dt,1)}°`;
+    if (clsEl) { clsEl.textContent = cls.label; clsEl.style.color = cls.color; }
+    if (cls.cls==="RED")   red++;
+    else if (cls.cls==="AMBER") amber++;
+    else green++;
+  });
+
+  el("najd-count").textContent      = slopeRows.length;
+  el("najd-red-count").textContent  = red;
+  el("najd-amber-count").textContent= amber;
+  el("najd-green-count").textContent= green;
+
+  drawNajdCompass(najdDir);
+}
+
+function drawNajdCompass(najdDir) {
+  const arrowG  = el("najd-arrow");
+  const slopesG = el("slope-arrows");
+  const cx=110, cy=110, r=85;
+  if (!arrowG || !slopesG) return;
+
+  // Najd reference arrow (green)
+  const najdRad = degToRad(najdDir - 90); // SVG 0° is right; N is up
+  const nx = cx + r * Math.cos(degToRad(najdDir-90));
+  const ny = cy + r * Math.sin(degToRad(najdDir-90));
+  arrowG.innerHTML = `
+    <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="#4f7163" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arrowGreen)"/>
+    <text x="${nx + (nx-cx)*0.1}" y="${ny + (ny-cy)*0.1 + 4}" font-size="10" fill="#4f7163" text-anchor="middle" font-family="'Hanken Grotesk',sans-serif">NJ</text>`;
+
+  // Defs for arrowheads
+  let svgDefs = document.querySelector("#najd-compass-svg defs");
+  if (!svgDefs) {
+    svgDefs = document.createElementNS("http://www.w3.org/2000/svg","defs");
+    document.getElementById("najd-compass-svg").prepend(svgDefs);
+  }
+  svgDefs.innerHTML = `
+    <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#4f7163"/></marker>
+    <marker id="arrowRed"   markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#b5544a"/></marker>
+    <marker id="arrowAmber" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#b07d2e"/></marker>`;
+
+  // Slope arrows
+  slopesG.innerHTML = "";
+  slopeRows.forEach((row, i) => {
+    const dt  = najdDeltaTheta(row.dir, najdDir);
+    const cls = najdClass(dt);
+    const markerMap = {RED:"arrowRed",AMBER:"arrowAmber",GREEN:"arrowGreen"};
+    const sr  = r * 0.78;
+    const sx  = cx + sr * Math.cos(degToRad(row.dir-90));
+    const sy  = cy + sr * Math.sin(degToRad(row.dir-90));
+    const lx  = cx + (sr+18) * Math.cos(degToRad(row.dir-90));
+    const ly  = cy + (sr+18) * Math.sin(degToRad(row.dir-90));
+    slopesG.innerHTML += `
+      <line x1="${cx}" y1="${cy}" x2="${sx}" y2="${sy}" stroke="${cls.color}" stroke-width="1.8" stroke-linecap="round" marker-end="url(#${markerMap[cls.cls]})"/>
+      <text x="${lx}" y="${ly+4}" font-size="9" fill="${cls.color}" text-anchor="middle" font-family="'Hanken Grotesk',sans-serif">${row.label}</text>`;
+  });
+}
+
+/* ─── Structure switcher ─────────────────────────────────────────────*/
+function buildStructureOptions() {
+  const container = el("structure-options");
+  container.innerHTML="";
+  const inner = document.createElement("div");
+  inner.className="structure-switch-inner";
+  const indicator=document.createElement("div");
+  indicator.className="structure-switch-indicator";
+  indicator.setAttribute("aria-hidden","true");
+  inner.appendChild(indicator);
+  STRUCTURES.forEach((s,i)=>{
+    const btn=document.createElement("button");
+    btn.type="button"; btn.className="structure-switch-option";
+    btn.dataset.value=s.id; btn.textContent=s.label;
+    btn.setAttribute("role","radio");
+    btn.setAttribute("aria-checked",i===2?"true":"false");
+    if(i===2)btn.classList.add("active");
+    btn.addEventListener("click",()=>{ selectStructure(s.id); });
+    inner.appendChild(btn);
+  });
+  container.appendChild(inner);
+  updateStructureIndicator();
+}
+
+function selectStructure(id) {
+  document.querySelectorAll(".structure-switch-option").forEach(btn=>{
+    const a=btn.dataset.value===id;
+    btn.classList.toggle("active",a);
+    btn.setAttribute("aria-checked",a?"true":"false");
+  });
+  updateStructureIndicator();
+  updateGSI();
+}
+
+function updateStructureIndicator(){
+  const inner=document.querySelector(".structure-switch-inner");
+  const indicator=document.querySelector(".structure-switch-indicator");
+  const active=document.querySelector(".structure-switch-option.active");
+  if(!inner||!indicator||!active)return;
+  const idx=[...inner.querySelectorAll(".structure-switch-option")].indexOf(active);
+  if(window.matchMedia("(max-width:640px)").matches)
+    indicator.style.transform=`translateY(${idx*100}%)`;
+  else indicator.style.transform=`translateX(${idx*100}%)`;
+}
+
+function getSelectedStructure(){
+  const a=document.querySelector(".structure-switch-option.active");
+  return STRUCTURES.find(s=>s.id===a?.dataset.value)||STRUCTURES[2];
+}
+
+/* ─── Marble sliders ─────────────────────────────────────────────────*/
+function initMarbleSliders(){
+  document.querySelectorAll(".marble-slider").forEach(slider=>{
+    const track  = slider.querySelector(".marble-track");
+    const thumb  = slider.querySelector(".marble-thumb");
+    const fill   = slider.querySelector(".marble-track-fill");
+    const hidden = el(slider.dataset.input);
+    const min    = +slider.dataset.min||1;
+    const max    = +slider.dataset.max||6;
+    let dragging = false;
+
+    const pctFromValue = v=>(v-min)/(max-min);
+    const valueFromPct = p=>Math.round(min+p*(max-min));
+    const pctFromX     = x=>{ const r=track.getBoundingClientRect(); return Math.max(0,Math.min(1,(x-r.left)/r.width)); };
+
+    function setVisualPct(p){ const l=`${p*100}%`; thumb.style.left=l; fill.style.width=l; }
+    function updateStepHighlight(v){
+      const ctrl=slider.closest(".slider-control");
+      if(!ctrl)return;
+      ctrl.querySelectorAll(".scale-steps span").forEach((s,i)=>s.classList.toggle("is-active",i+1===v));
+      track.querySelectorAll(".scale-ticks span").forEach((s,i)=>s.classList.toggle("is-active",i+1===v));
+    }
+    function commitValue(v){
+      const c=Math.max(min,Math.min(max,v));
+      setVisualPct(pctFromValue(c));
+      track.setAttribute("aria-valuenow",c);
+      hidden.value=c; updateStepHighlight(c);
+      hidden.dispatchEvent(new Event("input",{bubbles:true}));
+    }
+    function updateFromPct(p){ const v=valueFromPct(p); track.setAttribute("aria-valuenow",v); updateStepHighlight(v); if(+hidden.value!==v){hidden.value=v; hidden.dispatchEvent(new Event("input",{bubbles:true}));} }
+
+    track.addEventListener("pointerdown",e=>{ e.preventDefault(); dragging=true; slider.classList.add("is-dragging"); track.setPointerCapture(e.pointerId); const p=pctFromX(e.clientX); setVisualPct(p); updateFromPct(p); });
+    track.addEventListener("pointermove",e=>{ if(!dragging)return; const p=pctFromX(e.clientX); setVisualPct(p); updateFromPct(p); });
+    track.addEventListener("pointerup",e=>{ if(!dragging)return; dragging=false; slider.classList.remove("is-dragging"); track.releasePointerCapture(e.pointerId); commitValue(valueFromPct(pctFromX(e.clientX))); });
+    track.addEventListener("pointercancel",e=>{ dragging=false; slider.classList.remove("is-dragging"); });
+    track.addEventListener("keydown",e=>{
+      const cur=+hidden.value;
+      if(e.key==="ArrowRight"||e.key==="ArrowUp"){ e.preventDefault(); commitValue(cur+1); }
+      else if(e.key==="ArrowLeft"||e.key==="ArrowDown"){ e.preventDefault(); commitValue(cur-1); }
+      else if(e.key==="Home"){ e.preventDefault(); commitValue(min); }
+      else if(e.key==="End"){ e.preventDefault(); commitValue(max); }
+    });
+    commitValue(+slider.dataset.value||min);
+  });
+}
+
+/* ─── Tabs ───────────────────────────────────────────────────────────*/
+function initTabs(){
+  document.querySelectorAll(".tab").forEach(tab=>{
+    tab.addEventListener("click",()=>{
+      if(tab.hidden)return;
+      const target=tab.dataset.panel;
+      document.querySelectorAll(".tab").forEach(t=>{ t.classList.toggle("active",t===tab); t.setAttribute("aria-selected",t===tab?"true":"false"); });
+      document.querySelectorAll(".panel").forEach(p=>{ const a=p.id===`panel-${target}`; p.classList.toggle("active",a); p.hidden=!a; });
+      if(target==="hb")    updateHoekBrown();
+      if(target==="wedge") updateWedge();
+      if(target==="najd")  updateNajd();
+    });
+  });
+}
+
+/* ─── Advanced mode toggle ───────────────────────────────────────────*/
+function setAdvancedMode(on) {
+  advancedMode = on;
+  const toggle = el("mode-toggle");
+  toggle.setAttribute("aria-checked", on?"true":"false");
+  toggle.classList.toggle("is-on", on);
+
+  document.querySelectorAll(".adv-field").forEach(f=>{ f.hidden=!on; });
+  document.querySelectorAll(".adv-tab").forEach(t=>{ t.hidden=!on; });
+  document.querySelector(".tab-index.adv-index").textContent = on ? "06" : "03";
+
+  if (!on) {
+    // if on an advanced tab, go back to GSI
+    const activePanel = document.querySelector(".panel.active");
+    if (activePanel && activePanel.classList.contains("adv-panel")) {
+      document.querySelector('[data-panel="gsi"]').click();
+    }
+  }
+  updateGSI();
+  updateLEM();
+}
+
+/* ─── Theme switcher ─────────────────────────────────────────────────*/
+function initThemeSwitcher(){
+  const options=document.querySelectorAll(".theme-option");
+  const valid=["heritage","mineral","scholar","terminal"];
+  const saved=localStorage.getItem("geostrength-theme");
+  const initial=valid.includes(saved)?saved:"scholar";
+
+  function setTheme(t){
+    document.documentElement.setAttribute("data-theme",t);
+    localStorage.setItem("geostrength-theme",t);
+    options.forEach(btn=>{ const a=btn.dataset.theme===t; btn.classList.toggle("active",a); btn.setAttribute("aria-pressed",a?"true":"false"); });
+  }
+  options.forEach(btn=>btn.addEventListener("click",()=>setTheme(btn.dataset.theme)));
+  setTheme(initial);
+}
+
+/* ─── Init ───────────────────────────────────────────────────────────*/
+function init(){
+  buildStructureOptions();
+  initMarbleSliders();
+  initThemeSwitcher();
+  initTabs();
+
+  // GSI inputs
+  ["roughness","weathering","infilling"].forEach(id=>el(id).addEventListener("input",updateGSI));
+
+  // LEM inputs
+  document.querySelectorAll("#panel-lem input[type='number']").forEach(e=>e.addEventListener("input",updateLEM));
+
+  // HB inputs
+  document.querySelectorAll("#panel-hb input[type='number']").forEach(e=>e.addEventListener("input",updateHoekBrown));
+  el("hb-gsi").addEventListener("focus",()=>{ el("hb-gsi").dataset.overridden="true"; });
+
+  // Wedge inputs
+  document.querySelectorAll("#panel-wedge input[type='number']").forEach(e=>e.addEventListener("input",updateWedge));
+
+  // Najd inputs
+  el("najd-ref-dir").addEventListener("input",updateNajd);
+  el("najd-ref-dip").addEventListener("input",updateNajd);
+  el("btn-add-slope").addEventListener("click",addSlopeRow);
+  // seed two slopes
+  addSlopeRow(); addSlopeRow();
+
+  // Advanced toggle
+  el("mode-toggle").addEventListener("click",()=>setAdvancedMode(!advancedMode));
+
+  // RMR field
+  if(el("rmr89")) el("rmr89").addEventListener("input",updateGSI);
+
+  // Schmidt hammer
+  ["schmidt-r","schmidt-gamma"].forEach(id=>{ if(el(id)) el(id).addEventListener("input",updateHoekBrown); });
+
+  window.addEventListener("resize",updateStructureIndicator);
+
+  updateGSI();
+  updateLEM();
+}
+
+document.addEventListener("DOMContentLoaded",init);
+
+</script>
+<script src="/shared/nav-strip.js"></script>
+<script src="/shared/assistant-chat.js"></script>
+</body>
+</html>

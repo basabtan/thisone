@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geotechnical &amp; Pavement Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ===== NAJD DESIGN TOKENS ===== */
+  :root{
+    --ivory:#fbf7ef; --paper:#fffdf8; --paper2:#f5efe3;
+    --graphite:#232421; --muted:#4a453c; --soft:#bdb3a0; --line:#ded4c1; --line-soft:#ece3d2;
+    --blue:#2f5367; --blue-dk:#1e3a4a;
+    --copper:#a5643a; --copper-dk:#7d4a28;
+    --gold:#b89344; --green:#496f61;
+    /* status */
+    --good-bg:#E1F5EE; --good-ink:#085041; --good-line:#0F6E56;
+    --amber-bg:#FAEEDA; --amber-ink:#633806; --amber-line:#854F0B;
+    --bad-bg:#F6E3DB;  --bad-ink:#7d2f1e;  --bad-line:#a5442e;
+    --shadow:0 18px 45px rgba(55,45,30,0.11);
+    --shadow-sm:0 4px 14px rgba(55,45,30,0.06);
+    --radius:22px; --radius-sm:14px;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    /* default panel accent (blue) — overridden per panel */
+    --ac:#2f5367; --ac-dk:#1e3a4a; --ac-soft:rgba(47,83,103,0.13);
+  }
+  /* per-card / per-tab accent classes (the color-coded spine) */
+  .ac-blue   {--ac:#2f5367;--ac-dk:#1e3a4a;--ac-soft:rgba(47,83,103,0.13)}
+  .ac-copper {--ac:#a5643a;--ac-dk:#7d4a28;--ac-soft:rgba(165,100,58,0.13)}
+  .ac-green  {--ac:#496f61;--ac-dk:#36544a;--ac-soft:rgba(73,111,97,0.15)}
+  .ac-gold   {--ac:#b89344;--ac-dk:#8f7030;--ac-soft:rgba(184,147,68,0.16)}
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    color:var(--graphite); font-family:'Lora',serif; line-height:1.5;
+    min-height:100vh; -webkit-font-smoothing:antialiased;
+    padding-bottom:88px;
+    background:
+      radial-gradient(circle at top left, rgba(199,167,106,0.22), transparent 32%),
+      linear-gradient(135deg, #fffaf0 0%, var(--ivory) 46%, #f1eadb 100%);
+  }
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.13;
+    mix-blend-mode:multiply;
+    background-image:
+      repeating-linear-gradient(145deg, transparent 0 18px, rgba(47,83,103,0.10) 19px, transparent 20px),
+      radial-gradient(circle at 78% 12%, rgba(165,100,58,0.18), transparent 24%);}
+
+  .wrap{max-width:920px; margin:0 auto; padding:0 24px; position:relative; z-index:1;}
+
+  /* ===== Header ===== */
+  header.app{padding:54px 0 26px;}
+  header.app .kicker{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--copper);
+    font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  header.app .mark{width:20px;height:20px;flex:0 0 20px;transform:rotate(45deg);
+    border:2px solid var(--blue);border-radius:4px;position:relative}
+  header.app .mark::after{content:"";position:absolute;inset:3px;border:1.5px solid var(--copper);border-radius:2px}
+  header.app h1{font-family:'Playfair Display',serif;font-weight:700;
+    font-size:clamp(30px,5vw,50px);line-height:1.04;color:#1a1c19;letter-spacing:-.01em}
+  header.app .sub{font-family:'Playfair Display',serif;font-style:italic;font-size:19px;color:var(--muted);margin-top:8px}
+  header.app .divider{width:64px;height:2px;border-radius:2px;margin-top:20px;
+    background:linear-gradient(90deg,var(--copper),var(--gold))}
+  header.app .lede{font-size:14.5px;line-height:1.8;color:var(--muted);max-width:64ch;margin-top:18px}
+  header.app .lede em{font-style:italic;color:var(--graphite)}
+
+  /* ===== Tabs (pill flow-strip) ===== */
+  nav.tabs{margin:6px 0 0; position:sticky; top:0; z-index:5;
+    padding:14px 0 16px;
+    background:linear-gradient(180deg, var(--ivory) 62%, rgba(251,247,239,0));}
+  nav.tabs .strip{display:flex;flex-wrap:wrap;gap:7px;background:rgba(255,253,248,0.7);
+    border:1px solid var(--line);border-radius:999px;padding:7px;box-shadow:var(--shadow-sm)}
+  nav.tabs button{flex:1 1 auto;font-family:'Lora',serif;font-size:13.5px;font-style:italic;font-weight:500;
+    color:var(--muted);background:rgba(255,255,255,0.45);border:1px solid rgba(222,212,193,0.6);
+    padding:9px 16px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:all .2s;text-align:center}
+  nav.tabs button:hover{color:var(--graphite);border-color:var(--soft)}
+  nav.tabs button.active{background:var(--ac);color:#fffaf0;border-color:transparent;
+    box-shadow:0 6px 18px var(--ac-soft);font-style:normal;font-weight:600}
+
+  /* ===== Panels ===== */
+  .panel{display:none;padding-bottom:48px}
+  .panel.active{display:block;animation:fade .3s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+  .card{background:rgba(255,253,248,0.82);border:1px solid var(--line);border-radius:var(--radius);
+    border-left:5px solid var(--ac);box-shadow:var(--shadow);padding:30px 32px;margin-bottom:22px}
+  .card .ctag{font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--ac);margin-bottom:8px}
+  .card h2{font-family:'Playfair Display',serif;font-weight:700;font-size:25px;line-height:1.15;color:#1a1c19}
+  .card .sub{font-family:'Playfair Display',serif;font-style:italic;font-size:15.5px;color:var(--muted);margin-top:5px;margin-bottom:22px}
+
+  /* ===== Fieldsets ===== */
+  fieldset{border:none;padding:0;margin:0 0 20px}
+  fieldset legend{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.16em;
+    color:var(--copper);margin-bottom:12px;padding:0;display:flex;align-items:center;gap:12px;width:100%}
+  fieldset legend::after{content:"";flex:1;height:1px;background:var(--line)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px 18px}
+  .field label{display:block;font-size:14px;color:var(--graphite);margin-bottom:6px;font-weight:500}
+  .field .u{color:var(--soft);font-weight:400;font-style:italic;font-size:12.5px;margin-left:2px}
+  .field input,.field select{width:100%;padding:9px 12px;font-size:14px;font-family:var(--mono);
+    border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,0.7);color:var(--graphite);
+    transition:border-color .18s,box-shadow .18s,background .18s}
+  .field select{font-family:'Lora',serif;font-style:italic}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--ac);
+    box-shadow:0 0 0 3px var(--ac-soft);background:#fff}
+
+  /* ===== Results ===== */
+  .results{margin-top:8px;padding-top:18px;border-top:1px solid var(--line)}
+  .results h3,.viz h3{font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--copper);
+    font-weight:600;margin-bottom:12px}
+  .row{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:8px 0;font-size:14.5px}
+  .row + .row{border-top:1px solid var(--line-soft)}
+  .row .k{color:var(--muted)}
+  .row .v{font-family:var(--mono);font-weight:600;color:var(--graphite);text-align:right}
+  .row.major{padding:11px 0}
+  .row.major .k{font-weight:600;color:var(--graphite)}
+  .row.major .v{font-family:'Playfair Display',serif;font-weight:700;font-size:21px;color:var(--ac);letter-spacing:.01em}
+
+  .note{background:rgba(255,253,248,0.7);border:1px solid var(--line);border-left:4px solid var(--copper);
+    border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:16px 20px;margin-top:16px;
+    box-shadow:var(--shadow-sm);font-size:13.5px;line-height:1.75;color:var(--muted);font-style:italic}
+  .note strong{color:var(--graphite);font-style:normal;font-weight:600}
+  .note code,code{font-family:var(--mono);font-style:normal;background:rgba(245,239,227,0.8);
+    padding:1px 5px;border-radius:4px;font-size:.9em;color:var(--graphite)}
+
+  .disclaimer{font-size:13px;font-style:italic;color:var(--amber-ink);background:var(--amber-bg);
+    border:1px solid var(--amber-line);border-radius:var(--radius-sm);padding:11px 16px;margin-bottom:20px;line-height:1.6}
+
+  /* ===== Status pills ===== */
+  .pill{display:inline-block;padding:4px 14px;border-radius:999px;font-size:12.5px;font-weight:600;
+    font-style:italic;font-family:'Lora',serif}
+  .pill.good{background:var(--good-bg);color:var(--good-ink);border:1px solid var(--good-line)}
+  .pill.amber{background:var(--amber-bg);color:var(--amber-ink);border:1px solid var(--amber-line)}
+  .pill.bad{background:var(--bad-bg);color:var(--bad-ink);border:1px solid var(--bad-line)}
+
+  /* ===== Toggle switch (pill) ===== */
+  .switch-wrap{display:flex;align-items:center;gap:5px;background:rgba(255,253,248,0.6);
+    border:1px solid var(--line);border-radius:999px;padding:5px;margin-bottom:22px;box-shadow:var(--shadow-sm)}
+  .switch-wrap button{flex:1;font-family:'Lora',serif;font-size:13.5px;font-style:italic;font-weight:500;
+    color:var(--muted);background:transparent;border:none;padding:9px 12px;border-radius:999px;cursor:pointer;transition:.2s}
+  .switch-wrap button:hover{color:var(--graphite)}
+  .switch-wrap button.on{background:var(--ac);color:#fffaf0;font-style:normal;font-weight:600;
+    box-shadow:0 4px 14px var(--ac-soft)}
+  .method{display:none}
+  .method.active{display:block}
+
+  /* ===== Details / method ===== */
+  details{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
+  details summary{cursor:pointer;font-size:13px;font-weight:600;font-style:italic;color:var(--copper);
+    list-style:none;font-family:'Lora',serif}
+  details summary::-webkit-details-marker{display:none}
+  details summary::before{content:"▸ ";color:var(--soft);font-style:normal}
+  details[open] summary::before{content:"▾ "}
+  details .body{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.7}
+  details table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12.5px}
+  details td,details th{border:1px solid var(--line);padding:6px 10px;text-align:left}
+  details td{font-family:var(--mono)}
+  details th{background:rgba(245,239,227,0.7);font-weight:600;font-family:'Lora',serif;color:var(--graphite)}
+
+  /* ===== Visualisations ===== */
+  .viz{margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+  .viz svg{width:100%;height:auto;display:block;font-family:var(--mono)}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font-size:12.5px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:7px;font-style:italic}
+  .legend i{width:12px;height:12px;border-radius:3px;display:inline-block;flex:0 0 12px}
+
+  /* ===== Footer ===== */
+  footer.app{text-align:center;font-size:12.5px;font-style:italic;color:var(--soft);margin:14px 0 40px}
+  footer.app .rule{width:90px;height:2px;border-radius:2px;margin:0 auto 16px;
+    background:linear-gradient(90deg,var(--copper),var(--gold))}
+
+  @media(max-width:620px){
+    .card{padding:24px 20px}
+    nav.tabs button{flex:1 1 40%}
+  }
+
+  .vault-back{
+    display:inline-flex;align-items:center;gap:6px;margin-bottom:14px;
+    font-size:13px;font-style:italic;color:var(--muted);text-decoration:none;
+    transition:color .2s;
+  }
+  .vault-back:hover{color:var(--copper)}
+</style>
+<link rel="stylesheet" href="/shared/nav-strip.css"/>
+</head>
+<body>
+
+<header class="app">
+  <div class="wrap">
+    <a class="vault-back" href="instruments.html">&#8592; Instruments</a>
+    <div class="kicker"><span class="mark"></span> Sabtan Research Programme · Engineering Geology</div>
+    <h1>Geotechnical &amp; Pavement Toolkit</h1>
+    <div class="sub">A teaching companion sheet for foundation &amp; flexible-pavement design</div>
+    <div class="divider"></div>
+    <p class="lede">Built alongside <em>Applications of Engineering Geology</em> (A. A. Sabtan, KAU).
+      Shallow-foundation bearing capacity, subgrade evaluation, the plate bearing test, and
+      flexible-pavement structural design — computed live, with the working shown.</p>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap">
+    <div class="strip">
+      <button class="active ac-blue"   data-tab="foundation">Foundation</button>
+      <button class="ac-copper"        data-tab="subgrade">Subgrade · CBR</button>
+      <button class="ac-green"         data-tab="plate">Plate Test</button>
+      <button class="ac-gold"          data-tab="pavement">Pavement Design</button>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ============ TAB 1: FOUNDATION ============ -->
+  <section class="panel active ac-blue" id="foundation">
+    <div class="card">
+      <div class="ctag">Module I · Bearing Capacity</div>
+      <h2>Shallow Foundation — Bearing Capacity</h2>
+      <p class="sub">Terzaghi-style general bearing capacity for a strip or square footing.</p>
+
+      <fieldset>
+        <legend>Soil / rock parameters</legend>
+        <div class="grid">
+          <div class="field"><label>Cohesion <span class="u">c (kPa)</span></label><input type="number" id="f-c" value="25" step="0.1" min="0"></div>
+          <div class="field"><label>Friction angle <span class="u">φ (°)</span></label><input type="number" id="f-phi" value="30" step="0.5" min="0" max="50"></div>
+          <div class="field"><label>Unit weight <span class="u">γ (kN/m³)</span></label><input type="number" id="f-gamma" value="18" step="0.1" min="0"></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Footing geometry &amp; safety factor</legend>
+        <div class="grid">
+          <div class="field"><label>Footing width <span class="u">B (m)</span></label><input type="number" id="f-B" value="2.0" step="0.1" min="0"></div>
+          <div class="field"><label>Embedment depth <span class="u">D (m)</span></label><input type="number" id="f-D" value="1.0" step="0.1" min="0"></div>
+          <div class="field"><label>Safety factor <span class="u">FS</span></label><input type="number" id="f-fs" value="3.0" step="0.1" min="1"></div>
+          <div class="field"><label>Footing type</label>
+            <select id="f-type"><option value="strip">Strip (continuous)</option><option value="square">Square (approx.)</option></select>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="results">
+        <h3>Results</h3>
+        <div class="row"><span class="k">Bearing factors N<sub>c</sub> / N<sub>q</sub> / N<sub>γ</sub></span><span class="v" id="f-factors">–</span></div>
+        <div class="row"><span class="k">Overburden at base, q = γD</span><span class="v" id="f-q">–</span></div>
+        <div class="row"><span class="k">Ultimate bearing capacity, q<sub>ult</sub></span><span class="v" id="f-qult">–</span></div>
+        <div class="row major"><span class="k">Allowable bearing capacity, q<sub>allow</sub></span><span class="v" id="f-qall">–</span></div>
+      </div>
+
+      <div class="viz">
+        <h3>Which term governs q<sub>ult</sub>?</h3>
+        <div id="f-bar"></div>
+        <div class="legend">
+          <span><i style="background:#2f5367"></i>Cohesion · c·N<sub>c</sub></span>
+          <span><i style="background:#a5643a"></i>Surcharge · q·N<sub>q</sub></span>
+          <span><i style="background:#b89344"></i>Self-weight · ½γB·N<sub>γ</sub></span>
+        </div>
+      </div>
+
+      <details>
+        <summary>Method &amp; assumptions</summary>
+        <div class="body">
+          N<sub>q</sub> = e<sup>π·tanφ</sup>·tan²(45+φ/2), N<sub>c</sub> = (N<sub>q</sub>−1)/tanφ, N<sub>γ</sub> = 2(N<sub>q</sub>+1)·tanφ (Vesić).
+          Strip: q<sub>ult</sub> = c·N<sub>c</sub> + q·N<sub>q</sub> + 0.5·γ·B·N<sub>γ</sub>. Square uses teaching shape factors s<sub>c</sub>=1.3, s<sub>q</sub>=1.2, s<sub>γ</sub>=0.8.
+          Idealised — shape (refined), inclination, groundwater, and settlement effects are not included.
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ TAB 2: SUBGRADE ============ -->
+  <section class="panel ac-copper" id="subgrade">
+    <div class="card">
+      <div class="ctag">Module II · Subgrade Strength</div>
+      <h2>Subgrade Evaluation — CBR</h2>
+      <p class="sub">Rate the natural subgrade and estimate its resilient modulus from the California Bearing Ratio.</p>
+
+      <fieldset>
+        <legend>Input</legend>
+        <div class="grid">
+          <div class="field"><label>California Bearing Ratio <span class="u">CBR (%)</span></label><input type="number" id="s-cbr" value="6" step="0.5" min="0" max="100"></div>
+        </div>
+      </fieldset>
+
+      <div class="results">
+        <h3>Results</h3>
+        <div class="row major"><span class="k">Subgrade rating</span><span class="v" id="s-rating">–</span></div>
+        <div class="row"><span class="k">Typical use</span><span class="v" id="s-use">–</span></div>
+        <div class="row"><span class="k">Resilient modulus, M<sub>R</sub> (Powell)</span><span class="v" id="s-mr-mpa">–</span></div>
+        <div class="row"><span class="k">Resilient modulus, M<sub>R</sub> (AASHTO)</span><span class="v" id="s-mr-psi">–</span></div>
+      </div>
+
+      <div class="viz">
+        <h3>CBR strength scale</h3>
+        <div id="s-scale"></div>
+      </div>
+
+      <details>
+        <summary>Method &amp; reference layer values</summary>
+        <div class="body">
+          M<sub>R</sub> (MPa) = 17.6·CBR<sup>0.64</sup> (Powell et al., 1984; best for CBR ≈ 2–12).<br>
+          M<sub>R</sub> (psi) = 1500·CBR (AASHTO, CBR ≲ 10).<br>
+          Indicative CBR for road layers (Sabtan, Ch. 11; general practice):
+          <table>
+            <tr><th>Layer / material</th><th>CBR (%)</th></tr>
+            <tr><td>Soft / weak subgrade</td><td>&lt; 5</td></tr>
+            <tr><td>Wet sand</td><td>≈ 10</td></tr>
+            <tr><td>Sub-base (granular)</td><td>30 – 80</td></tr>
+            <tr><td>Base course</td><td>&gt; 80</td></tr>
+            <tr><td>Crushed limestone</td><td>≈ 100</td></tr>
+          </table>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ TAB 3: PLATE TEST ============ -->
+  <section class="panel ac-green" id="plate">
+    <div class="card">
+      <div class="ctag">Module III · Subgrade Reaction</div>
+      <h2>Plate Bearing Test — Subgrade Reaction k</h2>
+      <p class="sub">Modulus of subgrade reaction from a plate load test, with size correction to a design footing width.</p>
+
+      <fieldset>
+        <legend>Test data</legend>
+        <div class="grid">
+          <div class="field"><label>Test plate diameter <span class="u">B<sub>p</sub> (mm)</span></label><input type="number" id="p-bp" value="300" step="10" min="50"></div>
+          <div class="field"><label>Applied load <span class="u">P (kN)</span></label><input type="number" id="p-load" value="14" step="0.5" min="0"></div>
+          <div class="field"><label>Settlement <span class="u">Δ (mm)</span></label><input type="number" id="p-settle" value="1.25" step="0.05" min="0.01"></div>
+          <div class="field"><label>Soil type</label>
+            <select id="p-soil"><option value="granular">Granular (sand/gravel)</option><option value="cohesive">Cohesive (clay)</option></select>
+          </div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Design correction</legend>
+        <div class="grid">
+          <div class="field"><label>Foundation / design width <span class="u">B<sub>f</sub> (m)</span></label><input type="number" id="p-bf" value="0.762" step="0.05" min="0.1"></div>
+        </div>
+      </fieldset>
+
+      <div class="results">
+        <h3>Results</h3>
+        <div class="row"><span class="k">Contact pressure, p = P/A</span><span class="v" id="p-press">–</span></div>
+        <div class="row"><span class="k">Plate modulus, k<sub>test</sub> = p/Δ</span><span class="v" id="p-ktest">–</span></div>
+        <div class="row major"><span class="k">Corrected to B<sub>f</sub>, k<sub>design</sub></span><span class="v" id="p-kdesign">–</span></div>
+      </div>
+
+      <details>
+        <summary>Method &amp; assumptions</summary>
+        <div class="body">
+          k<sub>test</sub> = p/Δ, reported in MPa/m (≡ MN/m³). Size correction (Terzaghi &amp; Peck):<br>
+          • Cohesive: k<sub>f</sub> = k<sub>test</sub>·(B<sub>p</sub>/B<sub>f</sub>) — k inversely proportional to width.<br>
+          • Granular: k<sub>f</sub> = k<sub>test</sub>·[(B<sub>f</sub>+B<sub>p</sub>)/(2·B<sub>f</sub>)]² — generalised Terzaghi sand form (reduces to the standard 0.3 m relation).<br>
+          Standard reporting plate is 762 mm (30 in) at 1.25 mm settlement.
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ TAB 4: PAVEMENT ============ -->
+  <section class="panel ac-gold" id="pavement">
+    <div class="card">
+      <div class="ctag">Module IV · Structural Design</div>
+      <h2>Flexible Pavement — Structural Design</h2>
+      <p class="sub">Two design bases. Switch between Sabtan's book method and the AASHTO 1993 equation.</p>
+
+      <div class="switch-wrap">
+        <button class="on" data-method="ai" onclick="setMethod('ai')">Asphalt Institute / DTN (book)</button>
+        <button data-method="aashto" onclick="setMethod('aashto')">AASHTO 1993</button>
+      </div>
+
+      <!-- Method A: AI / DTN -->
+      <div class="method active" id="m-ai">
+        <fieldset>
+          <legend>Traffic</legend>
+          <div class="grid">
+            <div class="field"><label>Initial traffic number <span class="u">ITN (Fig 11-5)</span></label><input type="number" id="ai-itn" value="50" step="1" min="0"></div>
+            <div class="field"><label>Design period <span class="u">n (years)</span></label><input type="number" id="ai-n" value="20" step="1" min="1"></div>
+            <div class="field"><label>Annual traffic growth <span class="u">r (%)</span></label><input type="number" id="ai-r" value="4" step="0.5" min="0"></div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Subgrade</legend>
+          <div class="grid">
+            <div class="field"><label>Subgrade CBR <span class="u">(%)</span></label><input type="number" id="ai-cbr" value="6" step="0.5" min="0"></div>
+          </div>
+        </fieldset>
+
+        <div class="results">
+          <h3>Results</h3>
+          <div class="row"><span class="k">Growth factor, F (Table 11-7)</span><span class="v" id="ai-f">–</span></div>
+          <div class="row major"><span class="k">Design traffic number, DTN = F·ITN</span><span class="v" id="ai-dtn">–</span></div>
+          <div class="row"><span class="k">Full-depth asphalt thickness, T<sub>A</sub></span><span class="v" id="ai-ta">read Fig 11-6</span></div>
+        </div>
+
+        <div class="viz">
+          <h3>Growth factor F vs design period (Table 11-7)</h3>
+          <div id="ai-curve"></div>
+          <div class="legend" id="ai-curve-legend"></div>
+        </div>
+
+        <div class="note" style="margin-top:16px;">
+          <strong>T<sub>A</sub> is chart-based.</strong> Sabtan's book reads the full-depth asphalt thickness from Fig 11-6 (Yoder &amp; Witczak, 1975)
+          using the computed DTN together with the subgrade CBR / M<sub>R</sub>. That nomograph isn't reproduced here, so the tool computes the
+          exact, formula-based steps (F and DTN) and hands off the final thickness to the chart. For a fully computed thickness, use the AASHTO tab.
+        </div>
+
+        <details>
+          <summary>Method &amp; verification</summary>
+          <div class="body">
+            F = [((1+r)<sup>n</sup> − 1) / r] / 20, with r as a decimal (for r = 0, F = n/20). This reproduces Table 11-7 exactly — e.g. r=6%, n=20 → F=1.84; r=8%, n=30 → F=5.66; r=10%, n=35 → F=13.55.<br>
+            DTN = F·ITN (Eq. 11-1). ITN comes from Fig 11-5 (average total vehicle load, daily heavy-vehicle count, max allowable axle load).
+          </div>
+        </details>
+      </div>
+
+      <!-- Method B: AASHTO 1993 -->
+      <div class="method" id="m-aashto">
+        <div class="disclaimer">AASHTO 1993 is imperial: ESALs, inches, psi. Saudi road practice follows the AASHTO method (Sabtan, Ch. 11).</div>
+        <fieldset>
+          <legend>Traffic &amp; reliability</legend>
+          <div class="grid">
+            <div class="field"><label>Design ESALs <span class="u">W₁₈</span></label><input type="number" id="aa-w18" value="2000000" step="100000" min="1000"></div>
+            <div class="field"><label>Reliability <span class="u">R</span></label>
+              <select id="aa-rel">
+                <option value="0">50%</option><option value="-0.524">70%</option>
+                <option value="-0.841">80%</option><option value="-1.037">85%</option>
+                <option value="-1.282" selected>90%</option><option value="-1.645">95%</option>
+                <option value="-2.054">98%</option><option value="-2.327">99%</option>
+              </select>
+            </div>
+            <div class="field"><label>Overall std. deviation <span class="u">S₀</span></label><input type="number" id="aa-s0" value="0.45" step="0.01" min="0.3" max="0.5"></div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Serviceability &amp; subgrade</legend>
+          <div class="grid">
+            <div class="field"><label>Initial serviceability <span class="u">p₀</span></label><input type="number" id="aa-p0" value="4.2" step="0.1" min="3" max="5"></div>
+            <div class="field"><label>Terminal serviceability <span class="u">p_t</span></label><input type="number" id="aa-pt" value="2.5" step="0.1" min="1.5" max="3"></div>
+            <div class="field"><label>Subgrade CBR <span class="u">(%)</span></label><input type="number" id="aa-cbr" value="6" step="0.5" min="0"></div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Trial section (optional check)</legend>
+          <div class="grid">
+            <div class="field"><label>AC surface <span class="u">D₁ (in)</span> · a₁</label>
+              <input type="number" id="aa-d1" value="4" step="0.5" min="0"> <input type="number" id="aa-a1" value="0.44" step="0.01" style="margin-top:4px;"></div>
+            <div class="field"><label>Base <span class="u">D₂ (in)</span> · a₂ · m₂</label>
+              <input type="number" id="aa-d2" value="10" step="0.5" min="0"> <input type="number" id="aa-a2" value="0.14" step="0.01" style="margin-top:4px;"> <input type="number" id="aa-m2" value="1.0" step="0.05" style="margin-top:4px;"></div>
+            <div class="field"><label>Sub-base <span class="u">D₃ (in)</span> · a₃ · m₃</label>
+              <input type="number" id="aa-d3" value="6" step="0.5" min="0"> <input type="number" id="aa-a3" value="0.11" step="0.01" style="margin-top:4px;"> <input type="number" id="aa-m3" value="1.0" step="0.05" style="margin-top:4px;"></div>
+          </div>
+        </fieldset>
+
+        <div class="results">
+          <h3>Results</h3>
+          <div class="row"><span class="k">Subgrade modulus, M<sub>R</sub> = 1500·CBR</span><span class="v" id="aa-mr">–</span></div>
+          <div class="row major"><span class="k">Required structural number, SN<sub>req</sub></span><span class="v" id="aa-sn">–</span></div>
+          <div class="row"><span class="k">AC-only thickness, D₁ = SN/a₁</span><span class="v" id="aa-aconly">–</span></div>
+          <div class="row"><span class="k">Trial section provides, SN<sub>prov</sub></span><span class="v" id="aa-snprov">–</span></div>
+          <div class="row major"><span class="k">Check</span><span class="v" id="aa-check">–</span></div>
+        </div>
+
+        <div class="viz">
+          <h3>Structural number — required vs provided</h3>
+          <div id="aa-bar"></div>
+        </div>
+
+        <details>
+          <summary>Method &amp; assumptions</summary>
+          <div class="body">
+            log₁₀W₁₈ = Z<sub>R</sub>S₀ + 9.36·log₁₀(SN+1) − 0.20 + log₁₀[ΔPSI/2.7] / [0.40 + 1094/(SN+1)<sup>5.19</sup>] + 2.32·log₁₀M<sub>R</sub> − 8.07.
+            SN<sub>req</sub> solved by bisection; ΔPSI = p₀ − p_t. Provided SN = a₁D₁ + a₂D₂m₂ + a₃D₃m₃.
+            M<sub>R</sub> = 1500·CBR (psi). Drainage coefficients m default 1.0.
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <footer class="app">
+    <div class="rule"></div>
+    Teaching tool · idealised methods · verify against codes &amp; site data before design use.
+  </footer>
+</div>
+
+<script>
+/* ===== Najd visualisation palette ===== */
+const C = {
+  blue:'#2f5367', copper:'#a5643a', gold:'#b89344', green:'#496f61',
+  graphite:'#232421', muted:'#4a453c', soft:'#bdb3a0',
+  line:'#ded4c1', lineSoft:'#ece3d2', track:'#efe7d7',
+  bad:'#a5442e', amber:'#b89344', good:'#4f7a68',
+};
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll('nav.tabs button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById(b.dataset.tab).classList.add('active');
+  });
+});
+
+/* ---------- Pavement method switch ---------- */
+function setMethod(m){
+  document.querySelectorAll('.switch-wrap button').forEach(x=>x.classList.toggle('on',x.dataset.method===m));
+  document.getElementById('m-ai').classList.toggle('active',m==='ai');
+  document.getElementById('m-aashto').classList.toggle('active',m==='aashto');
+}
+
+/* ---------- helpers ---------- */
+const val=id=>parseFloat(document.getElementById(id).value);
+const set=(id,t)=>document.getElementById(id).textContent=t;
+
+/* ---------- 1. Foundation ---------- */
+function bcFactors(phiDeg){
+  const phi=phiDeg*Math.PI/180;
+  if(phi<=0) return {Nc:5.14,Nq:1,Ng:0};
+  const Nq=Math.exp(Math.PI*Math.tan(phi))*Math.pow(Math.tan(Math.PI/4+phi/2),2);
+  const Nc=(Nq-1)/Math.tan(phi);
+  const Ng=2*(Nq+1)*Math.tan(phi);
+  return {Nc,Nq,Ng};
+}
+function calcFoundation(){
+  const c=val('f-c')||0, phi=val('f-phi')||0, g=val('f-gamma')||0;
+  const B=val('f-B')||0, D=val('f-D')||0, FS=Math.max(val('f-fs')||1,1);
+  const type=document.getElementById('f-type').value;
+  const q=g*D, {Nc,Nq,Ng}=bcFactors(phi);
+  const sf = type==='square' ? [1.3,1.2,0.8] : [1,1,1];
+  const comp = [ c*Nc*sf[0], q*Nq*sf[1], 0.5*g*B*Ng*sf[2] ];
+  const qult = comp[0]+comp[1]+comp[2];
+  const qall=qult/FS;
+  set('f-factors',`${Nc.toFixed(2)} / ${Nq.toFixed(2)} / ${Ng.toFixed(2)}`);
+  set('f-q',isFinite(q)?q.toFixed(1)+' kPa':'–');
+  set('f-qult',isFinite(qult)?qult.toFixed(1)+' kPa':'–');
+  set('f-qall',isFinite(qall)?qall.toFixed(1)+' kPa':'–');
+  renderFoundationBar(comp,qult);
+}
+
+/* ---------- 2. Subgrade ---------- */
+function calcSubgrade(){
+  const cbr=val('s-cbr');
+  if(!isFinite(cbr)||cbr<=0){set('s-rating','–');set('s-use','–');set('s-mr-mpa','–');set('s-mr-psi','–');return;}
+  let rating,use,cls;
+  if(cbr<3){rating='Very poor';use='Subgrade (needs improvement)';cls='bad';}
+  else if(cbr<5){rating='Poor';use='Subgrade';cls='bad';}
+  else if(cbr<8){rating='Fair';use='Subgrade';cls='amber';}
+  else if(cbr<20){rating='Good';use='Sub-base';cls='amber';}
+  else if(cbr<=50){rating='Very good';use='Base / sub-base';cls='good';}
+  else{rating='Excellent';use='Base course';cls='good';}
+  const mrMpa=17.6*Math.pow(cbr,0.64), mrPsi=1500*cbr;
+  document.getElementById('s-rating').innerHTML=`<span class="pill ${cls}">${rating}</span>`;
+  set('s-use',use);
+  set('s-mr-mpa',mrMpa.toFixed(0)+' MPa');
+  set('s-mr-psi',mrPsi.toLocaleString()+' psi ('+(mrPsi/1000).toFixed(1)+' ksi)');
+  renderCBRScale(cbr);
+}
+
+/* ---------- 3. Plate test ---------- */
+function calcPlate(){
+  const Bp=val('p-bp')/1000, P=val('p-load'), d=val('p-settle'), Bf=val('p-bf');
+  const soil=document.getElementById('p-soil').value;
+  const A=Math.PI*Bp*Bp/4;            // m²
+  const p=P/A;                        // kN/m² = kPa
+  const k=p/d;                        // kPa/mm = MPa/m = MN/m³
+  let kf;
+  if(soil==='cohesive') kf=k*(Bp/Bf);
+  else kf=k*Math.pow((Bf+Bp)/(2*Bf),2);
+  set('p-press',isFinite(p)?p.toFixed(1)+' kPa':'–');
+  set('p-ktest',isFinite(k)?k.toFixed(1)+' MPa/m':'–');
+  set('p-kdesign',isFinite(kf)?kf.toFixed(1)+' MPa/m':'–');
+}
+
+/* ---------- 4a. AI / DTN ---------- */
+function calcAI(){
+  const itn=val('ai-itn'), n=val('ai-n'), r=val('ai-r')/100;
+  const F = (r===0)? n/20 : ((Math.pow(1+r,n)-1)/r)/20;
+  const dtn=F*itn;
+  set('ai-f',isFinite(F)?F.toFixed(2):'–');
+  set('ai-dtn',isFinite(dtn)?dtn.toFixed(1):'–');
+  const cbr=val('ai-cbr');
+  set('ai-ta', isFinite(dtn)&&isFinite(cbr) ? `Fig 11-6 (DTN ${dtn.toFixed(0)}, CBR ${cbr})` : 'read Fig 11-6');
+  renderFCurve(val('ai-n'), val('ai-r'));
+}
+
+/* ---------- 4b. AASHTO 1993 ---------- */
+function aashtoSN(W18,ZR,S0,dPSI,MR){
+  const tgt=Math.log10(W18);
+  const f=SN=>ZR*S0+9.36*Math.log10(SN+1)-0.20
+    +Math.log10(dPSI/2.7)/(0.40+1094/Math.pow(SN+1,5.19))
+    +2.32*Math.log10(MR)-8.07-tgt;
+  let lo=0.01,hi=20;
+  for(let i=0;i<100;i++){const m=(lo+hi)/2; if(f(m)>0)hi=m; else lo=m;}
+  return (lo+hi)/2;
+}
+function calcAASHTO(){
+  const W18=val('aa-w18'), ZR=val('aa-rel'), S0=val('aa-s0');
+  const dPSI=val('aa-p0')-val('aa-pt'), cbr=val('aa-cbr');
+  const MR=1500*cbr;
+  set('aa-mr', isFinite(MR)? MR.toLocaleString()+' psi':'–');
+  if(!(W18>0&&dPSI>0&&MR>0)){set('aa-sn','–');set('aa-aconly','–');set('aa-snprov','–');set('aa-check','–');document.getElementById('aa-bar').innerHTML='';return;}
+  const SN=aashtoSN(W18,ZR,S0,dPSI,MR);
+  const a1=val('aa-a1');
+  set('aa-sn',SN.toFixed(2));
+  set('aa-aconly',(SN/a1).toFixed(1)+' in ('+(SN/a1*25.4).toFixed(0)+' mm)');
+  const snProv=val('aa-d1')*a1 + val('aa-d2')*val('aa-a2')*val('aa-m2') + val('aa-d3')*val('aa-a3')*val('aa-m3');
+  set('aa-snprov',snProv.toFixed(2));
+  const ok=snProv>=SN;
+  document.getElementById('aa-check').innerHTML=
+    `<span class="pill ${ok?'good':'bad'}">${ok?'OK — adequate':'Under — increase layers'}</span>`;
+  renderSNBar(SN,snProv,ok);
+}
+
+/* ---------- SVG visualisations ---------- */
+function renderFoundationBar(comp,qult){
+  const el=document.getElementById('f-bar');
+  if(!isFinite(qult)||qult<=0){el.innerHTML='';return;}
+  const W=400,by=8,bh=26;
+  const cols=[C.blue,C.copper,C.gold];
+  let x=0, segs='';
+  comp.forEach((v,i)=>{
+    const frac=Math.max(v,0)/qult, w=frac*W;
+    if(w<=0)return;
+    segs+=`<rect x="${x.toFixed(1)}" y="${by}" width="${w.toFixed(1)}" height="${bh}" fill="${cols[i]}"/>`;
+    if(w>34) segs+=`<text x="${(x+w/2).toFixed(1)}" y="${by+bh/2+4}" text-anchor="middle" font-size="11" font-weight="600" fill="#fffaf0">${(frac*100).toFixed(0)}%</text>`;
+    x+=w;
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${W} 54">${segs}
+    <rect x="0.5" y="${by}" width="${W-1}" height="${bh}" fill="none" stroke="${C.line}" rx="3"/>
+    <text x="0" y="${by+bh+16}" font-size="10.5" fill="${C.soft}">0</text>
+    <text x="${W}" y="${by+bh+16}" text-anchor="end" font-size="10.5" fill="${C.muted}">q&#8341;&#8345;&#8348; = ${qult.toFixed(0)} kPa</text>
+  </svg>`;
+}
+
+function renderCBRScale(cbr){
+  const el=document.getElementById('s-scale');
+  const W=400,by=20,bh=22;
+  const seg=(a,b,c)=>`<rect x="${a/100*W}" y="${by}" width="${(b-a)/100*W}" height="${bh}" fill="${c}"/>`;
+  const tick=v=>`<text x="${v/100*W}" y="${by+bh+15}" text-anchor="${v===0?'start':v===100?'end':'middle'}" font-size="10" fill="${C.soft}">${v}</text>`;
+  let marker='';
+  if(isFinite(cbr)&&cbr>0){
+    const cx=Math.min(Math.max(cbr,0),100)/100*W;
+    marker=`<polygon points="${cx-6},${by-10} ${cx+6},${by-10} ${cx},${by-1}" fill="${C.graphite}"/>
+      <line x1="${cx}" y1="${by}" x2="${cx}" y2="${by+bh}" stroke="${C.graphite}" stroke-width="2"/>
+      <text x="${cx}" y="${by-14}" text-anchor="middle" font-size="11" font-weight="600" fill="${C.graphite}">${cbr}</text>`;
+  }
+  el.innerHTML=`<svg viewBox="0 0 ${W} 70">
+    ${seg(0,5,C.bad)}${seg(5,20,C.amber)}${seg(20,100,C.good)}
+    <rect x="0.5" y="${by}" width="${W-1}" height="${bh}" fill="none" stroke="${C.line}" rx="3"/>
+    ${[0,5,20,50,100].map(tick).join('')}${marker}
+  </svg>`;
+}
+
+function renderSNBar(req,prov,ok){
+  const el=document.getElementById('aa-bar');
+  const W=400,rh=22,max=Math.max(req,prov,0.1)*1.2;
+  const row=(y,v,col,name)=>{
+    const w=Math.max(v/max*W,1), inside=w>52;
+    return `<text x="0" y="${y-5}" font-size="10.5" fill="${C.muted}">${name}</text>
+      <rect x="0" y="${y}" width="${W}" height="${rh}" fill="${C.track}" rx="3"/>
+      <rect x="0" y="${y}" width="${w.toFixed(1)}" height="${rh}" fill="${col}" rx="3"/>
+      <text x="${(inside?w-8:w+8).toFixed(1)}" y="${y+rh/2+4}" text-anchor="${inside?'end':'start'}" font-size="11" font-weight="600" fill="${inside?'#fffaf0':C.graphite}">SN ${v.toFixed(2)}</text>`;
+  };
+  el.innerHTML=`<svg viewBox="0 0 ${W} 92">
+    ${row(20,req,C.blue,'Required')}
+    ${row(64,prov,ok?C.good:C.bad,'Provided (trial section)')}
+  </svg>`;
+}
+
+function renderFCurve(curN,curR){
+  const el=document.getElementById('ai-curve'), leg=document.getElementById('ai-curve-legend');
+  const W=420,H=240,m={l:38,r:12,t:12,b:30},pw=W-m.l-m.r,ph=H-m.t-m.b,nMax=35,fMax=14;
+  const X=n=>m.l+(n/nMax)*pw, Y=f=>m.t+ph-(Math.min(f,fMax)/fMax)*ph;
+  const rates=[0,2,4,6,8,10], cols=['#a9c0cb','#5d8294',C.blue,C.green,C.gold,C.copper];
+  const Ffn=(n,r)=> r===0? n/20 : ((Math.pow(1+r/100,n)-1)/(r/100))/20;
+  let g='';
+  for(let f=0;f<=fMax;f+=2){const y=Y(f); g+=`<line x1="${m.l}" y1="${y}" x2="${W-m.r}" y2="${y}" stroke="${C.lineSoft}"/><text x="${m.l-6}" y="${y+3}" text-anchor="end" font-size="9" fill="${C.soft}">${f}</text>`;}
+  for(let n=0;n<=nMax;n+=5){const x=X(n); g+=`<line x1="${x}" y1="${m.t}" x2="${x}" y2="${m.t+ph}" stroke="${C.lineSoft}"/><text x="${x}" y="${m.t+ph+16}" text-anchor="middle" font-size="9" fill="${C.soft}">${n}</text>`;}
+  g+=`<text x="${m.l+pw/2}" y="${H-2}" text-anchor="middle" font-size="9.5" fill="${C.muted}">Design period n (years)</text>`;
+  g+=`<text transform="translate(11,${m.t+ph/2}) rotate(-90)" text-anchor="middle" font-size="9.5" fill="${C.muted}">Growth factor F</text>`;
+  let lines='';
+  rates.forEach((r,i)=>{let d=''; for(let n=1;n<=nMax;n++){d+=(n===1?'M':'L')+X(n).toFixed(1)+','+Y(Ffn(n,r)).toFixed(1)+' ';} lines+=`<path d="${d}" fill="none" stroke="${cols[i]}" stroke-width="2"/>`;});
+  let mk='';
+  if(isFinite(curN)&&isFinite(curR)&&curN>0){
+    const cf=Ffn(curN,curR),cx=X(Math.min(curN,nMax)),cy=Y(cf);
+    mk=`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="4.5" fill="${C.graphite}" stroke="#fffaf0" stroke-width="1.5"/>
+        <text x="${cx.toFixed(1)}" y="${(cy-9).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="600" fill="${C.graphite}">F=${cf.toFixed(2)}</text>`;
+  }
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}
+    <line x1="${m.l}" y1="${m.t}" x2="${m.l}" y2="${m.t+ph}" stroke="${C.line}"/>
+    <line x1="${m.l}" y1="${m.t+ph}" x2="${W-m.r}" y2="${m.t+ph}" stroke="${C.line}"/>
+    ${lines}${mk}</svg>`;
+  leg.innerHTML=rates.map((r,i)=>`<span><i style="background:${cols[i]}"></i>${r}%</span>`).join('');
+}
+
+/* ---------- wire up live calculation ---------- */
+function recalcAll(){calcFoundation();calcSubgrade();calcPlate();calcAI();calcAASHTO();}
+document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',recalcAll));
+recalcAll();
+</script>
+<script src="/shared/nav-strip.js"></script>
+<script src="/shared/assistant-chat.js"></script>
+</body>
+</html>

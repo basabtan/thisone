@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="">
+  <defs>
+    <radialGradient id="tbg4" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#fffdf8"/>
+      <stop offset="100%" stop-color="#e8dfd0"/>
+    </radialGradient>
+  </defs>
+  <rect width="320" height="200" fill="url(#tbg4)"/>
+  <g transform="translate(160,100)">
+    <rect x="-56" y="-56" width="112" height="112" rx="12" fill="#2a2824" opacity="0.9"/>
+    <line x1="0" y1="-40" x2="0" y2="40" stroke="rgba(255,253,248,0.2)" stroke-width="1"/>
+    <line x1="-40" y1="0" x2="40" y2="0" stroke="rgba(255,253,248,0.2)" stroke-width="1"/>
+    <line x1="0" y1="0" x2="28" y2="-18" stroke="#496f61" stroke-width="3" stroke-linecap="round"/>
+    <line x1="0" y1="0" x2="-8" y2="32" stroke="#a5643a" stroke-width="2.5" stroke-linecap="round"/>
+    <circle r="5" fill="#fffaf0"/>
+    <text x="-48" y="72" font-family="Georgia,serif" font-size="9" fill="#496f61" font-style="italic">pitch</text>
+    <text x="28" y="72" font-family="Georgia,serif" font-size="9" fill="#a5643a" font-style="italic">roll</text>
+  </g>
+  <text x="24" y="186" font-family="Georgia,serif" font-size="10" fill="#5a4c3b" font-style="italic" opacity="0.7">dual-axis tilt readout</text>
+</svg>

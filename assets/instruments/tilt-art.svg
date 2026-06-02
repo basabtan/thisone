@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#fffaf0"/>
+      <stop offset="55%" stop-color="#ece4d4"/>
+      <stop offset="100%" stop-color="#cfc0a8"/>
+    </linearGradient>
+    <radialGradient id="bubble" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#496f61"/>
+      <stop offset="100%" stop-color="#2f5344"/>
+    </radialGradient>
+  </defs>
+  <rect width="320" height="200" fill="url(#bg)"/>
+  <path d="M0 168 Q80 148 160 158 T320 152 L320 200 L0 200 Z" fill="rgba(47,83,103,0.08)"/>
+  <rect x="108" y="36" width="104" height="128" rx="16" fill="#2a2824" opacity="0.92"/>
+  <rect x="114" y="42" width="92" height="116" rx="12" fill="#1e1c19"/>
+  <circle cx="160" cy="108" r="46" fill="#3a3832" stroke="rgba(255,253,248,0.15)" stroke-width="2"/>
+  <circle cx="160" cy="108" r="46" fill="none" stroke="rgba(255,253,248,0.08)" stroke-width="12"/>
+  <circle cx="178" cy="96" r="11" fill="url(#bubble)" stroke="rgba(255,253,248,0.5)" stroke-width="2"/>
+  <line x1="160" y1="62" x2="160" y2="154" stroke="rgba(255,253,248,0.12)" stroke-width="1"/>
+  <line x1="114" y1="108" x2="206" y2="108" stroke="rgba(255,253,248,0.12)" stroke-width="1"/>
+  <path d="M48 72 L72 72 L60 52 Z" fill="none" stroke="#a5643a" stroke-width="1.5" opacity="0.6"/>
+  <text x="48" y="88" font-family="Georgia,serif" font-size="9" fill="#7d4a28" font-style="italic">slope</text>
+  <text x="24" y="186" font-family="Georgia,serif" font-size="10" fill="#5a4c3b" font-style="italic" opacity="0.7">field sensor - bubble level</text>
+</svg>

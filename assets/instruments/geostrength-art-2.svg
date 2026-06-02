@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="">
+  <defs>
+    <linearGradient id="gsbg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f7f2e8"/>
+      <stop offset="100%" stop-color="#ddd5c8"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="200" fill="url(#gsbg2)"/>
+  <g transform="translate(160,100)">
+    <circle r="72" fill="#fcfbf7" stroke="rgba(47,83,103,0.22)" stroke-width="1.5"/>
+    <circle r="72" fill="none" stroke="rgba(47,83,103,0.08)" stroke-width="36" stroke-dasharray="4 8"/>
+    <path d="M-72,0 A72,72 0 0,1 0,-72" fill="none" stroke="#b5544a" stroke-width="2"/>
+    <path d="M0,-72 A72,72 0 0,1 72,0" fill="none" stroke="#496f61" stroke-width="2"/>
+    <path d="M72,0 A72,72 0 0,1 0,72" fill="none" stroke="#2f5367" stroke-width="2"/>
+    <path d="M0,72 A72,72 0 0,1 -72,0" fill="none" stroke="#a5643a" stroke-width="2"/>
+    <circle r="3" fill="#2f5367"/>
+    <text x="0" y="-82" text-anchor="middle" font-family="Georgia,serif" font-size="9" fill="#a5643a">N</text>
+  </g>
+  <text x="24" y="186" font-family="Georgia,serif" font-size="10" fill="#5a4c3b" font-style="italic" opacity="0.7">stereonet - joint sets</text>
+</svg>

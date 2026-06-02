@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sabtan Knowledge Base</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet" />
   <style>
     :root {
       --ivory: #fbf7ef;
@@ -17,9 +17,21 @@
       --blue: #2f5367;
       --blue-dk: #1e3a4a;
       --copper: #a5643a;
-    --gold: #b89344;
-    --green: #496f61;
-  }
+      --gold: #b89344;
+      --green: #496f61;
+      --bronze: #a86a44;
+      --pewter-hi: #fefefe;
+      --pewter-mid: #efece6;
+      --pewter-lo: #dbd6cd;
+      --pewter-sh: #c4bfb5;
+      --pewter-item-lo: #c3beb4;
+      --pewter-face: #f4f1ea;
+      --pewter-face-mid: #ddd8ce;
+      --pewter-face-lo: #c0bab0;
+      --pewter-shadow: 0 9px 20px rgba(120, 110, 95, 0.3), 0 2px 5px rgba(120, 110, 95, 0.2);
+      --pewter-inset: inset 0 2px 3px rgba(255, 255, 255, 0.9), inset 0 -6px 11px rgba(150, 143, 130, 0.45);
+      --pewter-gloss: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 46%);
+    }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -101,6 +113,138 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      --hub-disc-size: 136px;
+      --hub-disc-gap: clamp(36px, 6vw, 72px);
+      --hub-add-x: calc(1.5 * (var(--hub-disc-size) + var(--hub-disc-gap)));
+      --hub-surf-1: #fefefe;
+      --hub-surf-2: #efece6;
+      --hub-surf-3: #dad5cc;
+      --hub-surf-4: #c3beb4;
+      --hub-face-1: #f4f1ea;
+      --hub-face-2: #ddd8ce;
+      --hub-face-3: #c0bab0;
+      --hub-label: var(--bronze);
+      --hub-shadow-1: 0 6px 14px rgba(120, 110, 95, 0.28);
+      --hub-shadow-2: 0 2px 4px rgba(120, 110, 95, 0.18);
+      --hub-inset: inset 0 2px 3px rgba(255, 255, 255, 0.9), inset 0 -5px 9px rgba(150, 143, 130, 0.45);
+      --hub-gloss: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 46%);
+      --hub-face-ring: rgba(168, 106, 68, 0.55);
+      --hub-pointer: var(--bronze);
+      --hub-hover-shadow-1: 0 10px 22px rgba(120, 110, 95, 0.32);
+      --hub-hover-shadow-2: 0 3px 6px rgba(120, 110, 95, 0.2);
+      --hub-hover-inset: inset 0 2px 4px rgba(255, 255, 255, 0.95), inset 0 -5px 10px rgba(150, 143, 130, 0.48);
+      --hub-bezel-hover-1: 0 12px 26px rgba(120, 110, 95, 0.34);
+      --hub-bezel-hover-2: 0 3px 7px rgba(120, 110, 95, 0.22);
+      --hub-util-fg: var(--pewter-hi);
+      --hub-util-accent: rgba(255, 253, 248, 0.55);
+      --hub-util-1: #6b6358;
+      --hub-util-2: #4a443c;
+      --hub-util-3: #353129;
+      --hub-util-4: #25221d;
+      --hub-util-shadow-1: 0 5px 12px rgba(20, 18, 14, 0.35);
+      --hub-util-shadow-2: 0 2px 4px rgba(20, 18, 14, 0.22);
+      --hub-util-inset: inset 0 2px 3px rgba(255, 255, 255, 0.14), inset 0 -4px 8px rgba(0, 0, 0, 0.35);
+      --hub-util-gloss: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 48%);
+    }
+
+    .hub.hub-tone-slate {
+      --hub-surf-1: #6b6358;
+      --hub-surf-2: #4a443c;
+      --hub-surf-3: #353129;
+      --hub-surf-4: #25221d;
+      --hub-face-1: #5a534a;
+      --hub-face-2: #3f3932;
+      --hub-face-3: #2e2923;
+      --hub-label: #f4f0e8;
+      --hub-shadow-1: 0 6px 14px rgba(20, 18, 14, 0.35);
+      --hub-shadow-2: 0 2px 4px rgba(20, 18, 14, 0.22);
+      --hub-inset: inset 0 2px 3px rgba(255, 255, 255, 0.14), inset 0 -5px 9px rgba(0, 0, 0, 0.35);
+      --hub-gloss: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 48%);
+      --hub-face-ring: rgba(255, 253, 248, 0.32);
+      --hub-pointer: #e8dcc8;
+      --hub-hover-shadow-1: 0 10px 22px rgba(20, 18, 14, 0.4);
+      --hub-hover-shadow-2: 0 3px 6px rgba(20, 18, 14, 0.24);
+      --hub-hover-inset: inset 0 2px 4px rgba(255, 255, 255, 0.18), inset 0 -5px 10px rgba(0, 0, 0, 0.38);
+      --hub-bezel-hover-1: 0 12px 26px rgba(20, 18, 14, 0.42);
+      --hub-bezel-hover-2: 0 3px 7px rgba(20, 18, 14, 0.26);
+      --hub-util-fg: var(--bronze);
+      --hub-util-accent: var(--bronze);
+      --hub-util-1: #fefefe;
+      --hub-util-2: #efece6;
+      --hub-util-3: #dad5cc;
+      --hub-util-4: #c3beb4;
+      --hub-util-shadow-1: 0 5px 12px rgba(120, 110, 95, 0.28);
+      --hub-util-shadow-2: 0 2px 4px rgba(120, 110, 95, 0.18);
+      --hub-util-inset: inset 0 2px 3px rgba(255, 255, 255, 0.9), inset 0 -5px 9px rgba(150, 143, 130, 0.45);
+      --hub-util-gloss: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 46%);
+    }
+
+    .hub-tone-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin: -8px 0 18px;
+      padding: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--soft);
+      user-select: none;
+    }
+
+    .hub-tone-switch:focus-visible {
+      outline: 2px solid var(--copper);
+      outline-offset: 4px;
+      border-radius: 999px;
+    }
+
+    .hub-tone-switch .tone-label {
+      opacity: 0.45;
+      transition: opacity 0.2s ease, color 0.2s ease;
+    }
+
+    .hub-tone-switch .tone-label.is-on {
+      opacity: 1;
+      color: var(--bronze);
+    }
+
+    .hub-tone-track {
+      position: relative;
+      width: 34px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(255, 253, 248, 0.85);
+      border: 1px solid var(--line);
+      box-shadow: inset 0 1px 3px rgba(55, 45, 30, 0.08);
+      flex-shrink: 0;
+      transition: background 0.25s ease, border-color 0.25s ease;
+    }
+
+    .hub-tone-knob {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, var(--pewter-hi), var(--pewter-mid) 55%, var(--pewter-lo));
+      box-shadow: 0 1px 4px rgba(55, 45, 30, 0.22);
+      transition: transform 0.25s cubic-bezier(0.34, 1.1, 0.5, 1), background 0.25s ease;
+    }
+
+    .hub-tone-switch[aria-checked="true"] .hub-tone-track {
+      background: rgba(58, 52, 46, 0.92);
+      border-color: rgba(255, 253, 248, 0.12);
+    }
+
+    .hub-tone-switch[aria-checked="true"] .hub-tone-knob {
+      transform: translateX(16px);
+      background: radial-gradient(circle at 35% 30%, #8a8274, #5a534a 55%, #3a342a);
     }
 
     .hub-backdrop {
@@ -124,56 +268,115 @@
       z-index: 20;
       width: min(1100px, 98vw);
       min-height: 136px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      display: grid;
+      grid-template-rows: 136px auto;
+      align-items: start;
+      justify-items: center;
       transition: min-height 0.5s cubic-bezier(0.32, 0.72, 0.28, 1);
     }
 
     .hub-center {
+      grid-row: 1;
       position: relative;
       z-index: 50;
+      width: 136px;
+      height: 136px;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 22px;
-    }
-
-    .hub.open .hub-stage {
-      justify-content: flex-start;
-      padding-top: 8px;
+      justify-content: center;
+      overflow: visible;
     }
 
     .hub.open:not(.profile-mode):not(.ideas-mode) .hub-stage {
       min-height: 300px;
-      gap: 52px;
     }
 
     .hub.open.profile-mode .hub-stage,
     .hub.open.ideas-mode .hub-stage {
       min-height: 380px;
-      gap: 28px;
-    }
-
-    .hub.open.profile-mode .hub-options,
-    .hub.open.ideas-mode .hub-options {
-      position: relative;
-      inset: auto;
-      width: 100%;
-      flex: 0 0 auto;
-      pointer-events: auto;
     }
 
     .hub-main.hub-disc {
       position: relative;
       flex-shrink: 0;
       cursor: pointer;
-      --ring: var(--graphite);
+      background: transparent;
+      box-shadow: none;
+      overflow: visible;
+    }
+
+    .hub-main.hub-disc::after {
+      display: none;
+    }
+
+    .hub-bezel {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 30%, var(--hub-surf-1), var(--hub-surf-2) 32%, var(--hub-surf-3) 64%, var(--hub-surf-4));
+      box-shadow: var(--pewter-shadow), var(--pewter-inset);
+      transition: transform 0.5s cubic-bezier(0.34, 1.1, 0.5, 1), background 0.35s ease, box-shadow 0.35s ease;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .hub-bezel::before {
+      content: "";
+      position: absolute;
+      top: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 9px solid var(--hub-pointer);
+      transition: border-top-color 0.25s ease;
+    }
+
+    .hub-bezel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0) 44%);
+      pointer-events: none;
+    }
+
+    .hub.open .hub-main .hub-bezel {
+      transform: rotate(160deg);
+    }
+
+    .hub-face {
+      position: absolute;
+      inset: 12px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 30%, var(--hub-face-1), var(--hub-face-2) 55%, var(--hub-face-3));
+      box-shadow:
+        inset 0 2px 4px rgba(255, 255, 255, 0.85),
+        inset 0 -5px 9px rgba(150, 143, 130, 0.5),
+        0 0 0 1.5px var(--hub-face-ring);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      z-index: 2;
+      pointer-events: none;
+      transition: background 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .hub-face::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 46%);
+      pointer-events: none;
     }
 
     .hub-main.hub-disc .hub-icon-plus {
       transform-origin: center;
+      transition: transform 0.35s ease;
     }
 
     .hub.open .hub-main.hub-disc .hub-icon-plus {
@@ -190,17 +393,11 @@
       to { transform: rotate(405deg); }
     }
 
-    .hub-main.hub-disc:hover {
-      color: var(--graphite);
-      filter: brightness(1.06);
+    .hub-main.hub-disc:hover .hub-bezel {
       box-shadow:
-        0 0 0 1px rgba(255, 252, 245, 0.9),
-        0 0 14px rgba(255, 248, 230, 0.95),
-        0 0 28px rgba(255, 240, 205, 0.7),
-        0 0 44px rgba(255, 230, 175, 0.45),
-        0 10px 28px rgba(55, 45, 30, 0.16),
-        inset 0 2px 8px rgba(255, 255, 255, 0.55),
-        inset 0 -6px 14px rgba(35, 36, 33, 0.12);
+        var(--hub-bezel-hover-1),
+        var(--hub-bezel-hover-2),
+        var(--pewter-inset);
     }
 
     .hub-main.hub-disc:not(.open-state):hover .hub-icon-plus {
@@ -212,12 +409,21 @@
     }
 
     .hub-options {
-      position: absolute;
-      inset: 0;
+      grid-row: 2;
+      position: relative;
+      width: 100%;
+      margin-top: 0;
       pointer-events: none;
     }
 
-    .hub.open .hub-options {
+    .hub.open:not(.profile-mode):not(.ideas-mode) .hub-options {
+      margin-top: 52px;
+      pointer-events: auto;
+    }
+
+    .hub.open.profile-mode .hub-options,
+    .hub.open.ideas-mode .hub-options {
+      margin-top: 28px;
       pointer-events: auto;
     }
 
@@ -227,7 +433,7 @@
       top: auto;
       transform: none;
       width: min(980px, 94vw);
-      min-height: 130px;
+      min-height: 0;
       margin: 0 auto;
       opacity: 0;
       pointer-events: none;
@@ -235,6 +441,7 @@
     }
 
     .hub.open:not(.profile-mode):not(.ideas-mode) .hub-disc-field {
+      min-height: 130px;
       opacity: 1;
       pointer-events: auto;
     }
@@ -244,17 +451,19 @@
       flex-wrap: wrap;
       justify-content: center;
       align-items: center;
-      gap: clamp(36px, 6vw, 72px);
+      gap: var(--hub-disc-gap);
       padding: 4px 16px 0;
     }
 
     .hub-util-wrap {
-      position: relative;
+      position: absolute;
+      bottom: calc(100% + 22px);
+      left: 50%;
       z-index: 51;
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-      transform: translateY(12px) scale(0.92);
+      transform: translateX(calc(-50% + var(--hub-add-x))) translateY(12px) scale(0.92);
       transition:
         opacity 0.35s ease,
         visibility 0.35s ease,
@@ -265,91 +474,122 @@
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
-      transform: translateY(0) scale(1);
+      transform: translateX(calc(-50% + var(--hub-add-x))) translateY(0) scale(1);
     }
 
-    .hub-util {
-      width: 100px;
-      height: 100px;
-      --ring: #4a453c;
+    .hub-util.hub-disc {
+      width: 72px;
+      height: 72px;
+      color: var(--hub-util-fg);
+      --accent: var(--hub-util-accent);
+      background: radial-gradient(circle at 36% 28%, var(--hub-util-1), var(--hub-util-2) 34%, var(--hub-util-3) 66%, var(--hub-util-4));
+      box-shadow: var(--hub-util-shadow-1), var(--hub-util-shadow-2), var(--hub-util-inset);
+      transition:
+        box-shadow 0.35s ease,
+        opacity 0.34s ease,
+        color 0.25s ease,
+        background 0.35s ease;
+    }
+
+    .hub-util.hub-disc::after {
+      background: var(--hub-util-gloss);
+    }
+
+    .hub-util.hub-disc:hover {
+      color: var(--hub-util-fg);
+      box-shadow:
+        var(--hub-hover-shadow-1),
+        var(--hub-hover-shadow-2),
+        var(--hub-hover-inset);
     }
 
     .hub-util .opt-icon {
-      width: 26px;
-      height: 26px;
+      width: 18px;
+      height: 18px;
+      color: var(--hub-util-fg);
     }
 
     .hub-util .opt-title {
-      font-size: 14px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.6px;
+      color: var(--hub-util-fg);
+    }
+
+    .hub-util .opt-label {
+      gap: 3px;
+    }
+
+    .hub-util .opt-label::after {
+      width: 22px;
     }
 
     .hub-disc {
+      position: relative;
+      isolation: isolate;
       display: flex;
       align-items: center;
       justify-content: center;
       width: 136px;
       height: 136px;
       min-width: 0;
-      padding: 12px;
-      border: 7px solid var(--ring, var(--graphite));
+      padding: 0;
+      border: none;
       border-radius: 50%;
-      color: var(--graphite);
-      font-family: "Lora", serif;
+      color: var(--hub-label);
+      font-family: "Cormorant Garamond", serif;
       font-size: 16px;
-      font-style: italic;
+      font-style: normal;
       font-weight: 600;
       text-decoration: none;
       text-align: center;
-      overflow: hidden;
-      --metal-hi: #fffdf8;
-      --metal-mid: #ece3d4;
-      --metal-lo: #cfc0a8;
-      --metal-sh: #9a8d7a;
-      background:
-        radial-gradient(circle at 30% 22%, var(--metal-hi) 0%, transparent 46%),
-        radial-gradient(circle at 72% 78%, var(--metal-sh) 0%, transparent 52%),
-        repeating-linear-gradient(
-          118deg,
-          transparent 0 3px,
-          rgba(255, 255, 255, 0.07) 3px 4px
-        ),
-        linear-gradient(152deg, var(--metal-hi) 0%, var(--metal-mid) 42%, var(--metal-lo) 100%);
-      box-shadow:
-        0 10px 28px rgba(55, 45, 30, 0.16),
-        inset 0 2px 8px rgba(255, 255, 255, 0.55),
-        inset 0 -6px 14px rgba(35, 36, 33, 0.12);
+      overflow: visible;
+      --accent: var(--bronze);
+      background: radial-gradient(circle at 36% 28%, var(--hub-surf-1), var(--hub-surf-2) 34%, var(--hub-surf-3) 66%, var(--hub-surf-4));
+      box-shadow: var(--hub-shadow-1), var(--hub-shadow-2), var(--hub-inset);
       transition:
         box-shadow 0.35s ease,
-        filter 0.35s ease,
-        opacity 0.34s ease;
+        opacity 0.34s ease,
+        color 0.25s ease,
+        background 0.35s ease,
+        transform 0.52s cubic-bezier(0.34, 1.4, 0.5, 1);
+    }
+
+    .hub-disc::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: var(--hub-gloss);
+      pointer-events: none;
+      z-index: 1;
+      transition: background 0.35s ease;
     }
 
     button.hub-disc {
       cursor: pointer;
     }
 
-    .hub-disc::after {
-      content: "";
-      position: absolute;
-      inset: 12%;
-      border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.28);
-      pointer-events: none;
+    .hub-disc:hover {
+      color: var(--hub-label);
+      box-shadow: var(--hub-hover-shadow-1), var(--hub-hover-shadow-2), var(--hub-hover-inset);
     }
 
-    .hub-disc:hover {
-      color: var(--graphite);
-      filter: brightness(1.1);
-      box-shadow:
-        0 0 20px rgba(255, 250, 235, 0.85),
-        0 0 40px rgba(255, 245, 220, 0.45),
-        0 14px 32px rgba(55, 45, 30, 0.18),
-        inset 0 3px 14px rgba(255, 255, 255, 0.8),
-        inset 0 -4px 10px rgba(35, 36, 33, 0.08);
+    .hub-main.hub-disc {
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .hub-main.hub-disc::after {
+      display: none;
+    }
+
+    .hub-main.hub-disc:hover {
+      box-shadow: none;
     }
 
     .hub-main.hub-disc:hover .opt-icon {
-      opacity: 0.72;
+      opacity: 1;
       filter: none;
     }
 
@@ -364,8 +604,7 @@
       transition:
         transform 0.52s cubic-bezier(0.32, 0.72, 0.28, 1),
         opacity 0.34s ease,
-        box-shadow 0.35s ease,
-        filter 0.35s ease;
+        box-shadow 0.35s ease;
     }
 
     .hub-option.hub-disc.is-open {
@@ -373,41 +612,57 @@
       transform: scale(1);
     }
 
-    .hub-option.hub-disc.is-custom {
-      --ring: #3d5248;
-    }
-
     .opt-label {
       position: relative;
-      z-index: 1;
+      z-index: 2;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       line-height: 1;
       pointer-events: none;
     }
 
+    .hub-disc .opt-label::after {
+      content: "";
+      display: block;
+      width: 28px;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--accent);
+      margin-top: 1px;
+      opacity: 0.85;
+    }
+
+    .hub-main.hub-disc { --accent: var(--bronze); }
+    .hub-option.najd { --accent: #1e3a4a; }
+    .hub-option.profile { --accent: #a5643a; }
+    .hub-option.ideas { --accent: #b89344; }
+    .hub-option.instruments { --accent: #496f61; }
+    .hub-option.is-custom { --accent: #3d5248; }
+
     .opt-icon {
-      width: 24px;
-      height: 24px;
-      opacity: 0.72;
-      transition: opacity 0.35s ease, filter 0.35s ease;
+      width: 28px;
+      height: 28px;
+      color: var(--hub-label);
+      opacity: 0.92;
+      transition: opacity 0.35s ease, color 0.25s ease;
     }
 
     .opt-title {
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 14px;
+      font-weight: 700;
+      font-style: normal;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--hub-label);
+      transition: color 0.25s ease;
     }
-
-    .hub-option.najd { --ring: #1e3a4a; }
-    .hub-option.profile { --ring: #5c3820; }
-    .hub-option.ideas { --ring: #6b5524; }
 
     .hub-disc:hover .opt-icon {
       opacity: 1;
-      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.9));
+      filter: none;
     }
 
     .hub-page-picker {
@@ -529,13 +784,6 @@
       display: none;
     }
 
-    .hub.open:not(.profile-mode):not(.ideas-mode) .hub-options {
-      position: relative;
-      inset: auto;
-      width: 100%;
-      flex: 0 0 auto;
-    }
-
     .hub-profile-panel {
       display: none;
       position: relative;
@@ -639,13 +887,17 @@
         min-height: 360px;
       }
 
+      .hub {
+        --hub-disc-size: 124px;
+        --hub-disc-gap: 28px;
+      }
+
       .hub.open.profile-mode .hub-stage,
       .hub.open.ideas-mode .hub-stage {
         min-height: 400px;
       }
 
       .hub-disc-row {
-        gap: 28px;
         padding: 4px 8px 0;
       }
 
@@ -657,18 +909,41 @@
         width: min(300px, 92vw);
       }
 
+      .hub-stage {
+        grid-template-rows: 124px auto;
+      }
+
+      .hub-center {
+        width: 124px;
+        height: 124px;
+      }
+
       .hub-disc,
       .hub-option.hub-disc {
         width: 124px;
         height: 124px;
       }
 
-      .hub-util {
-        width: 92px;
-        height: 92px;
+      .hub-util.hub-disc {
+        width: 64px;
+        height: 64px;
       }
 
-      .opt-title { font-size: 15px; }
+      .hub-util .opt-icon {
+        width: 16px;
+        height: 16px;
+      }
+
+      .hub-util .opt-title {
+        font-size: 9px;
+        letter-spacing: 1.4px;
+      }
+
+      .hub.open:not(.profile-mode):not(.ideas-mode) .hub-disc-field {
+        padding-top: 0;
+      }
+
+      .opt-title { font-size: 12px; font-weight: 700; letter-spacing: 1.8px; }
     }
   </style>
 </head>
@@ -679,6 +954,12 @@
     <h1 class="title">Knowledge Base</h1>
     <p class="tagline">Research programmes · projects · strategic profile</p>
     <div class="divider" aria-hidden="true"></div>
+
+    <button type="button" class="hub-tone-switch" id="hub-tone-switch" role="switch" aria-checked="false" aria-label="Toggle button color: pearl or slate">
+      <span class="tone-label tone-pearl is-on">Pearl</span>
+      <span class="hub-tone-track" aria-hidden="true"><span class="hub-tone-knob"></span></span>
+      <span class="tone-label tone-slate">Slate</span>
+    </button>
 
     <div class="hub" id="hub">
       <div class="hub-backdrop" id="hub-backdrop" aria-hidden="true"></div>
@@ -703,12 +984,15 @@
             </div>
           </div>
           <button type="button" class="hub-disc hub-main" id="hub-main" aria-expanded="false" aria-controls="hub-menu">
-            <span class="opt-label">
-              <svg class="opt-icon hub-icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
-                <path d="M12 5v14"/>
-                <path d="M5 12h14"/>
-              </svg>
-              <span class="hub-label opt-title">Explore</span>
+            <span class="hub-bezel" aria-hidden="true"></span>
+            <span class="hub-face">
+              <span class="opt-label">
+                <svg class="opt-icon hub-icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+                  <path d="M12 5v14"/>
+                  <path d="M5 12h14"/>
+                </svg>
+                <span class="hub-label opt-title">Explore</span>
+              </span>
             </span>
           </button>
         </div>
@@ -743,6 +1027,21 @@
                   <span class="opt-title">Ideas</span>
                 </span>
               </button>
+              <a class="hub-disc hub-option instruments is-core" href="instruments.html" data-page-id="instruments">
+                <span class="opt-label">
+                  <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="5" y="2" width="14" height="20" rx="2"/>
+                    <rect x="7" y="4.5" width="10" height="4" rx="0.8"/>
+                    <circle cx="8.5" cy="12.5" r="1"/>
+                    <circle cx="12" cy="12.5" r="1"/>
+                    <circle cx="15.5" cy="12.5" r="1"/>
+                    <circle cx="8.5" cy="16" r="1"/>
+                    <circle cx="12" cy="16" r="1"/>
+                    <circle cx="15.5" cy="16" r="1"/>
+                  </svg>
+                  <span class="opt-title">Instruments</span>
+                </span>
+              </a>
             </div>
           </div>
           <div class="hub-ideas-panel" id="hub-ideas-panel" hidden>
@@ -774,12 +1073,17 @@
     var picker = document.getElementById("hub-page-picker");
     var pickerList = document.getElementById("hub-picker-list");
     var SHORTCUT_KEY = "sabtan-hub-shortcuts";
-    var CORE_IDS = ["najd", "profile", "ideas"];
+    var CORE_IDS = ["najd", "profile", "ideas", "instruments"];
 
     var HUB_PAGES = [
       { id: "najd", title: "Najd", label: "Najd", hint: "Programme roadmap", href: "najd-roadmap.html", core: true },
       { id: "profile", title: "Profile", label: "Profile", hint: "Prof. Abdullah — executive profile", href: "Sabtan Knowledge Base/profile.html", core: true },
       { id: "ideas", title: "Ideas", label: "Ideas", hint: "Research and app ideas", href: "research-ideas.html?view=research", core: true },
+      { id: "instruments", title: "Instruments", label: "Instruments", hint: "Geological calculators & apps", href: "instruments.html", core: true },
+      { id: "vtest", title: "V-test Dashboard", label: "V-test", hint: "Circular statistics — preferred orientation", href: "vtest-najd.html" },
+      { id: "tilt-level", title: "Surface Tilt Level", label: "Tilt Level", hint: "Phone sensor field tilt & slope", href: "najd-tilt-level.html" },
+      { id: "geostrength", title: "GeoStrength", label: "GeoStrength", hint: "GSI & slope stability calculator", href: "geostrength.html" },
+      { id: "pavement", title: "Geotechnical & Pavement Toolkit", label: "Pavement", hint: "Foundation, CBR, plate test & pavement design", href: "geo-pavement-toolkit.html" },
       { id: "kb-hub", title: "Knowledge Base Hub", label: "Hub", hint: "Full dashboard", href: "Sabtan Knowledge Base/index.html" },
       { id: "roadmap", title: "Programme Roadmap", label: "Roadmap", hint: "Phases I–III", href: "najd-roadmap.html" },
       { id: "phase1", title: "Phase I Papers", label: "Phase I", hint: "Paper cards & author view", href: "phase-1-papers.html" },
@@ -791,6 +1095,35 @@
     ];
 
     if (!hub || !btn || !discRow) return;
+
+    var TONE_KEY = "sabtan-hub-tone";
+    var toneSwitch = document.getElementById("hub-tone-switch");
+    var tonePearl = toneSwitch && toneSwitch.querySelector(".tone-pearl");
+    var toneSlate = toneSwitch && toneSwitch.querySelector(".tone-slate");
+
+    function applyHubTone(slate) {
+      hub.classList.toggle("hub-tone-slate", slate);
+      if (!toneSwitch) return;
+      toneSwitch.setAttribute("aria-checked", slate ? "true" : "false");
+      if (tonePearl) tonePearl.classList.toggle("is-on", !slate);
+      if (toneSlate) toneSlate.classList.toggle("is-on", slate);
+    }
+
+    try {
+      applyHubTone(localStorage.getItem(TONE_KEY) === "slate");
+    } catch (e) {
+      applyHubTone(false);
+    }
+
+    if (toneSwitch) {
+      toneSwitch.addEventListener("click", function () {
+        var next = !hub.classList.contains("hub-tone-slate");
+        applyHubTone(next);
+        try {
+          localStorage.setItem(TONE_KEY, next ? "slate" : "pearl");
+        } catch (e) {}
+      });
+    }
 
     var openTimers = [];
 

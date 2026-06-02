@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="">
+  <defs>
+    <linearGradient id="tbg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fffaf0"/>
+      <stop offset="100%" stop-color="#d8cdb8"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="200" fill="url(#tbg2)"/>
+  <g transform="translate(160,108)">
+    <path d="M-90,32 A90,90 0 0,1 90,32" fill="none" stroke="rgba(47,83,103,0.2)" stroke-width="2"/>
+    <path d="M-90,32 A90,90 0 0,1 -20,-78" fill="none" stroke="#496f61" stroke-width="8" stroke-linecap="round"/>
+    <line x1="0" y1="32" x2="-14" y2="-68" stroke="#2f5367" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="-14" cy="-68" r="6" fill="#2f5367"/>
+    <text x="0" y="52" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="#2f5367" font-weight="600">12.4</text>
+    <text x="0" y="68" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="#496f61" font-style="italic">degrees</text>
+  </g>
+  <text x="24" y="186" font-family="Georgia,serif" font-size="10" fill="#5a4c3b" font-style="italic" opacity="0.7">inclinometer gauge</text>
+</svg>
