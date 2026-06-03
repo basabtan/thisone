@@ -91,6 +91,9 @@
     .tool-nav-art svg{position:relative;z-index:2;width:100%;height:auto;max-width:152px;display:block}
 
     .tool-nav-body{padding:22px 26px;display:flex;flex-direction:column;gap:9px;position:relative;z-index:2}
+    .tool-nav-body--has-ext{min-height:158px;padding-bottom:54px}
+    a.tool-nav-art{text-decoration:none;color:inherit}
+    .tool-nav-main{display:flex;flex-direction:column;gap:9px;text-decoration:none;color:inherit;flex:1;min-height:100%}
     .tool-nav-name{font-family:var(--font-display);font-weight:400;font-size:25px;line-height:1.12;
       letter-spacing:-.01em;color:var(--ink);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
     .tool-nav-badge{font-family:var(--font-body);font-size:9.5px;font-weight:700;letter-spacing:.13em;
@@ -100,6 +103,7 @@
     .tool-nav-go{margin-top:auto;padding-top:6px;font-size:14px;font-weight:600;color:var(--primary);
       letter-spacing:.01em;display:inline-flex;align-items:center;gap:6px;transition:gap .2s}
     .tool-nav-item:hover .tool-nav-go{gap:11px}
+    .tool-nav-main:hover .tool-nav-go{gap:11px}
 
     /* per-tool art switch strip */
     .tool-art-switch{display:flex;align-items:center;gap:13px;margin-top:11px;padding:0 8px;flex-wrap:wrap}
@@ -117,23 +121,24 @@
       transition:transform .2s, background .2s;padding:0}
     .tool-art-switch-dot.is-active{background:linear-gradient(135deg,var(--primary),var(--accent));transform:scale(1.2)}
 
-    /* extension link */
-    /* full pearl surface (signature glossy metal) */
-    .extension-link{position:relative;overflow:hidden;display:flex;align-items:center;gap:13px;margin:0;
-      padding:15px 24px;border-radius:16px;text-decoration:none;color:var(--ink);font-size:14px;font-weight:300;
+    /* extension link — nested in GeoStrength card */
+    .extension-link{position:relative;overflow:hidden;display:flex;align-items:center;gap:10px;margin:0;
+      padding:11px 18px;border-radius:14px;text-decoration:none;color:var(--ink);font-size:12.5px;font-weight:300;
       background:var(--pearl);
       box-shadow:var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,.92), inset 0 0 0 1px rgba(34,22,8,.06);
       transition:transform .25s ease, box-shadow .25s ease}
+    .extension-link--in-card{position:absolute;bottom:14px;right:14px;left:auto;z-index:5;max-width:calc(100% - 28px)}
+    @media(min-width:520px){.extension-link--in-card{max-width:min(420px, calc(100% - 110px))}}
     .extension-link::before{content:"";position:absolute;top:0;left:6%;right:6%;height:48%;z-index:0;
       border-radius:0 0 50% 50%;pointer-events:none;
       background:radial-gradient(ellipse 100% 100% at 50% 0%, rgba(255,255,255,.92), transparent 72%)}
     .extension-link::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
       background:linear-gradient(122deg, rgba(255,255,255,.52) 0%, rgba(255,255,255,0) 24%, rgba(255,255,255,0) 68%, rgba(255,255,255,.30) 100%)}
     .extension-link > *{position:relative;z-index:1}
-    .extension-link:hover{transform:translateX(3px);box-shadow:var(--shadow-lift)}
+    .extension-link:hover{transform:translateY(-1px);box-shadow:var(--shadow-lift)}
     .extension-link strong{font-weight:600;color:var(--ink)}
     .ext-arrow{color:var(--primary);font-size:17px}
-    .ext-meta{margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+    .ext-meta{margin-left:auto;font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);flex-shrink:0}
 
     .note{font-family:var(--font-display);font-style:italic;color:var(--ink-faint);font-size:14px;margin:30px 0 0}
     .page-back-nav--bottom{margin:36px 0 0}
@@ -143,6 +148,8 @@
       .tool-nav-item{grid-template-columns:1fr}
       .tool-nav-art{border-right:none;border-bottom:1px solid var(--line-soft);min-height:150px}
       .tool-art-switch-dots{margin-left:0}
+      .extension-link--in-card{position:static;max-width:none;margin-top:12px}
+      .tool-nav-body--has-ext{padding-bottom:22px}
     }
   </style>
 </head>
@@ -205,14 +212,21 @@
         </div>
       </div>
       <div class="tool-row">
-        <a class="tool-nav-item" href="geostrength.html">
-          <div class="tool-nav-art" data-tool="geostrength" role="img" aria-label="GeoStrength artwork"></div>
-          <div class="tool-nav-body">
-            <span class="tool-nav-name">GeoStrength<span class="tool-nav-badge">Live</span></span>
-            <span class="tool-nav-desc">Rock mass classification and slope stability — GSI, Hoek–Brown, wedge analysis, and Najd Δθ modules.</span>
-            <span class="tool-nav-go">Open &#8594;</span>
+        <div class="tool-nav-item">
+          <a class="tool-nav-art" href="geostrength.html" data-tool="geostrength" role="img" aria-label="GeoStrength artwork"></a>
+          <div class="tool-nav-body tool-nav-body--has-ext">
+            <a class="tool-nav-main" href="geostrength.html">
+              <span class="tool-nav-name">GeoStrength<span class="tool-nav-badge">Live</span></span>
+              <span class="tool-nav-desc">Rock mass classification and slope stability — GSI, Hoek–Brown, wedge analysis, and Najd Δθ modules.</span>
+              <span class="tool-nav-go">Open &#8594;</span>
+            </a>
+            <a class="extension-link extension-link--in-card" href="rock-slope-reinforcement-najd.html">
+              <span class="ext-arrow" aria-hidden="true">&#8627;</span>
+              <span><strong>Rock Slope Reinforcement Helper</strong> &mdash; bolt spacing &amp; target FS (extends GeoStrength LEM)</span>
+              <span class="ext-meta">Extension</span>
+            </a>
           </div>
-        </a>
+        </div>
         <div class="tool-art-switch" data-tool="geostrength" aria-label="GeoStrength featured art">
           <span class="tool-art-switch-label">Featured art</span>
           <div class="tool-art-switch-controls">
@@ -224,11 +238,6 @@
           <div class="tool-art-switch-dots" role="tablist" aria-label="GeoStrength art styles"><button type="button" class="tool-art-switch-dot is-active" data-index="0" role="tab" aria-selected="true" aria-label="Style 1"></button><button type="button" class="tool-art-switch-dot" data-index="1" role="tab" aria-selected="false" aria-label="Style 2"></button><button type="button" class="tool-art-switch-dot" data-index="2" role="tab" aria-selected="false" aria-label="Style 3"></button></div>
         </div>
       </div>
-      <a class="extension-link" href="rock-slope-reinforcement-najd.html">
-        <span class="ext-arrow" aria-hidden="true">&#8627;</span>
-        <span><strong>Rock Slope Reinforcement Helper</strong> &mdash; bolt spacing &amp; target FS (extends GeoStrength LEM)</span>
-        <span class="ext-meta">Extension</span>
-      </a>
       <div class="tool-row">
         <a class="tool-nav-item" href="geo-pavement-toolkit.html">
           <div class="tool-nav-art" data-tool="pavement" role="img" aria-label="Geotechnical &amp; Pavement Toolkit artwork"></div>
