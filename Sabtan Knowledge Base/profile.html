@@ -49,6 +49,23 @@
   .topbar a:hover{color:var(--graphite);}
   .topbar span{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-style:italic;}
 
+  .vault-back-btn{
+    display:inline-flex;align-items:center;gap:.45rem;
+    padding:.58rem 1.05rem;border:1px solid var(--line);border-radius:999px;
+    background:var(--paper);color:var(--blue-dk);text-decoration:none;
+    font-family:'Lora',serif;font-style:normal;font-weight:600;font-size:.84rem;
+    letter-spacing:.04em;box-shadow:0 4px 14px rgba(55,45,30,.07);
+    transition:border-color .2s, box-shadow .2s, color .2s, background .2s;
+  }
+  .vault-back-btn:hover{
+    border-color:var(--copper);color:var(--copper-dk);background:#fff;
+    box-shadow:0 8px 22px rgba(55,45,30,.1);
+  }
+  .page-back-nav{display:flex;justify-content:flex-start;margin:0 0 1.6rem;}
+  .page-back-nav--bottom{
+    max-width:var(--max);margin:0 auto;padding:0 2rem 2rem;
+  }
+  footer .vault-back-btn{margin-bottom:1.25rem;}
   .kicker{font-family:'Lora',serif;font-style:italic;font-size:.72rem;font-weight:600;letter-spacing:.16em;
     text-transform:uppercase;color:var(--copper);}
 
@@ -173,7 +190,7 @@
 <body>
 
 <nav class="topbar" aria-label="Knowledge base">
-  <a href="../index.html">← Knowledge Base</a>
+  <a class="vault-back-btn" href="../index.html">← Knowledge Base Home</a>
   <span>Executive Capability Profile</span>
 </nav>
 
@@ -369,6 +386,10 @@
       </figcaption>
     </figure>
   </section>
+
+  <nav class="page-back-nav page-back-nav--bottom" aria-label="Back to vault">
+    <a class="vault-back-btn" href="../index.html">← Knowledge Base Home</a>
+  </nav>
 
 </main>
 

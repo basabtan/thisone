@@ -78,6 +78,40 @@
       max-width: 640px;
       margin-bottom: 32px;
     }
+    .vault-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 253, 248, 0.95);
+      color: var(--blue-dk);
+      text-decoration: none;
+      font-family: "Lora", serif;
+      font-size: 14px;
+      font-weight: 600;
+      font-style: normal;
+      letter-spacing: 0.02em;
+      box-shadow: 0 4px 14px rgba(55, 45, 30, 0.07);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+    }
+    .vault-back-btn:hover {
+      border-color: var(--green);
+      color: var(--graphite);
+      box-shadow: 0 8px 22px rgba(55, 45, 30, 0.1);
+    }
+    .page-back-nav {
+      display: flex;
+      justify-content: flex-start;
+      margin-bottom: 24px;
+    }
+    .page-back-nav--bottom {
+      margin-top: 8px;
+      margin-bottom: 0;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
     .divider {
       width: 56px;
       height: 2px;
@@ -114,21 +148,22 @@
       text-decoration: none;
       color: inherit;
       overflow: hidden;
+      cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
       min-width: 0;
     }
 
-    .tool-row:has(.tool-nav-link:hover) .tool-nav-item,
-    .tool-nav-item:has(.tool-nav-link:hover) {
+    .tool-nav-item:hover,
+    .tool-nav-item:focus-visible {
       transform: translateY(-2px);
       border-color: var(--green);
       box-shadow: 0 22px 48px rgba(55, 45, 30, 0.14);
+      outline: none;
     }
 
-    .tool-nav-link {
-      display: contents;
-      color: inherit;
-      text-decoration: none;
+    .tool-nav-item:focus-visible {
+      outline: 2px solid var(--green);
+      outline-offset: 3px;
     }
 
     .tool-nav-art {
@@ -305,8 +340,7 @@
       align-self: center;
     }
 
-    .tool-nav-item:hover .tool-nav-go,
-    .tool-nav-item:has(.tool-nav-link:hover) .tool-nav-go {
+    .tool-nav-item:hover .tool-nav-go {
       color: var(--blue-dk);
     }
 
@@ -448,6 +482,9 @@
 </head>
 <body>
   <main class="page">
+    <nav class="page-back-nav" aria-label="Back to vault">
+      <a class="vault-back-btn" href="index.html">← Knowledge Base Home</a>
+    </nav>
     <p class="kicker">Geological tools</p>
     <h1>Instruments</h1>
     <p class="lead">Small applications for calculating geological variables — stress, slip, focal mechanisms, and related quantities used across the Najd programme.</p>
@@ -472,14 +509,12 @@
           </div>
           <span class="tool-art-switch-caption">Compass dial</span>
         </div>
-        <article class="tool-nav-item">
+        <a class="tool-nav-item" href="vtest-najd.html">
           <div class="tool-nav-art is-placeholder" data-tool="vtest" role="img" aria-label="Artwork placeholder"></div>
-          <a class="tool-nav-link" href="vtest-najd.html">
-            <span class="tool-nav-name">V-test Dashboard<span class="tool-nav-badge">Live</span></span>
-            <span class="tool-nav-desc">Test preferred orientation (μ₀) for Najd fault sites — interactive compass, presets, and live statistics.</span>
-            <span class="tool-nav-go">Open &#8594;</span>
-          </a>
-        </article>
+          <span class="tool-nav-name">V-test Dashboard<span class="tool-nav-badge">Live</span></span>
+          <span class="tool-nav-desc">Test preferred orientation (μ₀) for Najd fault sites — interactive compass, presets, and live statistics.</span>
+          <span class="tool-nav-go">Open &#8594;</span>
+        </a>
       </div>
       <div class="tool-row">
         <div class="tool-art-switch" data-tool="tilt" aria-label="Tilt level featured art">
@@ -497,14 +532,12 @@
           </div>
           <span class="tool-art-switch-caption">Bubble level</span>
         </div>
-        <article class="tool-nav-item">
+        <a class="tool-nav-item" href="najd-tilt-level.html">
           <div class="tool-nav-art is-placeholder" data-tool="tilt" role="img" aria-label="Artwork placeholder"></div>
-          <a class="tool-nav-link" href="najd-tilt-level.html">
-            <span class="tool-nav-name">Surface Tilt Level<span class="tool-nav-badge">Live</span></span>
-            <span class="tool-nav-desc">Field utility using your phone sensors — read total tilt, slope, roll, pitch, and lower direction on a surface.</span>
-            <span class="tool-nav-go">Open &#8594;</span>
-          </a>
-        </article>
+          <span class="tool-nav-name">Surface Tilt Level<span class="tool-nav-badge">Live</span></span>
+          <span class="tool-nav-desc">Field utility using your phone sensors — read total tilt, slope, roll, pitch, and lower direction on a surface.</span>
+          <span class="tool-nav-go">Open &#8594;</span>
+        </a>
       </div>
       <div class="tool-row">
         <div class="tool-art-switch" data-tool="geostrength" aria-label="GeoStrength featured art">
@@ -522,14 +555,12 @@
           </div>
           <span class="tool-art-switch-caption">Slope wedge</span>
         </div>
-        <article class="tool-nav-item">
+        <a class="tool-nav-item" href="geostrength.html">
           <div class="tool-nav-art is-placeholder" data-tool="geostrength" role="img" aria-label="Artwork placeholder"></div>
-          <a class="tool-nav-link" href="geostrength.html">
-            <span class="tool-nav-name">GeoStrength<span class="tool-nav-badge">Live</span></span>
-            <span class="tool-nav-desc">Rock mass classification and slope stability — GSI, Hoek–Brown, wedge analysis, and Najd Δθ modules.</span>
-            <span class="tool-nav-go">Open &#8594;</span>
-          </a>
-        </article>
+          <span class="tool-nav-name">GeoStrength<span class="tool-nav-badge">Live</span></span>
+          <span class="tool-nav-desc">Rock mass classification and slope stability — GSI, Hoek–Brown, wedge analysis, and Najd Δθ modules.</span>
+          <span class="tool-nav-go">Open &#8594;</span>
+        </a>
       </div>
       <a class="tool-extension-link" href="rock-slope-reinforcement-najd.html">
         <span class="ext-arrow" aria-hidden="true">↳</span>
@@ -552,18 +583,20 @@
           </div>
           <span class="tool-art-switch-caption">Layer stack</span>
         </div>
-        <article class="tool-nav-item">
+        <a class="tool-nav-item" href="geo-pavement-toolkit.html">
           <div class="tool-nav-art is-placeholder" data-tool="pavement" role="img" aria-label="Artwork placeholder"></div>
-          <a class="tool-nav-link" href="geo-pavement-toolkit.html">
-            <span class="tool-nav-name">Geotechnical &amp; Pavement Toolkit<span class="tool-nav-badge">Live</span></span>
-            <span class="tool-nav-desc">Foundation bearing capacity, subgrade CBR, plate bearing test, and flexible-pavement design — live calculations with working shown.</span>
-            <span class="tool-nav-go">Open &#8594;</span>
-          </a>
-        </article>
+          <span class="tool-nav-name">Geotechnical &amp; Pavement Toolkit<span class="tool-nav-badge">Live</span></span>
+          <span class="tool-nav-desc">Foundation bearing capacity, subgrade CBR, plate bearing test, and flexible-pavement design — live calculations with working shown.</span>
+          <span class="tool-nav-go">Open &#8594;</span>
+        </a>
       </div>
     </nav>
 
     <p class="note">More calculators will be added to this list as they are built.</p>
+
+    <nav class="page-back-nav page-back-nav--bottom" aria-label="Back to vault">
+      <a class="vault-back-btn" href="index.html">← Knowledge Base Home</a>
+    </nav>
   </main>
 
   <script src="/shared/nav-strip.js"></script>
