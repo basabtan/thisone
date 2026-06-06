@@ -803,6 +803,56 @@
     }
   }
 
+  function bindAtlasAssistantAnchor(root) {
+    if (!isAtlasPage() || !root) return;
+
+    var gap = 16;
+
+    function syncAtlasFab() {
+      var minimap = document.getElementById('minimap');
+      var mmToggle = document.getElementById('mmToggle');
+      var anchor = null;
+
+      if (minimap && !minimap.classList.contains('hidden')) {
+        anchor = minimap;
+      } else if (mmToggle && mmToggle.style.display !== 'none') {
+        anchor = mmToggle;
+      }
+
+      if (anchor) {
+        var rect = anchor.getBoundingClientRect();
+        root.style.bottom = (window.innerHeight - rect.top + gap) + 'px';
+        root.style.right = Math.max(12, window.innerWidth - rect.right) + 'px';
+      } else {
+        root.style.bottom = '18px';
+        root.style.right = '18px';
+      }
+    }
+
+    syncAtlasFab();
+    requestAnimationFrame(function () {
+      requestAnimationFrame(syncAtlasFab);
+    });
+    window.addEventListener('resize', syncAtlasFab);
+    window.addEventListener('sabtan-atlas-ready', syncAtlasFab);
+
+    var minimap = document.getElementById('minimap');
+    if (minimap) {
+      if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(syncAtlasFab).observe(minimap);
+      }
+      new MutationObserver(syncAtlasFab).observe(minimap, {
+        attributes: true,
+        attributeFilter: ['class', 'style'],
+      });
+    }
+
+    var mmToggle = document.getElementById('mmToggle');
+    var mmX = document.getElementById('mmX');
+    if (mmToggle) mmToggle.addEventListener('click', function () { setTimeout(syncAtlasFab, 0); });
+    if (mmX) mmX.addEventListener('click', function () { setTimeout(syncAtlasFab, 0); });
+  }
+
   function mountUI() {
     var settings = readSettings();
     var pendingAttachment = null;
@@ -877,6 +927,7 @@
 
     document.body.appendChild(root);
     tryMountNavDesignSwitch(root.querySelector('.sabtan-assistant-fab-col'));
+    bindAtlasAssistantAnchor(root);
 
     var toggle = document.getElementById('sabtan-assistant-toggle');
     var panel = document.getElementById('sabtan-assistant-panel');
