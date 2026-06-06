@@ -1,7 +1,7 @@
 /* ════════════════════════════════════════════════════════════════
    PANELS — DetailPanel (slide-in edit) + CompareModal
    ════════════════════════════════════════════════════════════════ */
-const { useState: useStateP, useEffect: useEffectP, useMemo: useMemoP } = React;
+const { useState: useStateP, useEffect: useEffectP, useMemo: useMemoP, useRef: useRefP } = React;
 
 function fallbackPanelOrigin(){
   if(typeof window === 'undefined') return { top: 120, left: 80, width: 280, height: 72 };
@@ -96,8 +96,10 @@ function IdeaFieldSection({
 function DetailPanel({
   idea, open, originRect, getOriginRect, onClose, activeAuthor, category,
   onPatch, onDelete, onAddComment, onRemoveComment, onAddTag, onRemoveTag,
-  allTags,
+  onAttachFiles, onRemoveAttachment, allTags,
 }){
+  const fileInputRef = useRefP(null);
+  const { dragOver, dropHandlers } = useCardFileDrop(files => onAttachFiles(idea?.id, files));
   // Local draft state for fields, to keep edits buttery + dispatch on change
   const [draft, setDraft] = useStateP({});
   useEffectP(() => {
@@ -256,7 +258,10 @@ function DetailPanel({
   return (
     <>
       <div className={`panel-overlay ${expanded ? 'open' : ''}`} onClick={onClose}/>
-      <aside className={`detail-panel ${expanded ? 'open' : ''} ${editing ? 'editing' : ''}`} style={panelStyle}>
+      <aside className={`detail-panel ${expanded ? 'open' : ''} ${editing ? 'editing' : ''} ${dragOver ? 'panel-drop-over' : ''}`}
+             style={panelStyle}
+             {...dropHandlers}>
+        {dragOver && <div className="panel-drop-hint">Drop files to attach</div>}
         <div className="panel-head">
           <div className="panel-head-meta">
             {editing
@@ -302,6 +307,22 @@ function DetailPanel({
                   suggestions={allTags}
                   existingTags={idea.tags || []}/>
               : (idea.tags || []).length === 0 && <span className="d-tag-empty">no tags</span>}
+          </div>
+
+          <div className="d-attachments-bar">
+            <IdeaAttachmentsList attachments={idea.attachments}
+                                 editing={editing}
+                                 onRemove={aid => onRemoveAttachment(idea.id, aid)}/>
+            <input ref={fileInputRef} type="file" multiple className="d-attach-input"
+                   onChange={e => {
+                     if(e.target.files?.length) onAttachFiles(idea.id, e.target.files);
+                     e.target.value = '';
+                   }}/>
+            <button type="button" className="d-attach-btn"
+                    onClick={() => fileInputRef.current?.click()}>
+              📎 Attach document
+            </button>
+            <span className="d-attach-hint">or drag a file onto this card</span>
           </div>
 
           {template.fields.map(field => (

@@ -4,7 +4,7 @@
 const { useState: useStateV, useRef: useRefV, useMemo: useMemoV } = React;
 
 /* ─── LIST VIEW ─── */
-function ListView({ ideas, search, onOpen, compareMode, selectedIds, onToggleSelect }){
+function ListView({ ideas, search, onOpen, compareMode, selectedIds, onToggleSelect, onAttachFiles }){
   if(ideas.length === 0){
     return <EmptyState title="No ideas match" icon="∅"
               text="Try removing a filter or clearing the search."/>;
@@ -16,17 +16,22 @@ function ListView({ ideas, search, onOpen, compareMode, selectedIds, onToggleSel
                       onOpen={(e) => onOpen(idea.id, e)}
                       compareMode={compareMode}
                       selected={selectedIds.includes(idea.id)}
-                      onToggleSelect={() => onToggleSelect(idea.id)}/>
+                      onToggleSelect={() => onToggleSelect(idea.id)}
+                      onAttachFiles={onAttachFiles}/>
       ))}
     </div>
   );
 }
 
-function IdeaListCard({ idea, search, onOpen, compareMode, selected, onToggleSelect }){
+function IdeaListCard({ idea, search, onOpen, compareMode, selected, onToggleSelect, onAttachFiles }){
+  const { dragOver, dropHandlers } = useCardFileDrop(files => onAttachFiles(idea.id, files));
+
   return (
-    <article className={`ic s-${idea.status} ${selected ? 'selected' : ''}`}
+    <article className={`ic s-${idea.status} ${selected ? 'selected' : ''} ${dragOver ? 'ic-drop-over' : ''}`}
              data-idea-id={idea.id}
-             onClick={onOpen}>
+             onClick={onOpen}
+             {...dropHandlers}>
+      {dragOver && <div className="ic-drop-hint">Drop to attach</div>}
       <div className="ic-bar"></div>
       {compareMode && (
         <div className={`ic-checkbox ${selected ? 'checked' : ''}`}
@@ -62,6 +67,7 @@ function IdeaListCard({ idea, search, onOpen, compareMode, selected, onToggleSel
           })}
         </div>
         <div className="ic-stats">
+          <IdeaAttachmentStat attachments={idea.attachments}/>
           {idea.comments && idea.comments.length > 0 && (
             <span><span style={{fontStyle:'normal'}}>💬</span> {idea.comments.length}</span>
           )}
@@ -72,7 +78,7 @@ function IdeaListCard({ idea, search, onOpen, compareMode, selected, onToggleSel
 }
 
 /* ─── KANBAN VIEW ─── */
-function KanbanView({ ideas, search, onOpen, onMoveStatus }){
+function KanbanView({ ideas, search, onOpen, onMoveStatus, onAttachFiles }){
   const [draggingId, setDraggingId] = useStateV(null);
   const [overCol, setOverCol] = useStateV(null);
 
@@ -89,6 +95,7 @@ function KanbanView({ ideas, search, onOpen, onMoveStatus }){
     try{ e.dataTransfer.setData('text/plain', id); }catch(_){}
   }
   function handleDragOver(e, status){
+    if(hasFileTransfer(e)) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     if(overCol !== status) setOverCol(status);
@@ -97,6 +104,7 @@ function KanbanView({ ideas, search, onOpen, onMoveStatus }){
     if(overCol === status) setOverCol(null);
   }
   function handleDrop(e, status){
+    if(hasFileTransfer(e)) return;
     e.preventDefault();
     if(draggingId) onMoveStatus(draggingId, status);
     setDraggingId(null); setOverCol(null);
@@ -125,6 +133,7 @@ function KanbanView({ ideas, search, onOpen, onMoveStatus }){
               <KanbanCard key={idea.id} idea={idea} search={search}
                           dragging={draggingId === idea.id}
                           onOpen={(e) => onOpen(idea.id, e)}
+                          onAttachFiles={onAttachFiles}
                           onDragStart={e => handleDragStart(e, idea.id)}
                           onDragEnd={handleDragEnd}/>
             ))}
@@ -135,14 +144,18 @@ function KanbanView({ ideas, search, onOpen, onMoveStatus }){
   );
 }
 
-function KanbanCard({ idea, search, dragging, onOpen, onDragStart, onDragEnd }){
+function KanbanCard({ idea, search, dragging, onOpen, onAttachFiles, onDragStart, onDragEnd }){
+  const { dragOver, dropHandlers } = useCardFileDrop(files => onAttachFiles(idea.id, files));
+
   return (
-    <div className={`kc-card ${dragging ? 'dragging' : ''}`}
+    <div className={`kc-card ${dragging ? 'dragging' : ''} ${dragOver ? 'kc-drop-over' : ''}`}
          data-idea-id={idea.id}
          draggable
          onDragStart={onDragStart}
          onDragEnd={onDragEnd}
-         onClick={onOpen}>
+         onClick={onOpen}
+         {...dropHandlers}>
+      {dragOver && <div className="ic-drop-hint">Drop to attach</div>}
       <div className="kc-card-title">
         {idea.title
           ? highlightText(idea.title, search)
@@ -156,6 +169,7 @@ function KanbanCard({ idea, search, dragging, onOpen, onDragStart, onDragEnd }){
       )}
       <div className="kc-card-foot">
         <AuthorChip author={idea.author} showName={false}/>
+        <IdeaAttachmentStat attachments={idea.attachments}/>
         {idea.comments && idea.comments.length > 0 && (
           <span className="kc-card-comments">💬 {idea.comments.length}</span>
         )}
@@ -165,7 +179,7 @@ function KanbanCard({ idea, search, dragging, onOpen, onDragStart, onDragEnd }){
 }
 
 /* ─── TIMELINE VIEW ─── */
-function TimelineView({ ideas, search, onOpen }){
+function TimelineView({ ideas, search, onOpen, onAttachFiles }){
   // Group ideas by relative time
   const grouped = useMemoV(() => {
     const map = {};
@@ -190,30 +204,45 @@ function TimelineView({ ideas, search, onOpen }){
         <div key={g.label} className="tl-group">
           <div className="tl-group-label">{g.label}</div>
           {g.items.map(idea => (
-            <div key={idea.id} className={`tl-item s-${idea.status}`}>
-              <div className="tl-dot"></div>
-              <div className="tl-card" data-idea-id={idea.id} onClick={(e) => onOpen(idea.id, e)}>
-                <div className="tl-time">
-                  {relTime(idea.updated || idea.created)} ·
-                  {idea.updated && idea.updated !== idea.created ? ' edited' : ' created'}
-                </div>
-                <div className="tl-title">
-                  {idea.title
-                    ? highlightText(idea.title, search)
-                    : <em style={{color:'var(--soft)',fontStyle:'italic'}}>Untitled idea</em>}
-                </div>
-                {idea.summary && (
-                  <div className="tl-summary">{highlightText(idea.summary, search)}</div>
-                )}
-                <div className="tl-meta">
-                  <StatusPill status={idea.status}/>
-                  <AuthorChip author={idea.author}/>
-                </div>
-              </div>
-            </div>
+            <TimelineCard key={idea.id} idea={idea} search={search}
+                          onOpen={(e) => onOpen(idea.id, e)}
+                          onAttachFiles={onAttachFiles}/>
           ))}
         </div>
       ))}
+    </div>
+  );
+}
+
+function TimelineCard({ idea, search, onOpen, onAttachFiles }){
+  const { dragOver, dropHandlers } = useCardFileDrop(files => onAttachFiles(idea.id, files));
+
+  return (
+    <div className={`tl-item s-${idea.status}`}>
+      <div className="tl-dot"></div>
+      <div className={`tl-card ${dragOver ? 'ic-drop-over' : ''}`}
+           data-idea-id={idea.id}
+           onClick={onOpen}
+           {...dropHandlers}>
+        {dragOver && <div className="ic-drop-hint">Drop to attach</div>}
+        <div className="tl-time">
+          {relTime(idea.updated || idea.created)} ·
+          {idea.updated && idea.updated !== idea.created ? ' edited' : ' created'}
+        </div>
+        <div className="tl-title">
+          {idea.title
+            ? highlightText(idea.title, search)
+            : <em style={{color:'var(--soft)',fontStyle:'italic'}}>Untitled idea</em>}
+        </div>
+        {idea.summary && (
+          <div className="tl-summary">{highlightText(idea.summary, search)}</div>
+        )}
+        <div className="tl-meta">
+          <StatusPill status={idea.status}/>
+          <AuthorChip author={idea.author}/>
+          <IdeaAttachmentStat attachments={idea.attachments}/>
+        </div>
+      </div>
     </div>
   );
 }

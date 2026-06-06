@@ -146,6 +146,84 @@ function ActiveFilters({ statusFilters, tagFilters, authorFilter, search, onClea
   );
 }
 
+/* ─── File drop on idea cards ─── */
+function useCardFileDrop(onFiles){
+  const [dragOver, setDragOver] = useStateC(false);
+  const depth = useRefC(0);
+
+  function onDragEnter(e){
+    if(!hasFileTransfer(e)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    depth.current += 1;
+    setDragOver(true);
+  }
+  function onDragLeave(e){
+    if(!hasFileTransfer(e)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    depth.current -= 1;
+    if(depth.current <= 0){ depth.current = 0; setDragOver(false); }
+  }
+  function onDragOver(e){
+    if(!hasFileTransfer(e)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'copy';
+  }
+  async function onDrop(e){
+    if(!hasFileTransfer(e) || !e.dataTransfer.files?.length) return;
+    e.preventDefault();
+    e.stopPropagation();
+    depth.current = 0;
+    setDragOver(false);
+    await onFiles(e.dataTransfer.files);
+  }
+
+  return { dragOver, dropHandlers: { onDragEnter, onDragLeave, onDragOver, onDrop } };
+}
+
+function IdeaAttachmentStat({ attachments }){
+  const list = attachments || [];
+  if(!list.length) return null;
+  const label = list.length === 1
+    ? list[0].name
+    : list.length + ' files';
+  return (
+    <span className="idea-attach-stat" title={list.map(a => a.name).join('\n')}>
+      <span style={{fontStyle:'normal'}}>📎</span> {label}
+    </span>
+  );
+}
+
+function IdeaAttachmentsList({ attachments, editing, onRemove }){
+  const list = attachments || [];
+  if(!list.length) return null;
+  return (
+    <div className="idea-attachments">
+      {list.map(att => (
+        <span key={att.id} className="idea-attach-chip">
+          <button type="button" className="idea-attach-open"
+                  title={formatFileSize(att.size) + ' · click to open'}
+                  onClick={e => { e.stopPropagation(); openIdeaAttachment(att); }}>
+            📎 {att.name}
+          </button>
+          {editing && (
+            <button type="button" className="idea-attach-rm"
+                    title="Remove attachment"
+                    onClick={e => { e.stopPropagation(); onRemove(att.id); }}>×</button>
+          )}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function IdeasToast({ message }){
+  if(!message) return null;
+  return <div className="ideas-toast" role="status">{message}</div>;
+}
+
 /* ─── Empty state ─── */
 function EmptyState({ icon = '∅', title, text, action }){
   return (
@@ -299,5 +377,6 @@ function ShortcutsOverlay({ onClose }){
 
 Object.assign(window, {
   StatusPill, AuthorChip, StatusSelect, AutoTextarea, TagInput,
+  useCardFileDrop, IdeaAttachmentStat, IdeaAttachmentsList, IdeasToast,
   ActiveFilters, EmptyState, Sidebar, ShortcutsOverlay,
 });

@@ -81,6 +81,7 @@ function IdeasWorkspace({ useIdeasHook, meta, category, onCategoryChange }){
   const {
     ideas, addIdea, patchIdea, moveStatus, deleteIdea,
     addComment, removeComment, addTag, removeTag,
+    addAttachments, removeAttachment,
   } = useIdeasHook();
   const [activeAuthor, setActiveAuthor] = useActiveAuthor();
 
@@ -101,8 +102,29 @@ function IdeasWorkspace({ useIdeasHook, meta, category, onCategoryChange }){
 
   const [showShortcuts, setShowShortcuts] = useStateA(false);
   const [showTip, setShowTip] = useStateA(true);
+  const [toast, setToast] = useStateA('');
 
   const searchInputRef = useRefA(null);
+
+  useEffectA(() => {
+    if(!toast) return;
+    const t = setTimeout(() => setToast(''), 4200);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const attachFilesToIdea = useCallbackA(async (ideaId, fileList) => {
+    if(!ideaId || !fileList?.length) return;
+    try {
+      const attachments = await readFilesAsAttachments(fileList, activeAuthor);
+      if(!attachments.length) return;
+      addAttachments(ideaId, attachments);
+      setToast(attachments.length === 1
+        ? 'Attached “' + attachments[0].name + '”'
+        : 'Attached ' + attachments.length + ' documents');
+    } catch (err) {
+      setToast(err?.message || 'Could not attach file');
+    }
+  }, [activeAuthor, addAttachments]);
 
   const allTags = useMemoA(() => {
     const set = new Set();
@@ -121,6 +143,7 @@ function IdeasWorkspace({ useIdeasHook, meta, category, onCategoryChange }){
           const hay = [
             i.title, i.summary, i.motivation, i.trigger, i.data, i.methods, i.effort,
             ...(i.tags || []),
+            ...((i.attachments || []).map(a => a.name)),
           ].join(' ').toLowerCase();
           if(!hay.includes(q)) return false;
         }
@@ -419,12 +442,15 @@ function IdeasWorkspace({ useIdeasHook, meta, category, onCategoryChange }){
           ) : view === 'list' ? (
             <ListView ideas={filtered} search={search} onOpen={openIdea}
                       compareMode={compareMode} selectedIds={selectedIds}
-                      onToggleSelect={toggleSelect}/>
+                      onToggleSelect={toggleSelect}
+                      onAttachFiles={attachFilesToIdea}/>
           ) : view === 'kanban' ? (
             <KanbanView ideas={filtered} search={search} onOpen={openIdea}
-                        onMoveStatus={moveStatus}/>
+                        onMoveStatus={moveStatus}
+                        onAttachFiles={attachFilesToIdea}/>
           ) : (
-            <TimelineView ideas={filtered} search={search} onOpen={openIdea}/>
+            <TimelineView ideas={filtered} search={search} onOpen={openIdea}
+                          onAttachFiles={attachFilesToIdea}/>
           )}
         </main>
       </div>
@@ -443,6 +469,8 @@ function IdeasWorkspace({ useIdeasHook, meta, category, onCategoryChange }){
         onRemoveComment={removeComment}
         onAddTag={addTag}
         onRemoveTag={removeTag}
+        onAttachFiles={attachFilesToIdea}
+        onRemoveAttachment={removeAttachment}
         allTags={allTags}
       />
 
@@ -467,6 +495,7 @@ function IdeasWorkspace({ useIdeasHook, meta, category, onCategoryChange }){
       )}
 
       {showShortcuts && <ShortcutsOverlay onClose={() => setShowShortcuts(false)}/>}
+      <IdeasToast message={toast}/>
 
       {showTip && (
         <div className="react-feature-tip">

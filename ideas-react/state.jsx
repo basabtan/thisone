@@ -137,6 +137,53 @@ function getHiddenSections(idea){
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
+const MAX_IDEA_ATTACHMENT_BYTES = 3 * 1024 * 1024;
+
+function formatFileSize(bytes){
+  if(bytes < 1024) return bytes + ' B';
+  if(bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function hasFileTransfer(e){
+  return !!(e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files'));
+}
+
+function readFilesAsAttachments(files, author){
+  const list = Array.from(files || []).filter(f => f && f.size > 0);
+  if(!list.length) return Promise.resolve([]);
+  return Promise.all(list.map(file => new Promise((resolve, reject) => {
+    if(file.size > MAX_IDEA_ATTACHMENT_BYTES){
+      reject(new Error('"' + file.name + '" is too large (max ' + formatFileSize(MAX_IDEA_ATTACHMENT_BYTES) + ' per file)'));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => resolve({
+      id: uid(),
+      name: file.name,
+      mimeType: file.type || 'application/octet-stream',
+      size: file.size,
+      dataUrl: reader.result,
+      added: Date.now(),
+      addedBy: author,
+    });
+    reader.onerror = () => reject(new Error('Could not read "' + file.name + '"'));
+    reader.readAsDataURL(file);
+  })));
+}
+
+function openIdeaAttachment(att){
+  if(!att?.dataUrl) return;
+  const link = document.createElement('a');
+  link.href = att.dataUrl;
+  link.download = att.name || 'attachment';
+  link.rel = 'noopener';
+  link.target = '_blank';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
 function escapeRegex(s){
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -355,7 +402,7 @@ function createUseIdeas(storageKey, seedIdeas){
       data: '', methods: '', effort: '',
       status: 'halfbaked',
       author,
-      tags: [], comments: [],
+      tags: [], comments: [], attachments: [],
       hiddenSections: ['trigger', 'data', 'methods', 'effort'],
       created: Date.now(), updated: Date.now(),
     };
@@ -403,10 +450,28 @@ function createUseIdeas(storageKey, seedIdeas){
       : { ...i, tags: (i.tags||[]).filter(t => t !== tag), updated: Date.now() }));
   }, [update]);
 
+  const addAttachments = useCallback((id, attachments) => {
+    if(!attachments?.length) return;
+    update(ideas => ideas.map(i => i.id !== id ? i : {
+      ...i,
+      attachments: [...(i.attachments || []), ...attachments],
+      updated: Date.now(),
+    }));
+  }, [update]);
+
+  const removeAttachment = useCallback((id, attachmentId) => {
+    update(ideas => ideas.map(i => i.id !== id ? i : {
+      ...i,
+      attachments: (i.attachments || []).filter(a => a.id !== attachmentId),
+      updated: Date.now(),
+    }));
+  }, [update]);
+
   return {
     ideas: state.ideas,
     addIdea, patchIdea, moveStatus, deleteIdea,
-    addComment, removeComment, addTag,     removeTag,
+    addComment, removeComment, addTag, removeTag,
+    addAttachments, removeAttachment,
   };
   };
 }
@@ -431,5 +496,7 @@ Object.assign(window, {
   STATUS_OPTS, STATUS_BY_ID, AUTHOR_LABEL,
   IDEA_FIELD_KEYS, IDEA_TEMPLATES, getIdeaTemplate, getHiddenSections,
   uid, escapeRegex, highlightText, relTime, fullDate, timeGroup,
+  MAX_IDEA_ATTACHMENT_BYTES, formatFileSize, hasFileTransfer,
+  readFilesAsAttachments, openIdeaAttachment,
   useIdeas, useResearchIdeas, useAppIdeas, useActiveAuthor,
 });

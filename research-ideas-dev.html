@@ -303,6 +303,16 @@
   .ic-tag{font-size:10px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.6);border:1px solid var(--line);color:var(--muted);font-style:italic;transition:all .12s}
   .ic-tag.match{background:var(--blue);color:#fffaf0;border-color:var(--blue)}
   .ic-stats{display:flex;align-items:center;gap:11px;font-size:11px;color:var(--soft);font-style:italic}
+  .idea-attach-stat{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ic-drop-over,.kc-drop-over,.tl-card.ic-drop-over,.detail-panel.panel-drop-over{
+    border-color:var(--blue)!important;box-shadow:0 0 0 3px rgba(47,83,103,0.14)!important;
+  }
+  .ic-drop-hint,.panel-drop-hint{
+    position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;
+    background:rgba(47,83,103,0.10);border:2px dashed var(--blue);border-radius:inherit;
+    font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--blue-dk);pointer-events:none;
+  }
+  .panel-drop-hint{border-radius:20px;font-size:13px}
 
   /* ────────────────────────────────────────
      KANBAN VIEW
@@ -330,7 +340,7 @@
     background:rgba(255,253,248,0.95);border:1px solid var(--line);border-radius:10px;
     padding:11px 13px;box-shadow:0 2px 6px rgba(55,45,30,0.06);cursor:grab;
     transition:transform .15s,box-shadow .2s,opacity .2s;
-    animation:fade-in .3s ease;
+    animation:fade-in .3s ease;position:relative;
   }
   .kc-card:hover{box-shadow:0 8px 18px rgba(55,45,30,0.13);transform:translateY(-2px)}
   .kc-card:active{cursor:grabbing}
@@ -371,7 +381,7 @@
   .tl-card{
     background:rgba(255,253,248,0.86);border:1px solid var(--line);border-radius:14px;
     padding:14px 18px;box-shadow:var(--shadow-sm);cursor:pointer;transition:all .2s;
-    animation:fade-in .35s ease;
+    animation:fade-in .35s ease;position:relative;
   }
   .tl-card:hover{transform:translateX(3px);box-shadow:0 12px 26px rgba(55,45,30,0.12);border-color:var(--soft)}
   .tl-time{font-size:10px;color:var(--soft);font-style:italic;margin-bottom:4px}
@@ -513,6 +523,37 @@
     background:none;border:none;text-align:left;
   }
   .d-tag-suggest-item:hover,.d-tag-suggest-item.active{background:rgba(47,83,103,0.10);color:var(--blue-dk)}
+
+  .d-attachments-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .d-attach-input{display:none}
+  .d-attach-btn{
+    font-size:11px;font-weight:600;padding:5px 12px;border-radius:999px;border:1px solid var(--line);
+    background:rgba(255,255,255,0.7);color:var(--blue-dk);cursor:pointer;font-family:inherit;
+    transition:background .12s,border-color .12s;
+  }
+  .d-attach-btn:hover{background:rgba(47,83,103,0.08);border-color:var(--blue)}
+  .d-attach-hint{font-size:10px;font-style:italic;color:var(--soft)}
+  .idea-attachments{display:flex;flex-wrap:wrap;gap:6px;width:100%}
+  .idea-attach-chip{
+    display:inline-flex;align-items:center;gap:2px;max-width:100%;
+    background:rgba(255,255,255,0.75);border:1px solid var(--line);border-radius:999px;overflow:hidden;
+  }
+  .idea-attach-open{
+    font-size:11px;font-style:italic;color:var(--muted);background:transparent;border:none;
+    padding:4px 10px;cursor:pointer;font-family:inherit;max-width:220px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .idea-attach-open:hover{color:var(--blue-dk)}
+  .idea-attach-rm{
+    border:none;background:transparent;color:var(--soft);cursor:pointer;font-size:14px;
+    padding:0 8px 0 0;line-height:1;
+  }
+  .idea-attach-rm:hover{color:var(--copper)}
+  .ideas-toast{
+    position:fixed;left:50%;bottom:88px;transform:translateX(-50%);z-index:120;
+    background:var(--graphite);color:#fffaf0;padding:10px 18px;border-radius:999px;
+    font-size:13px;box-shadow:var(--shadow);max-width:min(92vw,420px);text-align:center;
+  }
 
   .d-field{background:rgba(255,253,248,0.78);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;transition:border-color .15s}
   .d-field:focus-within{border-color:var(--copper)}
@@ -699,11 +740,11 @@
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
-<script type="text/babel" src="ideas-react/state.jsx?v=20260531g"></script>
-<script type="text/babel" src="ideas-react/components.jsx?v=20260531g"></script>
-<script type="text/babel" src="ideas-react/views.jsx?v=20260531g"></script>
-<script type="text/babel" src="ideas-react/panels.jsx?v=20260602b"></script>
-<script type="text/babel" src="ideas-react/app.jsx?v=20260602a"></script>
+<script type="text/babel" src="ideas-react/state.jsx?v=20260606a"></script>
+<script type="text/babel" src="ideas-react/components.jsx?v=20260606a"></script>
+<script type="text/babel" src="ideas-react/views.jsx?v=20260606a"></script>
+<script type="text/babel" src="ideas-react/panels.jsx?v=20260606a"></script>
+<script type="text/babel" src="ideas-react/app.jsx?v=20260606a"></script>
 <script src="/shared/nav-strip.js" data-nav-active="ideas"></script>
 <script src="/shared/assistant-chat.js"></script>
 
