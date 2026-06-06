@@ -12,6 +12,9 @@
   font-family:'Lora',Georgia,serif;
   display:flex;flex-direction:column;align-items:flex-end;gap:6px;
 }
+.sabtan-assistant-root.sabtan-assistant-on-atlas{
+  bottom:18px;
+}
 .sabtan-assistant-fab-col{
   display:flex;flex-direction:column;align-items:center;gap:6px;
 }

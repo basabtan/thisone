@@ -742,7 +742,7 @@
   }
 
   function mountNavDesignSwitch(anchorRoot) {
-    if (isVaultHomePage() || document.getElementById('sabtan-nav-design')) return;
+    if (isVaultHomePage() || isAtlasPage() || document.getElementById('sabtan-nav-design')) return;
     if (!document.getElementById('navstrip-shell')) return;
 
     var wrap = document.createElement('div');
@@ -793,7 +793,7 @@
   }
 
   function tryMountNavDesignSwitch(anchorRoot) {
-    if (isVaultHomePage()) return;
+    if (isVaultHomePage() || isAtlasPage()) return;
     mountNavDesignSwitch(anchorRoot);
     if (!document.getElementById('sabtan-nav-design') && document.getElementById('navstrip-shell') === null) {
       document.addEventListener('sabtan-navstrip-mounted', function onNavMounted() {
@@ -828,7 +828,7 @@
     }
 
     var root = document.createElement('div');
-    root.className = 'sabtan-assistant-root';
+    root.className = 'sabtan-assistant-root' + (isAtlasPage() ? ' sabtan-assistant-on-atlas' : '');
     root.style.setProperty('--sa-panel-w', settings.panelW + 'px');
     root.style.setProperty('--sa-panel-h', settings.panelH + 'px');
     root.style.setProperty('--sa-font-scale', String(settings.fontScale));
