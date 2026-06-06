@@ -13,6 +13,7 @@
   var EDITORIAL_ORDER = [
     "landing",
     "knowledge",
+    "atlas",
     "overview",
     "phase1",
     "ideas",
@@ -263,6 +264,7 @@
       { id: "ideas", label: "Ideas \u2192", href: link("research-ideas.html"), external: true, configurable: true },
       { id: "landing", label: "Home", href: link("index.html"), configurable: true },
       { id: "knowledge", label: "Knowledge Base", href: kbLink, configurable: true },
+      { id: "atlas", label: "Atlas", href: link("atlas.html"), configurable: true },
       { id: "overview", label: "Overview", href: link("najd-roadmap.html?layer=overview"), configurable: true },
       { id: "phase1", label: "Phase I", href: link("phase-1-papers.html"), configurable: true },
       { id: "paper1guide", label: "P1 Guide", href: link("paper-1-guide.html"), configurable: true },

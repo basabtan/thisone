@@ -1,0 +1,138 @@
+[
+  {
+    "name": "Najd Fault System",
+    "color": "#7C95AB",
+    "items": [
+      {
+        "id": "nfs-dash",
+        "kind": "embed",
+        "url": "Najd Fault System Dashboard.html",
+        "sourceUrl": "Najd Fault System Dashboard.html",
+        "title": "Structural Dashboard",
+        "sub": "Najd fault system"
+      },
+      {
+        "id": "nfs-roadmap",
+        "kind": "embed",
+        "url": "najd-roadmap.html",
+        "sourceUrl": "najd-roadmap.html",
+        "title": "Programme Roadmap",
+        "sub": "Phases I–III"
+      },
+      {
+        "id": "nfs-phase1",
+        "kind": "embed",
+        "url": "phase-1-papers.html",
+        "sourceUrl": "phase-1-papers.html",
+        "title": "Phase I Papers",
+        "sub": "Paper cards"
+      },
+      {
+        "id": "nfs-p1guide",
+        "kind": "embed",
+        "url": "paper-1-guide.html",
+        "sourceUrl": "paper-1-guide.html",
+        "title": "Paper 1 — Author Guide",
+        "sub": "Writing guide"
+      },
+      {
+        "id": "nfs-rock",
+        "kind": "embed",
+        "url": "rock-slope-reinforcement-najd.html",
+        "sourceUrl": "rock-slope-reinforcement-najd.html",
+        "title": "Rock-slope Reinforcement",
+        "sub": "Najd"
+      },
+      {
+        "id": "nfs-vtest",
+        "kind": "embed",
+        "url": "vtest-najd.html",
+        "sourceUrl": "vtest-najd.html",
+        "title": "V-test Dashboard",
+        "sub": "Circular statistics"
+      },
+      {
+        "id": "nfs-archive",
+        "kind": "embed",
+        "url": "najd1.html",
+        "sourceUrl": "najd1.html",
+        "title": "Earlier Overview",
+        "sub": "Archive"
+      }
+    ]
+  },
+  {
+    "name": "GeoStrength & Tools",
+    "color": "#C98368",
+    "items": [
+      {
+        "id": "gs-main",
+        "kind": "embed",
+        "url": "geostrength.html",
+        "sourceUrl": "geostrength.html",
+        "title": "GeoStrength",
+        "sub": "GSI & slope stability"
+      },
+      {
+        "id": "gs-pave",
+        "kind": "embed",
+        "url": "geo-pavement-toolkit.html",
+        "sourceUrl": "geo-pavement-toolkit.html",
+        "title": "Geo-Pavement Toolkit",
+        "sub": "Calculator"
+      },
+      {
+        "id": "tl-instr",
+        "kind": "embed",
+        "url": "instruments.html",
+        "sourceUrl": "instruments.html",
+        "title": "Instruments",
+        "sub": "Calculators & apps"
+      },
+      {
+        "id": "tl-tilt",
+        "kind": "embed",
+        "url": "najd-tilt-level.html",
+        "sourceUrl": "najd-tilt-level.html",
+        "title": "Surface Tilt Level",
+        "sub": "Phone sensor"
+      }
+    ]
+  },
+  {
+    "name": "Research Ideas",
+    "color": "#C29A4A",
+    "items": [
+      {
+        "id": "ri-app",
+        "kind": "embed",
+        "url": "research-ideas.html",
+        "sourceUrl": "research-ideas.html",
+        "title": "Research Ideas",
+        "sub": "Pipeline app"
+      }
+    ]
+  },
+  {
+    "name": "Profile & Library",
+    "color": "#5E7A6B",
+    "items": [
+      {
+        "id": "lib-profile",
+        "kind": "embed",
+        "url": "Sabtan Knowledge Base/profile.html",
+        "sourceUrl": "Sabtan Knowledge Base/profile.html",
+        "title": "Executive Profile",
+        "sub": "Prof. Abdullah Sabtan"
+      },
+      {
+        "id": "lib-hub",
+        "kind": "embed",
+        "url": "Sabtan Knowledge Base/index.html",
+        "sourceUrl": "Sabtan Knowledge Base/index.html",
+        "title": "Knowledge Base Hub",
+        "sub": "All sections"
+      }
+    ]
+  }
+]

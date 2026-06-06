@@ -645,6 +645,7 @@
     .hub-option.profile { --accent: #a5643a; }
     .hub-option.ideas { --accent: #b89344; }
     .hub-option.instruments { --accent: #496f61; }
+    .hub-option.atlas { --accent: #4a6b8a; }
     .hub-option.is-custom { --accent: #3d5248; }
 
     .opt-icon {
@@ -1048,6 +1049,17 @@
                   <span class="opt-title">Instruments</span>
                 </span>
               </a>
+              <a class="hub-disc hub-option atlas is-core" href="atlas.html" data-page-id="atlas">
+                <span class="opt-label">
+                  <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1"/>
+                  </svg>
+                  <span class="opt-title">Atlas</span>
+                </span>
+              </a>
             </div>
           </div>
           <div class="hub-ideas-panel" id="hub-ideas-panel" hidden>
@@ -1079,13 +1091,14 @@
     var picker = document.getElementById("hub-page-picker");
     var pickerList = document.getElementById("hub-picker-list");
     var SHORTCUT_KEY = "sabtan-hub-shortcuts";
-    var CORE_IDS = ["najd", "profile", "ideas", "instruments"];
+    var CORE_IDS = ["najd", "profile", "ideas", "instruments", "atlas"];
 
     var HUB_PAGES = [
       { id: "najd", title: "Najd", label: "Najd", hint: "Programme roadmap", href: "najd-roadmap.html", core: true },
       { id: "profile", title: "Profile", label: "Profile", hint: "Prof. Abdullah — executive profile", href: "Sabtan Knowledge Base/profile.html", core: true },
       { id: "ideas", title: "Ideas", label: "Ideas", hint: "Research and app ideas", href: "research-ideas.html?view=research", core: true },
       { id: "instruments", title: "Instruments", label: "Instruments", hint: "Geological calculators & apps", href: "instruments.html", core: true },
+      { id: "atlas", title: "Atlas", label: "Atlas", hint: "Infinite-canvas research table", href: "atlas.html", core: true },
       { id: "vtest", title: "V-test Dashboard", label: "V-test", hint: "Circular statistics — preferred orientation", href: "vtest-najd.html" },
       { id: "tilt-level", title: "Surface Tilt Level", label: "Tilt Level", hint: "Phone sensor field tilt & slope", href: "najd-tilt-level.html" },
       { id: "geostrength", title: "GeoStrength", label: "GeoStrength", hint: "GSI & slope stability calculator", href: "geostrength.html" },

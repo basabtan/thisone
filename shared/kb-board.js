@@ -79,6 +79,14 @@
       builtin: true,
     },
     {
+      id: "atlas",
+      sectionId: "sec-tools",
+      title: "Atlas — Research Table",
+      hint: "Infinite-canvas knowledge workspace",
+      href: "atlas.html",
+      builtin: true,
+    },
+    {
       id: "p1-guide",
       sectionId: "sec-urg-now",
       title: "Paper 1 — Author Guide",

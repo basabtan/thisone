@@ -7,6 +7,7 @@ Canonical names (use these in links and bookmarks):
 | File | Purpose |
 |------|---------|
 | `index.html` | Welcome landing — **Knowledge Base** centerpiece; Explore opens Enter Portal / Under Development |
+| `atlas.html` | Atlas — infinite-canvas Research Table (spatial hub) |
 | `najd-roadmap.html` | Full programme roadmap (Phases I–III, guides, checklist) |
 | `phase-1-papers.html` | Phase I paper cards with author morph expand (`phase1-react/` source) |
 | `research-ideas.html` | Research Ideas bundled React app (~1.9 MB, self-contained) |
