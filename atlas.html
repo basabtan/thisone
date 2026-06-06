@@ -1125,8 +1125,8 @@ function renderMini(){
   const v=document.createElement('div'); v.className='mm-view'; v.style.left=(offx+(vx-bx)*s)+'px'; v.style.top=(offy+(vy-by)*s)+'px'; v.style.width=(vw*s)+'px'; v.style.height=(vh*s)+'px'; mmInner.appendChild(v);
 }
 minimap.addEventListener('click',e=>{ if(e.target.closest('#mmX')) return; const m=mmInner._map; if(!m) return; const rect=minimap.getBoundingClientRect(); const mx=e.clientX-rect.left, my=e.clientY-rect.top; const surfX=m.bx+(mx-m.offx)/m.s, surfY=m.by+(my-m.offy)/m.s; const r=stage.getBoundingClientRect(); view.x=r.width/2-surfX*view.z; view.y=r.height/2-surfY*view.z; applyView(); save(); });
-document.getElementById('mmX').addEventListener('click',e=>{ e.stopPropagation(); minimap.classList.add('hidden'); document.getElementById('mmToggle').style.display='block'; });
-document.getElementById('mmToggle').addEventListener('click',()=>{ minimap.classList.remove('hidden'); document.getElementById('mmToggle').style.display='none'; renderMini(); });
+document.getElementById('mmX').addEventListener('click',e=>{ e.stopPropagation(); minimap.classList.add('hidden'); document.getElementById('mmToggle').style.display='block'; document.body.classList.add('atlas-minimap-hidden'); });
+document.getElementById('mmToggle').addEventListener('click',()=>{ minimap.classList.remove('hidden'); document.getElementById('mmToggle').style.display='none'; document.body.classList.remove('atlas-minimap-hidden'); renderMini(); });
 
 function frameAll(){ const bb=contentBBox(); if(!bb){ centerView(); return; } const r=stage.getBoundingClientRect(); const pad=80; const z=Math.min(2.2, Math.min((r.width-pad)/bb.w,(r.height-pad)/bb.h)); view.z=Math.max(0.18,z); view.x=r.width/2-(bb.x+bb.w/2)*view.z; view.y=r.height/2-(bb.y+bb.h/2)*view.z; applyView(); save(); }
 

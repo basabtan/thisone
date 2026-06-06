@@ -806,57 +806,10 @@
 
   function bindAtlasAssistantAnchor(root) {
     if (!isAtlasPage() || !root) return;
-
-    var gap = 56;
-
-    function syncAtlasFab() {
-      var minimap = document.getElementById('minimap');
-      var mmToggle = document.getElementById('mmToggle');
-      var toggle = root.querySelector('.sabtan-assistant-toggle');
-      var fabH = toggle ? toggle.offsetHeight : 52;
-      var anchor = null;
-
-      if (minimap && !minimap.classList.contains('hidden')) {
-        anchor = minimap;
-      } else if (mmToggle && mmToggle.style.display !== 'none') {
-        anchor = mmToggle;
-      }
-
-      if (anchor) {
-        var rect = anchor.getBoundingClientRect();
-        var top = rect.top - gap - fabH;
-        root.style.setProperty('top', Math.max(12, top) + 'px', 'important');
-        root.style.setProperty('bottom', 'auto', 'important');
-        root.style.setProperty('right', Math.max(12, window.innerWidth - rect.right) + 'px', 'important');
-      } else {
-        root.style.setProperty('top', 'auto', 'important');
-        root.style.setProperty('bottom', '18px', 'important');
-        root.style.setProperty('right', '18px', 'important');
-      }
-    }
-
-    syncAtlasFab();
-    requestAnimationFrame(function () {
-      requestAnimationFrame(syncAtlasFab);
-    });
-    window.addEventListener('resize', syncAtlasFab);
-    window.addEventListener('sabtan-atlas-ready', syncAtlasFab);
-
-    var minimap = document.getElementById('minimap');
-    if (minimap) {
-      if (typeof ResizeObserver !== 'undefined') {
-        new ResizeObserver(syncAtlasFab).observe(minimap);
-      }
-      new MutationObserver(syncAtlasFab).observe(minimap, {
-        attributes: true,
-        attributeFilter: ['class', 'style'],
-      });
-    }
-
-    var mmToggle = document.getElementById('mmToggle');
-    var mmX = document.getElementById('mmX');
-    if (mmToggle) mmToggle.addEventListener('click', function () { setTimeout(syncAtlasFab, 0); });
-    if (mmX) mmX.addEventListener('click', function () { setTimeout(syncAtlasFab, 0); });
+    root.style.removeProperty('top');
+    root.style.removeProperty('bottom');
+    root.style.removeProperty('right');
+    root.style.removeProperty('left');
   }
 
   function mountUI() {
