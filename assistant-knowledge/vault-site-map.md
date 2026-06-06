@@ -98,11 +98,11 @@ These URLs still work but redirect — prefer the target path:
 ## Navigation behaviour
 
 - Bottom **nav strip** (`shared/nav-strip.js`) on main pages — Ideas, Home, Atlas, Overview, Phase I, P1 Guide, Najd submenu.
-- **Atlas** (`atlas.html`) — infinite canvas; assistant uses `atlas_action` on-page and `open` / `recall` deep links.
+- **Atlas** (`atlas.html`) — infinite canvas research table; no assistant widget on this page (use deep links below to open items from other pages).
 - **Ideas** has two categories: **research** and **app**. Same page, different view: `?view=research` or `?view=app`.
 - **Instruments** is linked from the home Explore hub and from `instruments.html` tool cards.
 - Ideas data is stored in the **browser** (localStorage), not on a server.
-- Vault assistant chat appears on most pages; use `navigate_to_page` with a path from this map.
+- Vault assistant chat appears on most pages (not Atlas); use `navigate_to_page` with a path from this map.
 - **In-page cards** (Ideas detail panels, Paper 1 guide sections) use grow/morph animations. The assistant cannot “click” — use the deep-link fields below.
 
 ---
@@ -155,7 +155,7 @@ Or path only: `paper-1-guide.html?section=results`
 | Pin collection in sidebar | `atlas.html?recall=Najd Fault System` or `{ "path": "atlas.html", "recall": "Najd Fault System" }` |
 | Open item + recall | `atlas.html?open=nfs-roadmap&recall=Najd Fault System` |
 
-On-page actions (add note, open item, recall collection): use `atlas_action` when user is already on Atlas. See `atlas-workspace-guide.md`.
+To open Atlas content from the assistant on another page, use `navigate_to_page` with `open` / `recall` query args above. The assistant is not embedded on Atlas itself.
 
 Library item IDs include: `nfs-roadmap`, `nfs-dash`, `nfs-phase1`, `nfs-p1guide`, `gs-main`, `ri-app`, `lib-profile`.
 
