@@ -90,7 +90,8 @@
   }
 
   function isAtlasPage() {
-    return /atlas\.html/i.test(window.location.pathname);
+    if (/atlas/i.test(window.location.pathname)) return true;
+    return !!document.getElementById('minimap');
   }
 
   function getIdeasPrefillHint() {
@@ -806,11 +807,13 @@
   function bindAtlasAssistantAnchor(root) {
     if (!isAtlasPage() || !root) return;
 
-    var gap = 16;
+    var gap = 56;
 
     function syncAtlasFab() {
       var minimap = document.getElementById('minimap');
       var mmToggle = document.getElementById('mmToggle');
+      var toggle = root.querySelector('.sabtan-assistant-toggle');
+      var fabH = toggle ? toggle.offsetHeight : 52;
       var anchor = null;
 
       if (minimap && !minimap.classList.contains('hidden')) {
@@ -821,11 +824,14 @@
 
       if (anchor) {
         var rect = anchor.getBoundingClientRect();
-        root.style.bottom = (window.innerHeight - rect.top + gap) + 'px';
-        root.style.right = Math.max(12, window.innerWidth - rect.right) + 'px';
+        var top = rect.top - gap - fabH;
+        root.style.setProperty('top', Math.max(12, top) + 'px', 'important');
+        root.style.setProperty('bottom', 'auto', 'important');
+        root.style.setProperty('right', Math.max(12, window.innerWidth - rect.right) + 'px', 'important');
       } else {
-        root.style.bottom = '18px';
-        root.style.right = '18px';
+        root.style.setProperty('top', 'auto', 'important');
+        root.style.setProperty('bottom', '18px', 'important');
+        root.style.setProperty('right', '18px', 'important');
       }
     }
 

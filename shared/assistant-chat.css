@@ -13,7 +13,9 @@
   display:flex;flex-direction:column;align-items:flex-end;gap:6px;
 }
 .sabtan-assistant-root.sabtan-assistant-on-atlas{
-  bottom:calc(var(--atlas-minimap-bottom, 78px) + var(--atlas-minimap-h, 180px) + var(--atlas-assistant-gap, 16px));
+  bottom:auto !important;
+  top:calc(100vh - var(--atlas-minimap-bottom, 78px) - var(--atlas-minimap-h, 180px) - var(--atlas-assistant-gap, 56px) - var(--atlas-assistant-fab, 52px)) !important;
+  right:18px !important;
 }
 .sabtan-assistant-fab-col{
   display:flex;flex-direction:column;align-items:center;gap:6px;
@@ -327,6 +329,11 @@ body.sabtan-assistant-page-docked *{box-sizing:border-box}
 
 @media(max-width:680px){
   .sabtan-assistant-root{right:12px;bottom:88px}
+  .sabtan-assistant-root.sabtan-assistant-on-atlas{
+    bottom:auto !important;
+    top:calc(100vh - var(--atlas-minimap-bottom, 78px) - var(--atlas-minimap-h, 180px) - var(--atlas-assistant-gap, 56px) - var(--atlas-assistant-fab, 52px)) !important;
+    right:12px !important;
+  }
   .sabtan-assistant-panel{bottom:58px;--sa-panel-h:460px}
   .sabtan-assistant-toolbar{max-width:140px}
   .sabtan-assistant-root.is-docked{
