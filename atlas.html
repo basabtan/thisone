@@ -49,6 +49,16 @@
   .brand .kicker{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold-soft); font-weight:600}
   .brand h1{font-family:var(--serif); font-weight:500; font-size:25px; margin:4px 0 2px}
   .brand p{margin:0; font-size:12.5px; color:var(--dw-muted)}
+  .atlas-home-nav{display:flex; gap:8px; padding:0 18px 14px}
+  .atlas-home-nav a{
+    flex:1; text-align:center; text-decoration:none; font-family:var(--sans);
+    font-size:11.5px; font-weight:600; letter-spacing:.03em; padding:8px 10px; border-radius:999px;
+    border:1px solid var(--dw-field-border); background:var(--dw-field); color:var(--dw-text);
+    transition:background .12s, border-color .12s, color .12s;
+  }
+  .atlas-home-nav a:hover{background:var(--dw-hover); border-color:rgba(255,255,255,.22); color:#fff}
+  .atlas-home-nav a.primary{background:rgba(176,101,74,.24); border-color:rgba(176,101,74,.5); color:#F8E8DC}
+  .atlas-home-nav a.primary:hover{background:rgba(176,101,74,.38); border-color:var(--gold-soft)}
   .search{padding:0 18px 12px; position:relative}
   .search input{width:100%; padding:9px 12px; border-radius:999px; border:1px solid var(--dw-field-border);
     background:var(--dw-field); color:var(--dw-text); font-family:var(--sans); font-size:13px; outline:none}
@@ -214,8 +224,10 @@
   /* HUD */
   .hud{position:absolute; top:16px; right:18px; z-index:30; display:flex; gap:8px; align-items:center}
   .hud .pill{display:flex; align-items:center; gap:2px; background:rgba(251,248,241,.92); backdrop-filter:blur(6px); border:1px solid rgba(60,74,87,.14); border-radius:999px; padding:4px; box-shadow:var(--shadow-rest); position:relative}
-  .hud button{border:none; background:transparent; cursor:pointer; font-family:var(--sans); font-size:13px; font-weight:600; color:var(--slate); padding:6px 12px; border-radius:999px; transition:.12s}
-  .hud button:hover{background:rgba(60,74,87,.10)}
+  .hud button,.hud .hud-link{border:none; background:transparent; cursor:pointer; font-family:var(--sans); font-size:13px; font-weight:600; color:var(--slate); padding:6px 12px; border-radius:999px; transition:.12s; text-decoration:none; display:inline-flex; align-items:center}
+  .hud button:hover,.hud .hud-link:hover{background:rgba(60,74,87,.10)}
+  .hud .hud-link.home-link{color:var(--clay)}
+  .hud .hud-link.home-link:hover{background:rgba(176,101,74,.14)}
   .hud .zoom button{width:30px; padding:6px 0; font-size:15px; text-align:center}
   .hud .zlevel{font-size:11.5px; color:var(--ink-soft); min-width:38px; text-align:center; font-weight:600}
   .hud .danger:hover{background:var(--clay); color:#fff}
@@ -303,11 +315,13 @@
   body[data-theme="midnight"] .win-body table th,body[data-theme="midnight"] .win-body td{border-bottom-color:rgba(255,255,255,.10)}
   /* Midnight: top (HUD) + bottom (dock) controls keep their light pills, so use dark text for contrast */
   body[data-theme="midnight"] .hud button,
+  body[data-theme="midnight"] .hud .hud-link,
   body[data-theme="midnight"] .dock button,
   body[data-theme="midnight"] .board-tab,
   body[data-theme="midnight"] .board-add{color:#2b3138}
   body[data-theme="midnight"] .hud .zlevel{color:#3a424c}
   body[data-theme="midnight"] .hud button:hover,
+  body[data-theme="midnight"] .hud .hud-link:hover,
   body[data-theme="midnight"] .dock button:hover,
   body[data-theme="midnight"] .board-tab:hover,
   body[data-theme="midnight"] .board-add:hover{background:rgba(40,46,54,.12)}
@@ -359,6 +373,9 @@
         </svg>
       </div>
     </div>
+    <nav class="atlas-home-nav" aria-label="Return to vault">
+      <a href="index.html" class="primary">Home</a>
+    </nav>
     <div class="search"><input id="search" type="text" placeholder="Search to recall documents…" autocomplete="off"><div class="search-suggest" id="searchSuggest"></div></div>
     <div class="folders" id="folders"></div>
     <div class="drawer-foot">Drag the table to pan · scroll to zoom · drop images anywhere.</div>
@@ -376,6 +393,9 @@
     <div class="boards" id="boards"></div>
 
     <div class="hud">
+      <div class="pill">
+        <a class="hud-link home-link" href="index.html" title="Sabtan welcome hub">Home</a>
+      </div>
       <div class="pill"><button id="theme" title="Board theme">Theme ▾</button>
         <div class="menu" id="themeMenu"><button data-t="vellum">Najd Vellum</button><button data-t="pearl">Lustre Pearl</button><button data-t="porcelain">Porcelain</button><button data-t="midnight">Midnight Slate</button></div>
       </div>
