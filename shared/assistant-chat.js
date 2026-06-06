@@ -10,6 +10,8 @@
   var HISTORY_KEY = 'sabtan-assistant-history';
   var PANEL_OPEN_KEY = 'sabtan-assistant-panel-open';
   var SETTINGS_KEY = 'sabtan-assistant-settings';
+  var IDEAS_ACTIVITY_KEY = 'sabtan-ideas-activity-v1';
+  var IDEAS_BASELINE_KEY = 'sabtan-assistant-ideas-baseline';
   var DOCK_WIDTH_DEFAULT = 420;
   var DOCK_WIDTH_MIN = 320;
   var DOCK_WIDTH_MAX = 720;
@@ -97,6 +99,245 @@
     ].join(' ');
   }
 
+  function formatBytes(bytes) {
+    if (!bytes || bytes < 1024) return (bytes || 0) + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function formatWhen(ts) {
+    if (!ts) return 'unknown time';
+    try {
+      return new Date(ts).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' });
+    } catch (e) {
+      return String(ts);
+    }
+  }
+
+  function loadIdeasList(storageKey) {
+    try {
+      var raw = localStorage.getItem(storageKey);
+      var parsed = raw ? JSON.parse(raw) : null;
+      if (parsed && Array.isArray(parsed.ideas)) return parsed.ideas;
+    } catch (e) {}
+    return [];
+  }
+
+  function summarizeIdeaForAssistant(idea) {
+    var attachments = idea.attachments || [];
+    var lastAtt = null;
+    attachments.forEach(function (att) {
+      if (!lastAtt || (att.added || 0) > (lastAtt.added || 0)) lastAtt = att;
+    });
+    return {
+      id: idea.id,
+      updated: idea.updated || idea.created || 0,
+      created: idea.created || 0,
+      title: String(idea.title || '').trim() || 'Untitled idea',
+      status: idea.status || 'halfbaked',
+      tags: (idea.tags || []).slice(),
+      attachmentCount: attachments.length,
+      lastAttachmentName: lastAtt ? lastAtt.name : '',
+      lastAttachmentAdded: lastAtt ? lastAtt.added : 0,
+      summary: String(idea.summary || '').trim(),
+      motivation: String(idea.motivation || '').trim(),
+    };
+  }
+
+  function buildIdeasSnapshot(researchIdeas, appIdeas) {
+    var snap = { capturedAt: Date.now(), research: {}, app: {} };
+    researchIdeas.forEach(function (i) {
+      snap.research[i.id] = summarizeIdeaForAssistant(i);
+    });
+    appIdeas.forEach(function (i) {
+      snap.app[i.id] = summarizeIdeaForAssistant(i);
+    });
+    return snap;
+  }
+
+  function readIdeasBaseline() {
+    try {
+      var raw = sessionStorage.getItem(IDEAS_BASELINE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function writeIdeasBaseline(snapshot) {
+    try {
+      sessionStorage.setItem(IDEAS_BASELINE_KEY, JSON.stringify(snapshot));
+    } catch (e) {}
+  }
+
+  function clearIdeasBaseline() {
+    try {
+      sessionStorage.removeItem(IDEAS_BASELINE_KEY);
+    } catch (e) {}
+  }
+
+  function findGlobalLastIdeaAttachment(researchIdeas, appIdeas) {
+    var best = null;
+    function scan(ideas, category) {
+      ideas.forEach(function (idea) {
+        (idea.attachments || []).forEach(function (att) {
+          if (!best || (att.added || 0) > (best.added || 0)) {
+            best = {
+              name: att.name,
+              size: att.size,
+              mimeType: att.mimeType,
+              added: att.added,
+              addedBy: att.addedBy,
+              category: category,
+              ideaId: idea.id,
+              ideaTitle: String(idea.title || '').trim() || 'Untitled idea',
+            };
+          }
+        });
+      });
+    }
+    scan(researchIdeas, 'research');
+    scan(appIdeas, 'app');
+    return best;
+  }
+
+  function readIdeasActivityLog() {
+    try {
+      var raw = localStorage.getItem(IDEAS_ACTIVITY_KEY);
+      var list = raw ? JSON.parse(raw) : [];
+      return Array.isArray(list) ? list.slice(-20) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function appendIdeasActivity(entry) {
+    try {
+      var list = readIdeasActivityLog();
+      list.push(Object.assign({ t: Date.now() }, entry));
+      localStorage.setItem(IDEAS_ACTIVITY_KEY, JSON.stringify(list.slice(-40)));
+    } catch (e) {}
+  }
+
+  function diffIdeasSnapshots(baseline, current) {
+    if (!baseline) return [];
+    var changes = [];
+    ['research', 'app'].forEach(function (cat) {
+      var prev = baseline[cat] || {};
+      var cur = current[cat] || {};
+      Object.keys(cur).forEach(function (id) {
+        var c = cur[id];
+        var p = prev[id];
+        if (!p) {
+          changes.push({
+            type: 'new',
+            category: cat,
+            title: c.title,
+            status: c.status,
+            updated: c.updated,
+          });
+          return;
+        }
+        if (c.updated > p.updated) {
+          var detail = [];
+          if (c.title !== p.title) detail.push('title');
+          if (c.summary !== p.summary) detail.push('summary');
+          if (c.motivation !== p.motivation) detail.push('motivation');
+          if (c.status !== p.status) detail.push('status → ' + c.status);
+          if (c.attachmentCount > p.attachmentCount) {
+            detail.push('+' + (c.attachmentCount - p.attachmentCount) + ' attachment(s)');
+            if (c.lastAttachmentName) detail.push('latest file: ' + c.lastAttachmentName);
+          }
+          if (c.tags.join(',') !== p.tags.join(',')) detail.push('tags');
+          changes.push({
+            type: 'updated',
+            category: cat,
+            title: c.title,
+            ideaId: id,
+            updated: c.updated,
+            changedFields: detail.length ? detail : ['edited'],
+          });
+        }
+      });
+    });
+    changes.sort(function (a, b) { return (b.updated || 0) - (a.updated || 0); });
+    return changes;
+  }
+
+  function getIdeasWorkspaceContext() {
+    var research = loadIdeasList(STORAGE_KEY_RESEARCH);
+    var app = loadIdeasList(STORAGE_KEY_APP);
+    var snapshot = buildIdeasSnapshot(research, app);
+    var baseline = readIdeasBaseline();
+    var cardChanges = diffIdeasSnapshots(baseline, snapshot);
+    var lastAtt = findGlobalLastIdeaAttachment(research, app);
+    var activity = readIdeasActivityLog();
+    var lines = [
+      'IDEAS WORKSPACE (live from this browser — research + app idea cards in localStorage):',
+      'When the user asks about uploads or card changes, use this section. Idea-card attachments are separate from files attached to the assistant chat widget.',
+    ];
+
+    if (lastAtt) {
+      lines.push(
+        '',
+        'Last document attached to an idea card:',
+        '- file: ' + lastAtt.name,
+        '- when: ' + formatWhen(lastAtt.added),
+        '- size: ' + formatBytes(lastAtt.size),
+        '- idea: "' + lastAtt.ideaTitle + '" (' + lastAtt.category + ' ideas, id ' + lastAtt.ideaId + ')',
+        '- attached by: ' + (lastAtt.addedBy || 'unknown')
+      );
+    } else {
+      lines.push('', 'Last document on idea cards: none yet.');
+    }
+
+    if (cardChanges.length) {
+      lines.push('', 'Card changes since the user\'s previous assistant message:');
+      cardChanges.slice(0, 10).forEach(function (ch) {
+        if (ch.type === 'new') {
+          lines.push('- NEW ' + ch.category + ' card: "' + ch.title + '" (status: ' + ch.status + ', ' + formatWhen(ch.updated) + ')');
+        } else {
+          lines.push('- UPDATED ' + ch.category + ' card: "' + ch.title + '" — ' + ch.changedFields.join(', ') + ' (' + formatWhen(ch.updated) + ')');
+        }
+      });
+      if (cardChanges.length > 10) lines.push('- …and ' + (cardChanges.length - 10) + ' more change(s)');
+    } else if (baseline) {
+      lines.push('', 'Card changes since previous assistant message: none detected.');
+    } else {
+      lines.push('', 'Card change tracking: baseline will be set after this message (first message in session).');
+    }
+
+    var recentEvents = activity.slice(-6);
+    if (recentEvents.length) {
+      lines.push('', 'Recent idea workspace events:');
+      recentEvents.forEach(function (ev) {
+        if (ev.type === 'attachment_added') {
+          lines.push('- ' + formatWhen(ev.t) + ': attached "' + ev.fileName + '" to "' + ev.ideaTitle + '" (' + ev.category + ')');
+        } else if (ev.type === 'idea_created') {
+          lines.push('- ' + formatWhen(ev.t) + ': new ' + ev.category + ' card created');
+        } else if (ev.type === 'status_changed') {
+          lines.push('- ' + formatWhen(ev.t) + ': "' + ev.ideaTitle + '" (' + ev.category + ') status → ' + ev.status);
+        } else if (ev.type === 'idea_deleted') {
+          lines.push('- ' + formatWhen(ev.t) + ': deleted "' + ev.ideaTitle + '" (' + ev.category + ')');
+        }
+      });
+    }
+
+    lines.push(
+      '',
+      'Totals: ' + research.length + ' research ideas, ' + app.length + ' app ideas.',
+      'User is currently viewing ideas_category: ' + getIdeasCategory() + '.'
+    );
+
+    return lines.join('\n');
+  }
+
+  function captureIdeasBaseline() {
+    var research = loadIdeasList(STORAGE_KEY_RESEARCH);
+    var app = loadIdeasList(STORAGE_KEY_APP);
+    writeIdeasBaseline(buildIdeasSnapshot(research, app));
+  }
+
   function getVariables() {
     return {
       current_page: getPagePath(),
@@ -105,6 +346,7 @@
       vault_root: 'https://asabtan.sa',
       uploaded_file_name: '',
       website_context: getIdeasPrefillHint(),
+      ideas_workspace_context: getIdeasWorkspaceContext(),
     };
   }
 
@@ -340,6 +582,14 @@
 
     state.ideas.unshift(idea);
     localStorage.setItem(storageKey, JSON.stringify(state));
+    appendIdeasActivity({
+      type: 'idea_created',
+      category: category,
+      ideaId: idea.id,
+      ideaTitle: fields.title || 'Untitled idea',
+      status: idea.status,
+      source: 'assistant_prefill',
+    });
     sessionStorage.setItem(PENDING_OPEN_KEY, JSON.stringify({ id: idea.id, category: category }));
 
     var onIdeas = /research-ideas/i.test(window.location.pathname);
@@ -831,6 +1081,7 @@
       writeHistory(chatHistory);
       writeThreadId(null);
       threadId = null;
+      clearIdeasBaseline();
       log.innerHTML = '';
       addMessage(log, 'bot', WELCOME_MESSAGE);
       input.focus();
@@ -900,6 +1151,7 @@
           }
           if (data.text) addMessage(log, 'bot', data.text);
           executeToolCalls(data.toolCalls, log, addMessage);
+          captureIdeasBaseline();
         })
         .catch(function (err) {
           var msg = err.message || 'Could not reach assistant.';

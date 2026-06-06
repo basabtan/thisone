@@ -6,6 +6,8 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
 const STORAGE_KEY = 'najd-research-ideas-react-v1';
 const APP_STORAGE_KEY = 'najd-app-ideas-react-v1';
 const AUTHOR_KEY = 'najd-ideas-active-author';
+const IDEAS_ACTIVITY_KEY = 'sabtan-ideas-activity-v1';
+const MAX_IDEA_ACTIVITY = 40;
 
 const STATUS_OPTS = [
   { id:'halfbaked', label:'Half-baked'        },
@@ -136,6 +138,21 @@ function getHiddenSections(idea){
 }
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function logIdeaActivity(entry){
+  try{
+    const raw = localStorage.getItem(IDEAS_ACTIVITY_KEY);
+    let list = raw ? JSON.parse(raw) : [];
+    if(!Array.isArray(list)) list = [];
+    list.push({ t: Date.now(), ...entry });
+    localStorage.setItem(IDEAS_ACTIVITY_KEY, JSON.stringify(list.slice(-MAX_IDEA_ACTIVITY)));
+    window.dispatchEvent(new CustomEvent('sabtan-ideas-activity', { detail: entry }));
+  }catch(e){}
+}
+
+function categoryFromStorageKey(storageKey){
+  return storageKey === APP_STORAGE_KEY ? 'app' : 'research';
+}
 
 const MAX_IDEA_ATTACHMENT_BYTES = 3 * 1024 * 1024;
 
@@ -396,6 +413,7 @@ function createUseIdeas(storageKey, seedIdeas){
   const update = useCallback(fn => setState(s => ({ ...s, ideas: fn(s.ideas) })), []);
 
   const addIdea = useCallback((author) => {
+    const category = categoryFromStorageKey(storageKey);
     const idea = {
       id: uid(),
       title: '', summary: '', motivation: '', trigger: '',
@@ -407,20 +425,51 @@ function createUseIdeas(storageKey, seedIdeas){
       created: Date.now(), updated: Date.now(),
     };
     update(ideas => [idea, ...ideas]);
+    logIdeaActivity({
+      type: 'idea_created',
+      category,
+      ideaId: idea.id,
+      ideaTitle: 'Untitled idea',
+      status: idea.status,
+    });
     return idea.id;
-  }, [update]);
+  }, [update, storageKey]);
 
   const patchIdea = useCallback((id, patch) => {
     update(ideas => ideas.map(i => i.id === id ? { ...i, ...patch, updated: Date.now() } : i));
   }, [update]);
 
   const moveStatus = useCallback((id, status) => {
-    update(ideas => ideas.map(i => i.id === id ? { ...i, status, updated: Date.now() } : i));
-  }, [update]);
+    const category = categoryFromStorageKey(storageKey);
+    update(ideas => ideas.map(i => {
+      if(i.id !== id) return i;
+      logIdeaActivity({
+        type: 'status_changed',
+        category,
+        ideaId: id,
+        ideaTitle: (i.title || '').trim() || 'Untitled idea',
+        status,
+        previousStatus: i.status,
+      });
+      return { ...i, status, updated: Date.now() };
+    }));
+  }, [update, storageKey]);
 
   const deleteIdea = useCallback((id) => {
-    update(ideas => ideas.filter(i => i.id !== id));
-  }, [update]);
+    const category = categoryFromStorageKey(storageKey);
+    update(ideas => {
+      const removed = ideas.find(i => i.id === id);
+      if(removed){
+        logIdeaActivity({
+          type: 'idea_deleted',
+          category,
+          ideaId: id,
+          ideaTitle: (removed.title || '').trim() || 'Untitled idea',
+        });
+      }
+      return ideas.filter(i => i.id !== id);
+    });
+  }, [update, storageKey]);
 
   const addComment = useCallback((id, who, text) => {
     update(ideas => ideas.map(i => i.id !== id ? i : {
@@ -452,12 +501,26 @@ function createUseIdeas(storageKey, seedIdeas){
 
   const addAttachments = useCallback((id, attachments) => {
     if(!attachments?.length) return;
-    update(ideas => ideas.map(i => i.id !== id ? i : {
-      ...i,
-      attachments: [...(i.attachments || []), ...attachments],
-      updated: Date.now(),
+    const category = categoryFromStorageKey(storageKey);
+    update(ideas => ideas.map(i => {
+      if(i.id !== id) return i;
+      const next = {
+        ...i,
+        attachments: [...(i.attachments || []), ...attachments],
+        updated: Date.now(),
+      };
+      attachments.forEach(att => logIdeaActivity({
+        type: 'attachment_added',
+        category,
+        ideaId: id,
+        ideaTitle: (i.title || '').trim() || 'Untitled idea',
+        fileName: att.name,
+        fileSize: att.size,
+        mimeType: att.mimeType,
+      }));
+      return next;
     }));
-  }, [update]);
+  }, [update, storageKey]);
 
   const removeAttachment = useCallback((id, attachmentId) => {
     update(ideas => ideas.map(i => i.id !== id ? i : {
@@ -498,5 +561,6 @@ Object.assign(window, {
   uid, escapeRegex, highlightText, relTime, fullDate, timeGroup,
   MAX_IDEA_ATTACHMENT_BYTES, formatFileSize, hasFileTransfer,
   readFilesAsAttachments, openIdeaAttachment,
+  IDEAS_ACTIVITY_KEY, logIdeaActivity,
   useIdeas, useResearchIdeas, useAppIdeas, useActiveAuthor,
 });

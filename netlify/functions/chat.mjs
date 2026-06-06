@@ -45,6 +45,9 @@ function buildSessionContext(vars = {}) {
   ];
   if (vars.uploaded_file_name) lines.push(`- uploaded_file_name: ${vars.uploaded_file_name}`);
   if (vars.website_context) lines.push(`- website_context: ${vars.website_context}`);
+  if (vars.ideas_workspace_context) {
+    lines.push('', vars.ideas_workspace_context);
+  }
   return lines.join('\n');
 }
 

@@ -72,9 +72,36 @@ Same field keys; different labels in the UI:
 - **Summary:** Ruby crystal toggle; nav bar slides away; crystal stays fixed; links never covered.
 - **Motivation:** Navigation as part of the vault product — consistent across pages.
 
+## Idea card attachments (browser localStorage)
+
+Users can attach documents (PDF, Word, images, etc.) to idea cards by dragging onto a card or via **Attach document** in the detail panel. Attachments are stored on each idea as:
+
+| Field | Meaning |
+|-------|---------|
+| `attachments[]` | Array on each idea object |
+| `attachments[].name` | Original filename |
+| `attachments[].mimeType` | MIME type |
+| `attachments[].size` | Bytes |
+| `attachments[].added` | Unix ms timestamp |
+| `attachments[].addedBy` | `AS` or `BS` |
+| `attachments[].dataUrl` | Base64 data URL (not sent to the assistant API) |
+
+Activity is logged to `sabtan-ideas-activity-v1` (attachment_added, idea_created, status_changed, idea_deleted).
+
+On every chat message, the vault client sends **`ideas_workspace_context`** in session variables, including:
+
+- **Last document attached to an idea card** (file name, when, which idea, research vs app)
+- **Card changes since the user's previous assistant message** (new cards, edited fields, new attachments)
+- **Recent workspace events** from the activity log
+
+This is separate from files attached directly to the assistant widget (`uploaded_file_name`).
+
+When the user asks “what did I last upload?” or “what changed on my cards?”, read `ideas_workspace_context` first. To open the idea: `navigate_to_page` with `path: research-ideas.html`, `open: <ideaId>`, and matching `view` query (`research` or `app`).
+
 ## Notes for the assistant
 
 - Do not confuse **research ideas** (papers) with **app ideas** (vault build).
+- Do not confuse **idea-card attachments** (stored on cards in localStorage) with **assistant chat attachments** (uploaded in the ✦ widget for that message).
 - **When capturing from a document, chat, or report:** call `prefill_idea_draft` with **all seven fields** you can infer — not only `title` and `summary`. At minimum always include **`motivation`**. Fill `trigger`, `data`, `methods`, and `effort` whenever the source mentions them; use `""` only when truly unknown.
 - **Field mapping from typical reports:**
 
