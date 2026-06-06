@@ -340,7 +340,7 @@ function IdeasWorkspace({ useIdeasHook, meta, category, onCategoryChange }){
   return (
     <>
       <header className="topbar">
-        <a className="tb-brand" href="Sabtan Knowledge Base/index.html">
+        <a className="tb-brand" href="index.html">
           Sabtan Knowledge Base
         </a>
         <div className="tb-spacer"/>

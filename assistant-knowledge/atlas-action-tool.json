@@ -1,0 +1,32 @@
+{
+  "name": "atlas_action",
+  "description": "Perform an action on the Atlas research table canvas when the user is on atlas.html. Use to add sticky notes, open vault library items as embed windows, or recall (pin) a library collection in the sidebar. File imports from chat attachments happen automatically on send — do not call import_chat_attachment unless confirming a prior import.",
+  "strict": false,
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "action": {
+        "type": "string",
+        "enum": ["add_note", "open_item", "recall_collection", "import_chat_attachment"],
+        "description": "add_note = new sticky note on canvas; open_item = open library item by id; recall_collection = pin collection in sidebar; import_chat_attachment = no-op (files auto-import on chat send)"
+      },
+      "title": {
+        "type": "string",
+        "description": "For add_note: note window title (plain text or short HTML)"
+      },
+      "html": {
+        "type": "string",
+        "description": "For add_note: note body HTML"
+      },
+      "id": {
+        "type": "string",
+        "description": "For open_item: library item id (e.g. nfs-roadmap, nfs-dash, gs-main)"
+      },
+      "name": {
+        "type": "string",
+        "description": "For recall_collection: folder/collection name exactly as in library (e.g. Najd Fault System)"
+      }
+    },
+    "required": ["action"]
+  }
+}

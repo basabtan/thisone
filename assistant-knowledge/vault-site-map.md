@@ -18,6 +18,7 @@ From `index.html`, the core Explore destinations are:
 | `najd-roadmap.html`                  | Najd programme roadmap                         |
 | `Sabtan Knowledge Base/profile.html` | Prof. Abdullah — executive capability profile  |
 | `research-ideas.html?view=research`  | Research Ideas workspace                       |
+| `atlas.html`                         | Atlas — infinite canvas research table         |
 | `instruments.html`                   | Geological calculators & field tools catalogue |
 
 
@@ -29,7 +30,6 @@ From `index.html`, the core Explore destinations are:
 | Path                                 | Purpose                                                            |
 | ------------------------------------ | ------------------------------------------------------------------ |
 | `index.html`                         | Home hub — Knowledge Base centerpiece, Explore menu, Add shortcuts |
-| `Sabtan Knowledge Base/index.html`   | KB hub linking to roadmap, Phase I, ideas, profile                 |
 | `najd-roadmap.html`                  | Full programme roadmap (Phases I–III, guides, checklist)           |
 | `najd-roadmap.html?layer=overview`   | Roadmap overview layer only                                        |
 | `phase-1-papers.html`                | Phase I paper cards with author expand                             |
@@ -37,6 +37,9 @@ From `index.html`, the core Explore destinations are:
 | `Paper 1/drafts/p1/p - guide .html`  | Paper 1 companion notes (secondary reference)                      |
 | `research-ideas.html?view=research`  | Research Ideas (papers, field studies, reviews)                    |
 | `research-ideas.html?view=app`       | App Ideas (vault UI, product features)                             |
+| `atlas.html`                         | Atlas — research table canvas (notes, embeds, PDFs, multi-board)   |
+| `atlas.html?open=nfs-roadmap`        | Atlas — open Programme Roadmap embed on canvas                     |
+| `atlas.html?open=nfs-roadmap&recall=Najd Fault System` | Atlas — open item and pin Najd collection          |
 | `Najd Fault System Dashboard.html`   | Najd structural / slope data dashboard                             |
 | `Sabtan Knowledge Base/profile.html` | Executive capability profile (50+ years in Saudi Arabia)           |
 | `najd1.html`                         | Earlier programme overview (archive)                               |
@@ -94,7 +97,8 @@ These URLs still work but redirect — prefer the target path:
 
 ## Navigation behaviour
 
-- Bottom **nav strip** (`shared/nav-strip.js`) on main pages — Ideas, Home, Knowledge Base, Overview, Phase I, P1 Guide, Najd submenu.
+- Bottom **nav strip** (`shared/nav-strip.js`) on main pages — Ideas, Home, Atlas, Overview, Phase I, P1 Guide, Najd submenu.
+- **Atlas** (`atlas.html`) — infinite canvas; assistant uses `atlas_action` on-page and `open` / `recall` deep links.
 - **Ideas** has two categories: **research** and **app**. Same page, different view: `?view=research` or `?view=app`.
 - **Instruments** is linked from the home Explore hub and from `instruments.html` tool cards.
 - Ideas data is stored in the **browser** (localStorage), not on a server.
@@ -142,6 +146,19 @@ Example — open Statistical Methods:
 
 Or path only: `paper-1-guide.html?section=results`
 
+### Atlas (`atlas.html`)
+
+| Intent | Path or args |
+|--------|----------------|
+| Open Atlas | `atlas.html` |
+| Open library item on canvas | `atlas.html?open=nfs-roadmap` or `{ "path": "atlas.html", "open": "nfs-roadmap" }` |
+| Pin collection in sidebar | `atlas.html?recall=Najd Fault System` or `{ "path": "atlas.html", "recall": "Najd Fault System" }` |
+| Open item + recall | `atlas.html?open=nfs-roadmap&recall=Najd Fault System` |
+
+On-page actions (add note, open item, recall collection): use `atlas_action` when user is already on Atlas. See `atlas-workspace-guide.md`.
+
+Library item IDs include: `nfs-roadmap`, `nfs-dash`, `nfs-phase1`, `nfs-p1guide`, `gs-main`, `ri-app`, `lib-profile`.
+
 ---
 
 ## Typical user intents → page
@@ -150,13 +167,15 @@ Or path only: `paper-1-guide.html?section=results`
 | User wants…                                   | Send them to…                        |
 | --------------------------------------------- | ------------------------------------ |
 | Home / start                                  | `index.html`                         |
-| KB entry / dashboard                          | `Sabtan Knowledge Base/index.html`   |
+| Home hub / vault entry                        | `index.html`                         |
 | Programme overview / roadmap                  | `najd-roadmap.html`                  |
 | Roadmap overview layer                        | `najd-roadmap.html?layer=overview`   |
 | Phase I papers list                           | `phase-1-papers.html`                |
 | Paper 1 guide / drafting help                 | `paper-1-guide.html`                 |
 | Capture a research paper idea                 | `research-ideas.html?view=research`  |
 | Capture a vault/UI/app idea                   | `research-ideas.html?view=app`       |
+| Research table / Atlas / arrange vault pages    | `atlas.html`                         |
+| Open roadmap on Atlas canvas                  | `atlas.html?open=nfs-roadmap`        |
 | Prof. Sabtan profile / CV / executive summary | `Sabtan Knowledge Base/profile.html` |
 | Najd data dashboard                           | `Najd Fault System Dashboard.html`   |
 | Geological calculators (any)                  | `instruments.html`                   |
@@ -173,9 +192,11 @@ Or path only: `paper-1-guide.html?section=results`
 { "path": "research-ideas.html?view=research", "open": "new", "label": "New research idea", "reason": "Open blank idea panel" }
 { "path": "paper-1-guide.html", "section": "statistical-methods", "label": "Paper 1 — Statistical Methods", "reason": "Open that guide section card" }
 { "path": "Sabtan Knowledge Base/profile.html", "label": "Executive Profile", "reason": "Prof. Abdullah capability profile" }
+{ "path": "atlas.html", "label": "Atlas", "reason": "Infinite canvas research table" }
+{ "path": "atlas.html", "open": "nfs-roadmap", "recall": "Najd Fault System", "label": "Atlas — Programme Roadmap", "reason": "Open roadmap embed and pin Najd collection" }
 ```
 
-Paths are relative to the site root (`asabtan.sa`). Query strings are allowed. Optional **`section`** (Paper 1 guide) and **`open`** (Ideas workspace) open the morphing card panels after navigation.
+Paths are relative to the site root (`asabtan.sa`). Query strings are allowed. Optional **`section`** (Paper 1 guide), **`open`** (Ideas workspace or Atlas library item id), and **`recall`** (Atlas collection name) open panels or canvas items after navigation.
 
 ---
 

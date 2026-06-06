@@ -48,6 +48,9 @@ function buildSessionContext(vars = {}) {
   if (vars.ideas_workspace_context) {
     lines.push('', vars.ideas_workspace_context);
   }
+  if (vars.atlas_workspace_context) {
+    lines.push('', vars.atlas_workspace_context);
+  }
   return lines.join('\n');
 }
 
@@ -242,7 +245,7 @@ export async function handler(event) {
     if (run.status === 'requires_action') {
       const toolCalls = extractToolCalls(run);
       toolCalls.forEach((tc) => {
-        if (tc.name === 'navigate_to_page' || tc.name === 'prefill_idea_draft') {
+        if (tc.name === 'navigate_to_page' || tc.name === 'prefill_idea_draft' || tc.name === 'atlas_action') {
           clientToolCalls.push({ name: tc.name, arguments: tc.arguments });
         }
       });

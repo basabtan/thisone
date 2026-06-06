@@ -20,9 +20,9 @@ const PAGES = [
   { path: "phase-1-papers.html", nav: "required", active: "phase1" },
   { path: "research-ideas-dev.html", nav: "required", active: "ideas" },
   { path: "research-ideas.html", nav: "bundled", active: "ideas" },
-  { path: "Sabtan Knowledge Base/index.html", nav: "required", active: "knowledge" },
+  { path: "Sabtan Knowledge Base/index.html", nav: "required", active: "landing" },
   { path: "paper-1-guide.html", nav: "required", active: "paper1guide" },
-  { path: "Najd Fault System Dashboard.html", nav: "required", active: "knowledge" },
+  { path: "Najd Fault System Dashboard.html", nav: "required", active: "landing" },
 ];
 
 const SHARED = ["shared/nav-strip.js", "shared/nav-strip.css", "shared/kb-board.js"];

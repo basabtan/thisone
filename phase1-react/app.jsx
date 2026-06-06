@@ -15,7 +15,7 @@ function App() {
   return (
     <>
       <header className="topbar">
-        <a className="tb-brand" href="Sabtan Knowledge Base/index.html">
+        <a className="tb-brand" href="index.html">
           Sabtan Knowledge Base
           <span className="react-badge">React</span>
         </a>

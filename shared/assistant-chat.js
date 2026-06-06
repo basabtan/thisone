@@ -89,6 +89,10 @@
     return 'research';
   }
 
+  function isAtlasPage() {
+    return /atlas\.html/i.test(window.location.pathname);
+  }
+
   function getIdeasPrefillHint() {
     return [
       'IDEA CAPTURE (prefill_idea_draft): The Ideas form has 7 text fields — title, summary, motivation (required), trigger, data, methods, effort.',
@@ -97,6 +101,68 @@
       'App category: same keys; labels differ (problem/gap, scope, implementation sketch, ship criteria).',
       'See ideas-workspace-guide.md for examples. Use category matching ideas_category when on the Ideas page.',
     ].join(' ');
+  }
+
+  function getAtlasPrefillHint() {
+    return [
+      'ATLAS (atlas_action): Infinite canvas research table. Use atlas_action when user is on atlas.html.',
+      'Actions: add_note {title, html}, open_item {id}, recall_collection {name}.',
+      'Library item IDs: nfs-roadmap, nfs-dash, nfs-phase1, nfs-p1guide, gs-main, ri-app, lib-profile, etc. — see atlas-workspace-guide.md.',
+      'Chat attachments on Atlas auto-import to canvas on send (PDF/images/Word). Distinct from Ideas card attachments.',
+      'Deep links: atlas.html?open=nfs-roadmap&recall=Najd Fault System',
+    ].join(' ');
+  }
+
+  function getWebsiteContext() {
+    if (isAtlasPage()) return getAtlasPrefillHint();
+    return getIdeasPrefillHint();
+  }
+
+  function getAtlasWorkspaceContext() {
+    if (!isAtlasPage()) return '';
+    var lines = [
+      'ATLAS WORKSPACE (live from this browser — infinite canvas research table):',
+      'When the user is on Atlas, use the atlas_action client tool to add notes, open library items, or recall collections.',
+      'Atlas chat attachments (PDF, images, Word) auto-import to the canvas when the user sends a message — not idea-card attachments.',
+    ];
+
+    try {
+      var pendingRaw = sessionStorage.getItem('sabtan-atlas-pending-import');
+      if (pendingRaw) {
+        var pending = JSON.parse(pendingRaw);
+        if (pending && pending.name) {
+          lines.push('', 'Recent chat attachment auto-imported to canvas: ' + pending.name);
+        }
+      }
+    } catch (e) {}
+
+    if (!window.SabtanAtlas) {
+      lines.push('', 'SabtanAtlas API not ready — retry after page load.');
+      return lines.join('\n');
+    }
+
+    var summary = window.SabtanAtlas.getBoardSummary();
+    lines.push(
+      '',
+      'Current board: ' + (summary.boardName || 'Board') + ' — ' + (summary.totalObjects || 0) + ' object(s).',
+      'Objects: notes=' + (summary.objectCounts.note || 0) +
+        ', embeds=' + (summary.objectCounts.embed || 0) +
+        ', pdfs=' + (summary.objectCounts.pdf || 0) +
+        ', images=' + (summary.objectCounts.image || 0) +
+        ', other=' + (summary.objectCounts.other || 0) + '.'
+    );
+
+    var lib = window.SabtanAtlas.listLibrary();
+    if (lib && lib.length) {
+      lines.push('', 'Library catalog (id | title | collection):');
+      lib.forEach(function (folder) {
+        (folder.items || []).forEach(function (it) {
+          lines.push('- ' + it.id + ' | ' + it.title + ' | ' + folder.folder);
+        });
+      });
+    }
+
+    return lines.join('\n');
   }
 
   function formatBytes(bytes) {
@@ -339,15 +405,17 @@
   }
 
   function getVariables() {
-    return {
+    var vars = {
       current_page: getPagePath(),
       ideas_category: getIdeasCategory(),
       user_role: 'Prof. Abdullah',
       vault_root: 'https://asabtan.sa',
       uploaded_file_name: '',
-      website_context: getIdeasPrefillHint(),
+      website_context: getWebsiteContext(),
       ideas_workspace_context: getIdeasWorkspaceContext(),
     };
+    if (isAtlasPage()) vars.atlas_workspace_context = getAtlasWorkspaceContext();
+    return vars;
   }
 
   var IDEA_OPTIONAL_KEYS = ['trigger', 'data', 'methods', 'effort'];
@@ -484,12 +552,14 @@
 
     var section = args.section ? String(args.section).trim().toLowerCase().replace(/\s+/g, '-') : '';
     var open = args.open ? String(args.open).trim() : '';
+    var recall = args.recall ? String(args.recall).trim() : '';
 
     if (/^https?:\/\//i.test(path)) {
       try {
         var abs = new URL(path);
         if (section) abs.searchParams.set('section', section);
         if (open) abs.searchParams.set('open', open);
+        if (recall) abs.searchParams.set('recall', recall);
         return abs.href;
       } catch (e) {
         return path;
@@ -501,6 +571,7 @@
     var params = new URLSearchParams(split[1] || '');
     if (section) params.set('section', section);
     if (open) params.set('open', open);
+    if (recall) params.set('recall', recall);
     if (base.charAt(0) !== '/') base = '/' + base;
     var qs = params.toString();
     return qs ? base + '?' + qs : base;
@@ -531,6 +602,43 @@
       return true;
     }
 
+    if (isAtlasPage() && window.SabtanAtlas) {
+      if (args.open && typeof window.SabtanAtlas.openItem === 'function') {
+        window.SabtanAtlas.openItem(String(args.open));
+        return true;
+      }
+      if (args.recall && typeof window.SabtanAtlas.recallCollection === 'function') {
+        String(args.recall).split(',').filter(Boolean).forEach(function (name) {
+          window.SabtanAtlas.recallCollection(name.trim());
+        });
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function executeAtlasAction(args) {
+    if (!window.SabtanAtlas) return false;
+    var action = String(args.action || '').trim();
+    if (action === 'add_note') {
+      window.SabtanAtlas.addNote({
+        title: String(args.title || 'Note'),
+        html: String(args.html || args.body || ''),
+      });
+      return true;
+    }
+    if (action === 'open_item' && args.id) {
+      window.SabtanAtlas.openItem(String(args.id));
+      return true;
+    }
+    if (action === 'recall_collection' && args.name) {
+      window.SabtanAtlas.recallCollection(String(args.name));
+      return true;
+    }
+    if (action === 'import_chat_attachment') {
+      return true;
+    }
     return false;
   }
 
@@ -616,6 +724,12 @@
       } else if (tc.name === 'prefill_idea_draft') {
         add(log, 'system', 'Creating idea draft…');
         setTimeout(function () { prefillIdeaDraft(tc.arguments); }, 400);
+      } else if (tc.name === 'atlas_action') {
+        var atlasLabel = tc.arguments.action || 'atlas action';
+        if (tc.arguments.id) atlasLabel += ' → ' + tc.arguments.id;
+        if (tc.arguments.name) atlasLabel += ' → ' + tc.arguments.name;
+        add(log, 'system', 'Atlas: ' + atlasLabel + '…');
+        setTimeout(function () { executeAtlasAction(tc.arguments); }, 400);
       }
     });
   }
@@ -623,7 +737,7 @@
   function isVaultHomePage() {
     var path = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
     if (!path || path === 'index.html') return true;
-    if (path === 'Sabtan Knowledge Base/index.html') return true;
+    if (path === 'index.html' || path === '/') return true;
     return false;
   }
 
@@ -1106,6 +1220,20 @@
       if (!message && !attachmentFile) return;
 
       addMessage(log, 'user', message || '(attached file)', attachmentFile ? attachmentFile.name : null);
+
+      if (isAtlasPage() && attachmentFile) {
+        try {
+          sessionStorage.setItem('sabtan-atlas-pending-import', JSON.stringify({
+            name: attachmentFile.name,
+            at: Date.now(),
+          }));
+        } catch (e) {}
+        if (window.SabtanAtlas && typeof window.SabtanAtlas.importFile === 'function') {
+          window.SabtanAtlas.importFile(attachmentFile);
+          addMessage(log, 'system', 'Imported ' + attachmentFile.name + ' to Atlas canvas');
+        }
+      }
+
       input.value = '';
       setPendingAttachment(null);
       sendBtn.disabled = true;
@@ -1182,6 +1310,7 @@
   window.SabtanAssistant = {
     navigateToPage: navigateToPage,
     prefillIdeaDraft: prefillIdeaDraft,
+    executeAtlasAction: executeAtlasAction,
     getPendingOpenIdea: function () {
       try {
         var raw = sessionStorage.getItem(PENDING_OPEN_KEY);

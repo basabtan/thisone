@@ -124,14 +124,6 @@
         "sourceUrl": "Sabtan Knowledge Base/profile.html",
         "title": "Executive Profile",
         "sub": "Prof. Abdullah Sabtan"
-      },
-      {
-        "id": "lib-hub",
-        "kind": "embed",
-        "url": "Sabtan Knowledge Base/index.html",
-        "sourceUrl": "Sabtan Knowledge Base/index.html",
-        "title": "Knowledge Base Hub",
-        "sub": "All sections"
       }
     ]
   }

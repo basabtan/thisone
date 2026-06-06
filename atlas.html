@@ -18,6 +18,9 @@
     --serif:"Newsreader",Georgia,serif; --sans:"Hanken Grotesk",system-ui,sans-serif;
     --shadow-rest:0 1px 2px rgba(42,38,32,.10), 0 8px 22px rgba(42,38,32,.10);
     --shadow-lift:0 6px 14px rgba(42,38,32,.16), 0 28px 60px rgba(42,38,32,.22);
+    --home-accent:var(--clay);
+    --home-accent-2:var(--gold-soft);
+    --home-on-dark:#F8E8DC;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;margin:0}
@@ -57,8 +60,16 @@
     transition:background .12s, border-color .12s, color .12s;
   }
   .atlas-home-nav a:hover{background:var(--dw-hover); border-color:rgba(255,255,255,.22); color:#fff}
-  .atlas-home-nav a.primary{background:rgba(176,101,74,.24); border-color:rgba(176,101,74,.5); color:#F8E8DC}
-  .atlas-home-nav a.primary:hover{background:rgba(176,101,74,.38); border-color:var(--gold-soft)}
+  .atlas-home-nav a.primary{
+    background:color-mix(in srgb, var(--home-accent) 26%, transparent);
+    border-color:color-mix(in srgb, var(--home-accent) 52%, transparent);
+    color:var(--home-on-dark);
+  }
+  .atlas-home-nav a.primary:hover{
+    background:color-mix(in srgb, var(--home-accent) 40%, transparent);
+    border-color:var(--home-accent-2);
+    color:#fff;
+  }
   .search{padding:0 18px 12px; position:relative}
   .search input{width:100%; padding:9px 12px; border-radius:999px; border:1px solid var(--dw-field-border);
     background:var(--dw-field); color:var(--dw-text); font-family:var(--sans); font-size:13px; outline:none}
@@ -226,8 +237,8 @@
   .hud .pill{display:flex; align-items:center; gap:2px; background:rgba(251,248,241,.92); backdrop-filter:blur(6px); border:1px solid rgba(60,74,87,.14); border-radius:999px; padding:4px; box-shadow:var(--shadow-rest); position:relative}
   .hud button,.hud .hud-link{border:none; background:transparent; cursor:pointer; font-family:var(--sans); font-size:13px; font-weight:600; color:var(--slate); padding:6px 12px; border-radius:999px; transition:.12s; text-decoration:none; display:inline-flex; align-items:center}
   .hud button:hover,.hud .hud-link:hover{background:rgba(60,74,87,.10)}
-  .hud .hud-link.home-link{color:var(--clay)}
-  .hud .hud-link.home-link:hover{background:rgba(176,101,74,.14)}
+  .hud .hud-link.home-link{color:var(--home-accent)}
+  .hud .hud-link.home-link:hover{background:color-mix(in srgb, var(--home-accent) 16%, transparent)}
   .hud .zoom button{width:30px; padding:6px 0; font-size:15px; text-align:center}
   .hud .zlevel{font-size:11.5px; color:var(--ink-soft); min-width:38px; text-align:center; font-weight:600}
   .hud .danger:hover{background:var(--clay); color:#fff}
@@ -299,13 +310,13 @@
   /* ===== THEMES ===== */
   .menu button.active{background:rgba(60,74,87,.12)}
   /* Lustre Pearl (clay→gold ribbon, airy cream) */
-  body[data-theme="pearl"]{--vellum:#F5F2EB; --vellum-deep:#ECE7DB; --vellum-edge:#E0D8C8; --pearl:#FCFAF5; --pearl-2:#F4F0E7; --body:#3a352d; --ink:#33302A; --ink-soft:#7A7468; --clay:#B26A4B; --gold:#B0883A; --gold-soft:#9C7A2C; --slate:#3E5C6B; --slate-soft:#5E7886; --sage:#5E7A6B; --line:rgba(62,92,107,.07); --dw-bg1:#EBE4D5; --dw-bg2:#E1D8C6; --dw-text:#33302A; --dw-muted:#6E6757; --dw-faint:#928A78; --dw-hover:rgba(60,74,87,.07); --dw-field:rgba(255,255,255,.6); --dw-field-border:rgba(60,74,87,.16); --dw-border:rgba(60,74,87,.10); --dw-shadow:rgba(120,110,90,.22)}
+  body[data-theme="pearl"]{--vellum:#F5F2EB; --vellum-deep:#ECE7DB; --vellum-edge:#E0D8C8; --pearl:#FCFAF5; --pearl-2:#F4F0E7; --body:#3a352d; --ink:#33302A; --ink-soft:#7A7468; --clay:#B26A4B; --gold:#B0883A; --gold-soft:#9C7A2C; --slate:#3E5C6B; --slate-soft:#5E7886; --sage:#5E7A6B; --line:rgba(62,92,107,.07); --dw-bg1:#EBE4D5; --dw-bg2:#E1D8C6; --dw-text:#33302A; --dw-muted:#6E6757; --dw-faint:#928A78; --dw-hover:rgba(60,74,87,.07); --dw-field:rgba(255,255,255,.6); --dw-field-border:rgba(60,74,87,.16); --dw-border:rgba(60,74,87,.10); --dw-shadow:rgba(120,110,90,.22); --home-accent:var(--clay); --home-accent-2:var(--gold); --home-on-dark:#4A3024}
   body[data-theme="pearl"] .win::before{content:""; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--clay),var(--gold)); z-index:4}
   /* Porcelain (cool, airy light) */
-  body[data-theme="porcelain"]{--vellum:#F4F6F4; --vellum-deep:#E9ECE9; --vellum-edge:#DBE0DC; --pearl:#FCFDFC; --pearl-2:#F0F3F1; --body:#333a36; --ink:#2C322E; --ink-soft:#737B76; --clay:#8E6F58; --gold:#A38C49; --gold-soft:#8F7A38; --slate:#3F5E6E; --slate-soft:#5E7B89; --sage:#5C8071; --line:rgba(45,70,80,.06); --dw-bg1:#E6EAE7; --dw-bg2:#DBE0DC; --dw-text:#2C322E; --dw-muted:#6C746F; --dw-faint:#929A94; --dw-hover:rgba(45,70,80,.06); --dw-field:rgba(255,255,255,.7); --dw-field-border:rgba(45,70,80,.14); --dw-border:rgba(45,70,80,.10); --dw-shadow:rgba(120,128,124,.22)}
+  body[data-theme="porcelain"]{--vellum:#F4F6F4; --vellum-deep:#E9ECE9; --vellum-edge:#DBE0DC; --pearl:#FCFDFC; --pearl-2:#F0F3F1; --body:#333a36; --ink:#2C322E; --ink-soft:#737B76; --clay:#8E6F58; --gold:#A38C49; --gold-soft:#8F7A38; --slate:#3F5E6E; --slate-soft:#5E7B89; --sage:#5C8071; --line:rgba(45,70,80,.06); --dw-bg1:#E6EAE7; --dw-bg2:#DBE0DC; --dw-text:#2C322E; --dw-muted:#6C746F; --dw-faint:#929A94; --dw-hover:rgba(45,70,80,.06); --dw-field:rgba(255,255,255,.7); --dw-field-border:rgba(45,70,80,.14); --dw-border:rgba(45,70,80,.10); --dw-shadow:rgba(120,128,124,.22); --home-accent:var(--slate); --home-accent-2:var(--sage); --home-on-dark:#1E3A4A}
   body[data-theme="porcelain"] .win::before{content:""; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--slate),var(--sage)); z-index:4}
   /* Midnight Slate (dark) */
-  body[data-theme="midnight"]{--vellum:#22272D; --vellum-deep:#1A1E23; --vellum-edge:#2B323A; --pearl:#2E353D; --pearl-2:#272D34; --body:#D8D2C7; --ink:#E9E4DA; --ink-soft:#9DA8B0; --clay:#D58A63; --gold:#D9B25A; --gold-soft:#E7C877; --slate:#A9BCCB; --slate-soft:#8499A8; --sage:#82B6A0; --line:rgba(255,255,255,.05); --dw-bg1:#1E242B; --dw-bg2:#171C22; --dw-text:#E9E4DA; --dw-muted:#9DA8B0; --dw-faint:#7C8A93; --dw-hover:rgba(255,255,255,.06); --dw-field:rgba(255,255,255,.05); --dw-field-border:rgba(255,255,255,.10); --dw-border:rgba(255,255,255,.07); --dw-shadow:rgba(0,0,0,.4)}
+  body[data-theme="midnight"]{--vellum:#22272D; --vellum-deep:#1A1E23; --vellum-edge:#2B323A; --pearl:#2E353D; --pearl-2:#272D34; --body:#D8D2C7; --ink:#E9E4DA; --ink-soft:#9DA8B0; --clay:#D58A63; --gold:#D9B25A; --gold-soft:#E7C877; --slate:#A9BCCB; --slate-soft:#8499A8; --sage:#82B6A0; --line:rgba(255,255,255,.05); --dw-bg1:#1E242B; --dw-bg2:#171C22; --dw-text:#E9E4DA; --dw-muted:#9DA8B0; --dw-faint:#7C8A93; --dw-hover:rgba(255,255,255,.06); --dw-field:rgba(255,255,255,.05); --dw-field-border:rgba(255,255,255,.10); --dw-border:rgba(255,255,255,.07); --dw-shadow:rgba(0,0,0,.4); --home-accent:var(--gold); --home-accent-2:var(--clay); --home-on-dark:#FFF4D6}
   body[data-theme="midnight"] .win{border-color:rgba(255,255,255,.08)}
   body[data-theme="midnight"] .win-bar{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.015)); border-bottom-color:rgba(255,255,255,.08)}
   body[data-theme="midnight"] .win-ctrls button{background:rgba(255,255,255,.07); color:var(--ink-soft)}
@@ -320,8 +331,10 @@
   body[data-theme="midnight"] .board-tab,
   body[data-theme="midnight"] .board-add{color:#2b3138}
   body[data-theme="midnight"] .hud .zlevel{color:#3a424c}
+  body[data-theme="midnight"] .hud .hud-link.home-link{color:var(--home-accent)}
+  body[data-theme="midnight"] .hud .hud-link.home-link:hover{background:color-mix(in srgb, var(--home-accent) 20%, transparent)}
   body[data-theme="midnight"] .hud button:hover,
-  body[data-theme="midnight"] .hud .hud-link:hover,
+  body[data-theme="midnight"] .hud .hud-link:not(.home-link):hover,
   body[data-theme="midnight"] .dock button:hover,
   body[data-theme="midnight"] .board-tab:hover,
   body[data-theme="midnight"] .board-add:hover{background:rgba(40,46,54,.12)}
@@ -1214,6 +1227,56 @@ applyDeepLinks();
 initAtlasContent();
 updateHint(); applyTheme(currentTheme); renderLogo(); renderMini();
 window.addEventListener('resize',()=>{ positionFmt(); renderMini(); });
+
+window.SabtanAtlas = {
+  addNote: function(opts) { return createNote(opts || {}); },
+  openItem: function(id) {
+    var it = itemById[id];
+    if (!it) return null;
+    recalled.add(it.folder);
+    renderFolders();
+    return openItem(id);
+  },
+  recallCollection: function(name) {
+    if (!name) return false;
+    recalled.add(name);
+    renderFolders();
+    return true;
+  },
+  importFile: function(file) {
+    if (!file) return null;
+    importFiles([file]);
+    return true;
+  },
+  listLibrary: function() {
+    return FOLDERS.map(function(f) {
+      return {
+        folder: f.name,
+        color: f.color,
+        items: f.items.map(function(it) {
+          return { id: it.id, title: it.title, kind: it.kind || 'doc', sub: it.sub || '' };
+        })
+      };
+    });
+  },
+  getBoardSummary: function() {
+    var objs = allObjs ? allObjs() : [];
+    var counts = { note: 0, embed: 0, pdf: 0, image: 0, other: 0 };
+    objs.forEach(function(o) {
+      var k = o.dataset.kind || 'other';
+      if (counts[k] != null) counts[k]++;
+      else counts.other++;
+    });
+    return {
+      boardName: boards[currentBoard] ? boards[currentBoard].name : 'Board',
+      objectCounts: counts,
+      totalObjects: objs.length
+    };
+  }
+};
+window.dispatchEvent(new CustomEvent('sabtan-atlas-ready'));
 </script>
+<script src="/shared/nav-strip.js" data-nav-active="atlas"></script>
+<script src="/shared/assistant-chat.js"></script>
 </body>
 </html>

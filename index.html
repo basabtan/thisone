@@ -1024,7 +1024,7 @@
                   <span class="opt-title">Profile</span>
                 </span>
               </a>
-              <button type="button" class="hub-disc hub-option ideas is-core" id="hub-ideas-btn" data-page-id="ideas">
+              <a class="hub-disc hub-option ideas is-core" href="research-ideas.html?view=research" data-page-id="ideas">
                 <span class="opt-label">
                   <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M9 18h6"/>
@@ -1033,7 +1033,7 @@
                   </svg>
                   <span class="opt-title">Ideas</span>
                 </span>
-              </button>
+              </a>
               <a class="hub-disc hub-option instruments is-core" href="instruments.html" data-page-id="instruments">
                 <span class="opt-label">
                   <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1062,15 +1062,6 @@
               </a>
             </div>
           </div>
-          <div class="hub-ideas-panel" id="hub-ideas-panel" hidden>
-            <button type="button" class="prof-back" id="hub-ideas-back">&#8592; Back</button>
-            <a class="hub-sub-option ideas-research" href="research-ideas.html?view=research">
-              <span class="sub-num">Option 1</span> Research Ideas <span class="link-arrow">&#8594;</span>
-            </a>
-            <a class="hub-sub-option ideas-app" href="research-ideas.html?view=app">
-              <span class="sub-num">Option 2</span> App Ideas <span class="link-arrow">&#8594;</span>
-            </a>
-          </div>
         </nav>
       </div>
     </div>
@@ -1084,9 +1075,6 @@
     var btn = document.getElementById("hub-main");
     var backdrop = document.getElementById("hub-backdrop");
     var discRow = document.getElementById("hub-disc-row");
-    var ideasBtn = document.getElementById("hub-ideas-btn");
-    var ideasPanel = document.getElementById("hub-ideas-panel");
-    var ideasBack = document.getElementById("hub-ideas-back");
     var utilBtn = document.getElementById("hub-util-btn");
     var picker = document.getElementById("hub-page-picker");
     var pickerList = document.getElementById("hub-picker-list");
@@ -1096,7 +1084,7 @@
     var HUB_PAGES = [
       { id: "najd", title: "Najd", label: "Najd", hint: "Programme roadmap", href: "najd-roadmap.html", core: true },
       { id: "profile", title: "Profile", label: "Profile", hint: "Prof. Abdullah — executive profile", href: "Sabtan Knowledge Base/profile.html", core: true },
-      { id: "ideas", title: "Ideas", label: "Ideas", hint: "Research and app ideas", href: "research-ideas.html?view=research", core: true },
+      { id: "ideas", title: "Ideas", label: "Ideas", hint: "Research ideas pipeline", href: "research-ideas.html?view=research", core: true },
       { id: "instruments", title: "Instruments", label: "Instruments", hint: "Geological calculators & apps", href: "instruments.html", core: true },
       { id: "atlas", title: "Atlas", label: "Atlas", hint: "Infinite-canvas research table", href: "atlas.html", core: true },
       { id: "vtest", title: "V-test Dashboard", label: "V-test", hint: "Circular statistics — preferred orientation", href: "vtest-najd.html" },
@@ -1104,7 +1092,6 @@
       { id: "geostrength", title: "GeoStrength", label: "GeoStrength", hint: "GSI & slope stability calculator", href: "geostrength.html" },
       { id: "rock-reinf", title: "Rock Slope Reinforcement", label: "Reinforcement", hint: "Bolt design extension for GeoStrength LEM", href: "rock-slope-reinforcement-najd.html" },
       { id: "pavement", title: "Geotechnical & Pavement Toolkit", label: "Pavement", hint: "Foundation, CBR, plate test & pavement design", href: "geo-pavement-toolkit.html" },
-      { id: "kb-hub", title: "Knowledge Base Hub", label: "Hub", hint: "Full dashboard", href: "Sabtan Knowledge Base/index.html" },
       { id: "roadmap", title: "Programme Roadmap", label: "Roadmap", hint: "Phases I–III", href: "najd-roadmap.html" },
       { id: "phase1", title: "Phase I Papers", label: "Phase I", hint: "Paper cards & author view", href: "phase-1-papers.html" },
       { id: "dashboard", title: "Structural Dashboard", label: "Dashboard", hint: "Slope data & analytics", href: "Najd Fault System Dashboard.html" },
@@ -1272,20 +1259,6 @@
       });
     }
 
-    function setProfileMode(on) {
-      hub.classList.toggle("profile-mode", false);
-      if (on) setIdeasMode(false);
-    }
-
-    function setIdeasMode(on) {
-      hub.classList.toggle("ideas-mode", on);
-      if (ideasPanel) ideasPanel.hidden = !on;
-      if (on) {
-        setProfileMode(false);
-        setPickerOpen(false);
-      }
-    }
-
     function setOpen(open) {
       hub.classList.toggle("open", open);
       btn.classList.toggle("open-state", open);
@@ -1298,8 +1271,6 @@
         animateDiscsIn();
       } else {
         resetDiscs();
-        setProfileMode(false);
-        setIdeasMode(false);
         setPickerOpen(false);
       }
     }
@@ -1320,18 +1291,6 @@
       });
     }
 
-    if (ideasBtn) {
-      ideasBtn.addEventListener("click", function () {
-        if (!hub.classList.contains("open")) setOpen(true);
-        setIdeasMode(true);
-      });
-    }
-    if (ideasBack) {
-      ideasBack.addEventListener("click", function () {
-        setIdeasMode(false);
-      });
-    }
-
     document.addEventListener("click", function (e) {
       if (!picker || picker.hidden) return;
       if (picker.contains(e.target) || (utilBtn && utilBtn.contains(e.target))) return;
@@ -1344,8 +1303,7 @@
         setPickerOpen(false);
         return;
       }
-      if (hub.classList.contains("ideas-mode")) setIdeasMode(false);
-      else setOpen(false);
+      setOpen(false);
     });
 
     renderShortcuts();

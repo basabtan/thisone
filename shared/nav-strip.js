@@ -12,7 +12,6 @@
   var NAVDISC_PAIR = ["ideas", "landing"];
   var EDITORIAL_ORDER = [
     "landing",
-    "knowledge",
     "atlas",
     "overview",
     "phase1",
@@ -142,7 +141,6 @@
     var labels = {
       ideas: "Ideas",
       landing: "Home",
-      knowledge: "Hub",
       overview: "Overview",
       phase1: "Phase I",
       paper1guide: "P1 Guide",
@@ -193,7 +191,6 @@
   function editorialIconFor(id) {
     var map = {
       landing: icoEditorialHome,
-      knowledge: icoEditorialGrid,
       overview: icoEditorialRoute,
       phase1: icoEditorialLayers,
       ideas: icoEditorialBulb,
@@ -258,12 +255,9 @@
       return new URL("../" + path.replace(/^\//, ""), root).href;
     }
 
-    var kbLink = link("Sabtan Knowledge Base/index.html");
-
     var navItems = [
-      { id: "ideas", label: "Ideas \u2192", href: link("research-ideas.html"), external: true, configurable: true },
+      { id: "ideas", label: "Ideas \u2192", href: link("research-ideas.html?view=research"), external: true, configurable: true },
       { id: "landing", label: "Home", href: link("index.html"), configurable: true },
-      { id: "knowledge", label: "Knowledge Base", href: kbLink, configurable: true },
       { id: "atlas", label: "Atlas", href: link("atlas.html"), configurable: true },
       { id: "overview", label: "Overview", href: link("najd-roadmap.html?layer=overview"), configurable: true },
       { id: "phase1", label: "Phase I", href: link("phase-1-papers.html"), configurable: true },
