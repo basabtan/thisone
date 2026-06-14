@@ -38,6 +38,7 @@ const state = {
     rainDepth: 30,   // mm total
     rainDur: 2,      // hours
     infil: 0,        // 0=low, 1=med, 2=high, 3=very-high
+    live: false,     // live mode: input changes auto re-run the model
     lastResult: null // { floodedCells, maxDepth, totalVolumeM3, peakFlowM3s }
   },
   dams: {
@@ -1211,6 +1212,27 @@ function computeReservoirs(Pe, baseRunoff, T) {
   return { results, containing };
 }
 
+// Live flood mode: reflect on/off in the Run + Stop buttons
+function setFloodLive(on) {
+  state.flood.live = !!on;
+  const runBtn = document.getElementById('floodRunBtn');
+  const stopBtn = document.getElementById('floodStopBtn');
+  if (runBtn) {
+    runBtn.classList.toggle('live', state.flood.live);
+    const label = runBtn.querySelector('.flood-run-label');
+    if (label) label.textContent = state.flood.live ? 'Live — running…' : 'Run flood model';
+  }
+  if (stopBtn) stopBtn.disabled = !state.flood.live;
+}
+
+// Debounced re-run used while live mode is active (keeps slider dragging smooth)
+let _floodLiveTimer = null;
+function scheduleLiveFlood() {
+  if (!state.flood.live) return;
+  clearTimeout(_floodLiveTimer);
+  _floodLiveTimer = setTimeout(() => { runFloodModel(); }, 180);
+}
+
 function runFloodModel() {
   if (!state.flowacc) {
     document.getElementById('floodStat').innerHTML =
@@ -1377,6 +1399,8 @@ function runFloodModel() {
 }
 
 function clearFlood() {
+  setFloodLive(false);
+  clearTimeout(_floodLiveTimer);
   fctx.clearRect(0, 0, state.W, state.H);
   state.flood.lastResult = null;
   // Phase 2: reset reservoir state + panel
@@ -1657,16 +1681,27 @@ function bindUI() {
   rainDepth.addEventListener('input', e => {
     state.flood.rainDepth = +e.target.value;
     rainDepthVal.textContent = `${state.flood.rainDepth} mm`;
+    scheduleLiveFlood();
   });
   rainDur.addEventListener('input', e => {
     state.flood.rainDur = +e.target.value;
     rainDurVal.textContent = `${state.flood.rainDur} h`;
+    scheduleLiveFlood();
   });
   infil.addEventListener('input', e => {
     state.flood.infil = +e.target.value;
     infilVal.textContent = INFIL_PRESETS[state.flood.infil].name;
+    scheduleLiveFlood();
   });
-  document.getElementById('floodRunBtn').addEventListener('click', runFloodModel);
+  // Run starts (and stays in) live mode: compute now, then auto-update on input
+  document.getElementById('floodRunBtn').addEventListener('click', () => {
+    setFloodLive(true);
+    runFloodModel();
+  });
+  document.getElementById('floodStopBtn').addEventListener('click', () => {
+    clearTimeout(_floodLiveTimer);
+    setFloodLive(false); // exits live mode but keeps the last rendered result
+  });
   document.getElementById('floodClearBtn').addEventListener('click', clearFlood);
 
   // Phase 2: dams visibility toggle

@@ -203,9 +203,14 @@
               <label>Soil infiltration <span id="infilVal" class="slider-num">Low (arid)</span></label>
               <input type="range" id="infil" min="0" max="3" value="0" />
             </div>
-            <button class="tool-btn water-btn" id="floodRunBtn" type="button">
-              <span class="wb-ico">▶</span> Run flood model
-            </button>
+            <div class="flood-run-row">
+              <button class="tool-btn water-btn" id="floodRunBtn" type="button">
+                <span class="wb-ico">▶</span> <span class="flood-run-label">Run flood model</span>
+              </button>
+              <button class="tool-btn flood-stop-btn" id="floodStopBtn" type="button" disabled aria-label="Stop live flood updates and keep the current result">
+                <span class="wb-ico">■</span> Stop
+              </button>
+            </div>
             <button class="tool-btn ghost-btn" id="floodClearBtn" type="button">Clear simulation</button>
             <div class="flood-stat" id="floodStat">
               Set rainfall, then run the model to predict flooded wadis and depths.

@@ -751,6 +751,39 @@ button { user-select: none; }
   border-color: rgba(255,180,84,.70);
 }
 .wb-ico { font-size: 15px; }
+
+/* Run / Stop row for live flood mode */
+.flood-run-row {
+  display: flex;
+  gap: 8px;
+}
+.flood-run-row .water-btn { flex: 1 1 auto; }
+.flood-stop-btn {
+  flex: 0 0 92px;
+  width: auto;
+  gap: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5,18,34,.90);
+  border-color: rgba(255,95,115,.42);
+  color: #ffb7c1;
+}
+.flood-stop-btn:hover:not(:disabled) {
+  border-color: rgba(255,95,115,.85);
+  box-shadow: 0 0 18px rgba(255,95,115,.22);
+}
+.flood-stop-btn:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  color: var(--soft);
+  border-color: var(--border);
+}
+.water-btn.live {
+  background: linear-gradient(135deg, rgba(255,180,84,.72), rgba(29,124,255,.42));
+  border-color: rgba(255,180,84,.78);
+  box-shadow: 0 0 20px rgba(255,180,84,.28);
+}
 .slider-block { margin-top: 14px; }
 .slider-block label {
   display: flex;
@@ -875,6 +908,7 @@ button { user-select: none; }
 .tool-btn,
 .sim-toggle,
 .sim-seg,
+.flood-stop-btn,
 #viewport,
 #viewport::after,
 .readout,
