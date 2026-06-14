@@ -181,41 +181,54 @@
       <aside id="hydroPanel">
         <section class="panel water-panel">
           <h2>Rainfall-Runoff Flood Simulation</h2>
-          <div class="slider-block">
-            <label>Rainfall depth <span id="rainDepthVal" class="slider-num">30 mm</span></label>
-            <input type="range" id="rainDepth" min="0" max="200" value="30" step="5" />
+          <div class="sim-toggle" role="tablist" aria-label="Simulation mode">
+            <button class="sim-seg active" id="simFloodTab" type="button" role="tab" aria-selected="true" aria-controls="floodView" data-sim-view="flood">
+              <span class="sim-seg__ico" aria-hidden="true">≋</span> Flood
+            </button>
+            <button class="sim-seg" id="simRainTab" type="button" role="tab" aria-selected="false" aria-controls="rainView" data-sim-view="rain">
+              <span class="sim-seg__ico" aria-hidden="true">☂</span> Rainfall
+            </button>
           </div>
-          <div class="slider-block">
-            <label>Storm duration <span id="rainDurVal" class="slider-num">2 h</span></label>
-            <input type="range" id="rainDur" min="1" max="24" value="2" />
+
+          <div class="sim-view" id="floodView" role="tabpanel" aria-labelledby="simFloodTab">
+            <div class="slider-block">
+              <label>Rainfall depth <span id="rainDepthVal" class="slider-num">30 mm</span></label>
+              <input type="range" id="rainDepth" min="0" max="200" value="30" step="5" />
+            </div>
+            <div class="slider-block">
+              <label>Storm duration <span id="rainDurVal" class="slider-num">2 h</span></label>
+              <input type="range" id="rainDur" min="1" max="24" value="2" />
+            </div>
+            <div class="slider-block">
+              <label>Soil infiltration <span id="infilVal" class="slider-num">Low (arid)</span></label>
+              <input type="range" id="infil" min="0" max="3" value="0" />
+            </div>
+            <button class="tool-btn water-btn" id="floodRunBtn" type="button">
+              <span class="wb-ico">▶</span> Run flood model
+            </button>
+            <button class="tool-btn ghost-btn" id="floodClearBtn" type="button">Clear simulation</button>
+            <div class="flood-stat" id="floodStat">
+              Set rainfall, then run the model to predict flooded wadis and depths.
+            </div>
           </div>
-          <div class="slider-block">
-            <label>Soil infiltration <span id="infilVal" class="slider-num">Low (arid)</span></label>
-            <input type="range" id="infil" min="0" max="3" value="0" />
+
+          <div class="sim-view is-hidden" id="rainView" role="tabpanel" aria-labelledby="simRainTab">
+            <div class="slider-block">
+              <label>Rain intensity <span id="rainIntVal" class="slider-num">Moderate</span></label>
+              <input type="range" id="rainIntensity" min="1" max="10" value="5" />
+            </div>
+            <div class="slider-block">
+              <label>Simulation speed <span id="rainSpeedVal" class="slider-num">1.0×</span></label>
+              <input type="range" id="rainSpeed" min="0.25" max="3" value="1" step="0.25" />
+            </div>
+            <div class="slider-block">
+              <label>Soil infiltration <span id="rainInfilVal" class="slider-num">Low (arid)</span></label>
+              <input type="range" id="rainInfil" min="0" max="3" value="0" />
+            </div>
+            <button class="tool-btn water-btn" id="rainBtn" type="button">
+              <span class="wb-ico">☂</span> Start rainfall animation
+            </button>
           </div>
-          <button class="tool-btn water-btn" id="floodRunBtn" type="button">
-            <span class="wb-ico">▶</span> Run flood model
-          </button>
-          <button class="tool-btn ghost-btn" id="floodClearBtn" type="button">Clear simulation</button>
-          <div class="flood-stat" id="floodStat">
-            Set rainfall, then run the model to predict flooded wadis and depths.
-          </div>
-          <hr class="divider" />
-          <div class="slider-block">
-            <label>Rain intensity <span id="rainIntVal" class="slider-num">Moderate</span></label>
-            <input type="range" id="rainIntensity" min="1" max="10" value="5" />
-          </div>
-          <div class="slider-block">
-            <label>Simulation speed <span id="rainSpeedVal" class="slider-num">1.0×</span></label>
-            <input type="range" id="rainSpeed" min="0.25" max="3" value="1" step="0.25" />
-          </div>
-          <div class="slider-block">
-            <label>Soil infiltration <span id="rainInfilVal" class="slider-num">Low (arid)</span></label>
-            <input type="range" id="rainInfil" min="0" max="3" value="0" />
-          </div>
-          <button class="tool-btn water-btn" id="rainBtn" type="button">
-            <span class="wb-ico">☂</span> Start rainfall animation
-          </button>
         </section>
 
         <section class="panel" id="damsPanel">

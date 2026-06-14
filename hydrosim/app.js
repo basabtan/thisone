@@ -1610,6 +1610,24 @@ function bindUI() {
   });
   document.getElementById('threeToggle').addEventListener('change', e => toggle3D(e.target.checked));
 
+  // Flood / Rainfall view toggle (only swaps which controls are visible;
+  // never touches a running rain animation or a computed flood result)
+  const simTabs = document.querySelectorAll('.sim-seg');
+  const floodView = document.getElementById('floodView');
+  const rainView = document.getElementById('rainView');
+  function setSimView(view) {
+    const isFlood = view !== 'rain';
+    if (floodView) floodView.classList.toggle('is-hidden', !isFlood);
+    if (rainView) rainView.classList.toggle('is-hidden', isFlood);
+    simTabs.forEach(t => {
+      const active = t.dataset.simView === (isFlood ? 'flood' : 'rain');
+      t.classList.toggle('active', active);
+      t.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+  }
+  simTabs.forEach(t => t.addEventListener('click', () => setSimView(t.dataset.simView)));
+  setSimView('flood');
+
   // Rain animation + its live controls (intensity / speed / infiltration)
   document.getElementById('rainBtn').addEventListener('click', () => toggleRain(!state.rain.active));
   const INT_LABELS = ['', 'Drizzle', 'Light', 'Light', 'Moderate', 'Moderate', 'Heavy', 'Heavy', 'Torrential', 'Torrential', 'Extreme'];

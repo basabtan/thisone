@@ -696,6 +696,48 @@ button { user-select: none; }
     linear-gradient(180deg, rgba(8,27,49,.82), rgba(4,15,30,.82));
 }
 .water-panel h2 { color: var(--teal); }
+
+/* Flood / Rainfall segmented toggle */
+.sim-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  margin-bottom: 4px;
+  border: 1px solid rgba(37,217,255,.24);
+  background: rgba(3,12,24,.55);
+}
+.sim-seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+.sim-seg__ico { font-size: 14px; letter-spacing: 0; }
+.sim-seg:hover {
+  color: #e7f7ff;
+  border-color: rgba(37,217,255,.45);
+}
+.sim-seg.active {
+  color: #04111f;
+  background: linear-gradient(135deg, var(--teal), var(--accent));
+  border-color: rgba(37,217,255,.70);
+  box-shadow: 0 0 18px rgba(37,217,255,.32);
+}
+.sim-view.is-hidden { display: none; }
+
 .water-btn {
   display: flex;
   align-items: center;
@@ -831,6 +873,8 @@ button { user-select: none; }
 .panel,
 .layer-btn,
 .tool-btn,
+.sim-toggle,
+.sim-seg,
 #viewport,
 #viewport::after,
 .readout,
