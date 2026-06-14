@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  Standalone HydroSim demo — synthetic data, no server required.
+  ----------------------------------------------------------------------------
+  Single self-contained file. Open by double-clicking (file://). No data files,
+  no backend, no three.js (3D mode is intentionally omitted — see note below).
+  Everything (terrain, dams, flood, rainfall) is PROCEDURALLY GENERATED in JS
+  with a deterministic seed so it looks the same every time.
+
+  To tweak the demo, jump to the section marked:
+      ===== DEMO DATA GENERATION =====
+  (terrain noise + dams live there). Everything else is rendering/UI glue.
+  ============================================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HydroSim — Standalone Demo (synthetic terrain)</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&f[]=jetbrains-mono@400,500&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+  :root{
+    --bg:#020914; --panel:#061326; --panel-2:#071b31; --panel-3:#0b223b;
+    --border:rgba(118,172,218,.20); --border-2:rgba(71,218,255,.30);
+    --text:#f3f9ff; --text-dim:#9cb5c8; --soft:#6f8ba2;
+    --accent:#25d9ff; --accent-dim:#1d7cff; --teal:#16f5c7; --green:#21e29b;
+    --orange:#ffb454; --danger:#ff5f73;
+    --font-body:'General Sans',Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:var(--font-body);color:var(--text);overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(circle at 48% 0%,rgba(38,217,255,.16),transparent 34%),
+      radial-gradient(circle at 85% 18%,rgba(29,124,255,.14),transparent 32%),
+      radial-gradient(circle at 20% 100%,rgba(22,245,199,.10),transparent 34%),
+      linear-gradient(180deg,#020817 0%,#030b18 52%,#020712 100%);
+  }
+  button,input{font:inherit}
+  button{user-select:none;cursor:pointer}
+  .mono{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.16em}
+
+  #app{width:100vw;height:100vh;display:grid;grid-template-rows:64px minmax(0,1fr);
+    background:
+      linear-gradient(90deg,rgba(23,113,189,.07) 1px,transparent 1px),
+      linear-gradient(180deg,rgba(23,113,189,.05) 1px,transparent 1px);
+    background-size:56px 56px;}
+
+  /* topbar */
+  #topbar{height:64px;display:flex;align-items:center;gap:18px;padding:0 18px;
+    border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg,rgba(5,16,32,.94),rgba(2,9,20,.84));
+    backdrop-filter:blur(18px);z-index:10;}
+  .exit-hub{display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:var(--text-dim);
+    font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    border:1px solid var(--border);padding:7px 11px;background:rgba(7,27,49,.5);transition:.18s;}
+  .exit-hub:hover{border-color:var(--border-2);color:var(--text)}
+  .logo-shell{width:40px;height:40px;display:grid;place-items:center;
+    border:1px solid rgba(37,217,255,.66);background:transparent;
+    box-shadow:0 0 26px rgba(37,217,255,.18);font-size:20px;color:var(--accent);}
+  .wordmark{font-weight:700;font-size:20px;letter-spacing:.02em}
+  .wordmark b{color:var(--accent)}
+  .top-search{margin-left:6px;display:flex;align-items:center;gap:9px;color:var(--text-dim);
+    font-size:12.5px;border:1px solid var(--border);padding:8px 14px;background:rgba(7,27,49,.42);}
+  .search-dot{width:7px;height:7px;background:var(--teal);box-shadow:0 0 10px var(--teal)}
+  .top-spacer{flex:1}
+  .top-item{display:flex;align-items:center;gap:9px;padding:6px 12px;border-left:1px solid var(--border)}
+  .top-icon{color:var(--accent);font-size:16px}
+  .top-title{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft)}
+  .top-value{font-size:12.5px;color:var(--text)}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);
+    animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+  .workspace{display:grid;grid-template-columns:288px minmax(0,1fr) 332px;min-height:0}
+
+  /* panels */
+  aside{overflow-y:auto;border-color:var(--border);background:linear-gradient(180deg,rgba(6,19,38,.72),rgba(2,9,20,.72))}
+  #sidebar{border-right:1px solid var(--border);padding:16px 14px}
+  #hydroPanel{border-left:1px solid var(--border);padding:16px 14px}
+  .panel{border:1px solid var(--border);background:rgba(7,27,49,.4);padding:14px;margin-bottom:14px}
+  .panel h2{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:11px;font-weight:600}
+  .brand{display:flex;align-items:center;gap:11px;margin-bottom:16px}
+  .brand-logo{width:34px;height:34px;display:grid;place-items:center;border:1px solid rgba(37,217,255,.5);
+    color:var(--accent);font-size:17px}
+  .brand h1{font-size:15px;letter-spacing:.01em}
+  .brand span{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft)}
+
+  .layer-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .layer-btn{display:flex;align-items:center;gap:7px;padding:9px 9px;border:1px solid var(--border);
+    background:rgba(8,27,49,.55);color:var(--text-dim);font-size:11.5px;text-align:left;transition:.16s}
+  .layer-btn span{color:var(--accent);font-size:13px}
+  .layer-btn:hover{border-color:var(--border-2);color:var(--text)}
+  .layer-btn.active{border-color:var(--accent);background:rgba(37,217,255,.12);color:var(--text);
+    box-shadow:inset 0 0 0 1px rgba(37,217,255,.3)}
+  .layer-btn.wide{grid-column:1/3}
+
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 2px;margin-top:8px;
+    border-top:1px solid var(--border);font-size:12.5px;color:var(--text-dim)}
+  input[type=checkbox]{appearance:none;width:38px;height:20px;background:rgba(8,27,49,.9);border:1px solid var(--border);
+    position:relative;cursor:pointer;transition:.18s}
+  input[type=checkbox]::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;background:var(--soft);transition:.18s}
+  input[type=checkbox]:checked{border-color:var(--accent);background:rgba(37,217,255,.2)}
+  input[type=checkbox]:checked::after{left:20px;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+
+  .legend-bar{height:14px;border:1px solid var(--border);margin-bottom:6px}
+  .legend-labels{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;
+    letter-spacing:.1em;color:var(--soft)}
+
+  .hint{font-size:11px;color:var(--soft);line-height:1.5;margin-top:8px}
+
+  /* viewport */
+  #viewport{position:relative;overflow:hidden}
+  #canvasWrap{position:absolute;inset:0}
+  #canvasWrap canvas{position:absolute;inset:0;width:100%;height:100%}
+  .readout{position:absolute;top:14px;left:14px;z-index:6;display:flex;flex-direction:column;gap:2px;
+    border:1px solid var(--border-2);background:rgba(3,11,24,.82);backdrop-filter:blur(8px);padding:9px 13px}
+  .readout-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft)}
+  .readout-value{font-size:17px;font-weight:600;color:var(--accent);font-family:var(--font-mono)}
+  .readout-coord{font-family:var(--font-mono);font-size:10.5px;color:var(--text-dim);letter-spacing:.05em}
+
+  .map-glow-card{position:absolute;left:14px;bottom:14px;z-index:6;display:flex;align-items:center;gap:11px;
+    border:1px solid var(--border);background:rgba(3,11,24,.78);padding:10px 14px;backdrop-filter:blur(8px)}
+  .green-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
+  .map-glow-card b{font-size:12.5px;display:block}
+  .map-glow-card span{font-size:10.5px;color:var(--soft)}
+
+  .water-banner{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:7;display:flex;align-items:center;gap:9px;
+    border:1px solid var(--border-2);background:rgba(3,11,24,.85);padding:8px 16px;font-size:12px;color:var(--accent);
+    font-family:var(--font-mono);letter-spacing:.1em;text-transform:uppercase}
+  .wb-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 1.2s infinite}
+  .hidden{display:none!important}
+
+  /* dam tooltip */
+  .dam-tip{position:absolute;z-index:20;width:280px;border:1px solid var(--border-2);
+    background:linear-gradient(180deg,rgba(8,27,49,.97),rgba(3,11,24,.97));backdrop-filter:blur(14px);
+    box-shadow:0 24px 60px rgba(0,0,0,.6);padding:14px;pointer-events:none;transition:opacity .12s}
+  .dt-over{font-family:var(--font-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);
+    display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:7px}
+  .dt-badge{padding:2px 6px;border:1px solid var(--border)}
+  .dt-badge.ok{color:var(--green);border-color:rgba(33,226,155,.5)}
+  .dt-badge.est{color:var(--orange);border-color:rgba(255,180,84,.5)}
+  .dt-title{font-size:15px;font-weight:700;margin-bottom:1px}
+  .dt-ar{font-size:12px;color:var(--text-dim);margin-bottom:9px;direction:rtl}
+  .dt-metric{font-family:var(--font-mono);font-size:20px;color:var(--accent);font-weight:600}
+  .dt-metric small{font-size:10px;color:var(--soft);letter-spacing:.12em}
+  .dt-bar{height:9px;border:1px solid var(--border);margin:10px 0 8px;position:relative;overflow:hidden}
+  .dt-bar i{position:absolute;inset:0;width:0%;background:linear-gradient(90deg,var(--teal),var(--accent));transition:width .25s}
+  .dt-desc{font-size:11px;color:var(--text-dim);line-height:1.5;margin-bottom:9px}
+  .dt-chips{display:flex;gap:6px;flex-wrap:wrap}
+  .dt-chip{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+    padding:3px 7px;border:1px solid var(--border);color:var(--text-dim)}
+  .dt-chip.warn{color:var(--orange);border-color:rgba(255,180,84,.5)}
+  .dt-chip.danger{color:var(--danger);border-color:rgba(255,95,115,.5)}
+
+  /* right panel sim */
+  .sim-toggle{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border);margin-bottom:14px}
+  .sim-seg{padding:10px;background:rgba(8,27,49,.4);color:var(--text-dim);font-size:12.5px;
+    display:flex;align-items:center;justify-content:center;gap:7px;border:none;transition:.16s}
+  .sim-seg__ico{color:var(--accent)}
+  .sim-seg.active{background:rgba(37,217,255,.14);color:var(--text);box-shadow:inset 0 0 0 1px var(--accent)}
+  .sim-view.is-hidden{display:none}
+  .slider-block{margin-bottom:13px}
+  .slider-block label{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-dim);margin-bottom:7px}
+  .slider-num{font-family:var(--font-mono);font-size:11px;color:var(--accent);letter-spacing:.05em}
+  input[type=range]{appearance:none;width:100%;height:4px;background:rgba(118,172,218,.25);outline:none}
+  input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;background:var(--accent);
+    cursor:pointer;box-shadow:0 0 10px rgba(37,217,255,.7);border:0}
+  input[type=range]::-moz-range-thumb{width:15px;height:15px;background:var(--accent);cursor:pointer;border:0}
+
+  .tool-btn{width:100%;padding:11px;border:1px solid var(--border);background:rgba(8,27,49,.6);color:var(--text);
+    font-size:12.5px;display:flex;align-items:center;justify-content:center;gap:8px;transition:.16s}
+  .tool-btn:hover:not(:disabled){border-color:var(--border-2)}
+  .tool-btn:disabled{opacity:.4;cursor:not-allowed}
+  .water-btn{border-color:var(--border-2);background:rgba(37,217,255,.12);color:var(--accent)}
+  .water-btn:hover:not(:disabled){background:rgba(37,217,255,.2)}
+  .flood-run-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px}
+  .flood-stop-btn{width:auto;padding:11px 14px;color:var(--danger);border-color:rgba(255,95,115,.4)}
+  .ghost-btn{background:transparent;color:var(--text-dim);margin-bottom:10px}
+  .flood-stat{font-size:11.5px;color:var(--text-dim);line-height:1.55;padding:10px;border:1px solid var(--border);
+    background:rgba(3,11,24,.5);margin-top:4px}
+  .flood-stat b{color:var(--accent);font-family:var(--font-mono)}
+  .wb-ico{font-size:11px}
+
+  .dams-head{display:flex;justify-content:space-between;align-items:center}
+  .toggle-inline{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-dim)}
+  .toggle-inline input{width:30px;height:16px}
+  .toggle-inline input::after{width:11px;height:11px}
+  .toggle-inline input:checked::after{left:15px}
+  .dams-list{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+  .dam-card{border:1px solid var(--border);background:rgba(8,27,49,.45);padding:10px;cursor:pointer;transition:.16s}
+  .dam-card:hover{border-color:var(--border-2)}
+  .dam-card .dc-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .dam-card .dc-name{font-size:12.5px;font-weight:600}
+  .dam-card .dc-cap{font-family:var(--font-mono);font-size:10px;color:var(--soft);letter-spacing:.06em}
+  .dc-fill{height:6px;border:1px solid var(--border);margin-top:8px;position:relative;overflow:hidden}
+  .dc-fill i{position:absolute;inset:0;width:0%;background:linear-gradient(90deg,var(--teal),var(--accent));transition:width .3s}
+  .dc-status{font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-top:6px}
+  .dc-status.warn{color:var(--orange)}
+  .dc-status.danger{color:var(--danger)}
+
+  .status-row{display:flex;justify-content:space-between;font-size:11.5px;padding:7px 0;border-top:1px solid var(--border);color:var(--text-dim)}
+  .status-row:first-of-type{border-top:none}
+  .status-row b{color:var(--text);font-family:var(--font-mono);font-size:11px}
+  .side-foot{font-size:10px;color:var(--soft);line-height:1.5;margin-top:6px}
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header id="topbar">
+      <a class="exit-hub" href="index.html"><span aria-hidden="true">←</span><span>Hub</span></a>
+      <div class="logo-shell">◍</div>
+      <div class="wordmark">Hydro<b>Sim</b></div>
+      <div class="top-search"><span class="search-dot"></span><span>Procedural Demo Terrain · Synthetic Data</span></div>
+      <div class="top-spacer"></div>
+      <div class="top-item"><span class="top-icon">△</span><div><div class="top-title">Terrain</div><div class="top-value">DEM Demo</div></div></div>
+      <div class="top-item"><span class="top-icon">⌁</span><div><div class="top-title">Simulation</div><div class="top-value">Rainfall Runoff</div></div></div>
+      <div class="top-item"><span class="live-dot"></span><div><div class="top-title">Status</div><div class="top-value">Local Model</div></div></div>
+    </header>
+
+    <div class="workspace">
+      <!-- LEFT: Control Lens -->
+      <aside id="sidebar">
+        <div class="brand">
+          <div class="brand-logo">◍</div>
+          <div><h1>Control Lens</h1><span>Terrain layers</span></div>
+        </div>
+
+        <section class="panel">
+          <h2>Visualization</h2>
+          <div class="layer-grid" id="layerGrid">
+            <button class="layer-btn active" data-layer="color"><span>▰</span>Elevation</button>
+            <button class="layer-btn" data-layer="dtm"><span>▱</span>DTM</button>
+            <button class="layer-btn" data-layer="hillshade"><span>△</span>Hillshade</button>
+            <button class="layer-btn" data-layer="slope"><span>≋</span>Slope</button>
+            <button class="layer-btn" data-layer="aspect"><span>◌</span>Aspect</button>
+            <button class="layer-btn" data-layer="twi"><span>≈</span>TWI</button>
+            <button class="layer-btn wide" data-layer="fill"><span>▣</span>Sink-fill</button>
+          </div>
+          <label class="toggle-row"><span>Contour lines</span><input type="checkbox" id="contourToggle" /></label>
+        </section>
+
+        <section class="panel" id="legendPanel">
+          <h2 id="legendTitle">Elevation</h2>
+          <div class="legend-bar" id="legendBar"></div>
+          <div class="legend-labels"><span id="legendMin">0</span><span id="legendMax">0</span></div>
+        </section>
+
+        <footer class="side-foot">
+          Synthetic procedural DEM · hillshade · slope · TWI · flow accumulation · demo dams.
+          No server, no data files — everything generated in-browser.
+        </footer>
+      </aside>
+
+      <!-- CENTER: map -->
+      <main id="viewport">
+        <div id="readout" class="readout">
+          <span class="readout-label">Elevation</span>
+          <span class="readout-value" id="readoutValue">— m</span>
+          <span class="readout-coord" id="readoutCoord">move cursor over map</span>
+        </div>
+        <div id="canvasWrap">
+          <canvas id="mapCanvas"></canvas>
+          <canvas id="floodCanvas"></canvas>
+          <canvas id="waterCanvas"></canvas>
+          <canvas id="damsCanvas"></canvas>
+          <div id="damTip" class="dam-tip" role="tooltip" hidden></div>
+        </div>
+        <div id="waterBanner" class="water-banner hidden"><span class="wb-dot"></span><span id="waterBannerText">Rainfall active</span></div>
+        <div class="map-glow-card">
+          <span class="green-dot"></span>
+          <div><b>Terrain Intelligence</b><span>Elevation · slope · wetness · dams · flood depth</span></div>
+        </div>
+      </main>
+
+      <!-- RIGHT: simulation + dams -->
+      <aside id="hydroPanel">
+        <section class="panel">
+          <h2>Rainfall-Runoff Flood Simulation</h2>
+          <div class="sim-toggle" role="tablist">
+            <button class="sim-seg active" id="simFloodTab" data-sim-view="flood"><span class="sim-seg__ico">≋</span>Flood</button>
+            <button class="sim-seg" id="simRainTab" data-sim-view="rain"><span class="sim-seg__ico">☂</span>Rainfall</button>
+          </div>
+
+          <div class="sim-view" id="floodView">
+            <div class="slider-block">
+              <label>Rainfall depth <span id="rainDepthVal" class="slider-num">30 mm</span></label>
+              <input type="range" id="rainDepth" min="0" max="200" value="30" step="5" />
+            </div>
+            <div class="slider-block">
+              <label>Storm duration <span id="rainDurVal" class="slider-num">2 h</span></label>
+              <input type="range" id="rainDur" min="1" max="24" value="2" />
+            </div>
+            <div class="slider-block">
+              <label>Soil infiltration <span id="infilVal" class="slider-num">Low (arid)</span></label>
+              <input type="range" id="infil" min="0" max="3" value="0" />
+            </div>
+            <div class="flood-run-row">
+              <button class="tool-btn water-btn" id="floodRunBtn"><span class="wb-ico">▶</span><span class="flood-run-label">Run flood model</span></button>
+              <button class="tool-btn flood-stop-btn" id="floodStopBtn" disabled><span class="wb-ico">■</span>Stop</button>
+            </div>
+            <button class="tool-btn ghost-btn" id="floodClearBtn">Clear simulation</button>
+            <div class="flood-stat" id="floodStat">Set rainfall, then run the model to predict flooded wadis and depths.</div>
+          </div>
+
+          <div class="sim-view is-hidden" id="rainView">
+            <div class="slider-block">
+              <label>Rain intensity <span id="rainIntVal" class="slider-num">Moderate</span></label>
+              <input type="range" id="rainIntensity" min="1" max="10" value="5" />
+            </div>
+            <div class="slider-block">
+              <label>Simulation speed <span id="rainSpeedVal" class="slider-num">1.0×</span></label>
+              <input type="range" id="rainSpeed" min="0.25" max="3" value="1" step="0.25" />
+            </div>
+            <button class="tool-btn water-btn" id="rainBtn"><span class="wb-ico">☂</span><span id="rainBtnLabel">Start rainfall animation</span></button>
+          </div>
+        </section>
+
+        <section class="panel" id="damsPanel">
+          <div class="dams-head">
+            <h2>Dams &amp; Reservoirs</h2>
+            <label class="toggle-inline"><input type="checkbox" id="damsToggle" checked /><span>Show</span></label>
+          </div>
+          <p class="hint" id="damsHint">Run the flood model to see reservoir filling and overflow risk.</p>
+          <div class="dams-list" id="damsList"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Model Health</h2>
+          <div class="status-row"><span>Render mode</span><b>2D</b></div>
+          <div class="status-row"><span>Flood engine</span><b>Local</b></div>
+          <div class="status-row"><span>Data scope</span><b>Synthetic</b></div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+  "use strict";
+
+  /* ========================================================================
+     ===== DEMO DATA GENERATION =====
+     Everything below up to "END DEMO DATA" is the synthetic content.
+     Tweak GRID_W/GRID_H, SEED, the noise octaves, SEA_LEVEL, or the DAMS[]
+     array to change the terrain and dams. No network/data files involved.
+     ======================================================================== */
+  const GRID_W = 420, GRID_H = 280;   // DEM resolution
+  const SEED = 1337;                  // deterministic seed
+  const SEA_LEVEL = 0.30;             // fraction of height range that is "ocean"
+  const MAX_ELEV = 2400;              // metres mapped to the top of the range
+
+  // --- tiny deterministic PRNG + value noise -----------------------------
+  function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  const rng = mulberry32(SEED);
+  function hash2(x,y){ // deterministic per-cell hash 0..1
+    let h = Math.sin(x*127.1 + y*311.7 + SEED*0.013) * 43758.5453;
+    return h - Math.floor(h);
+  }
+  function smooth(t){return t*t*(3-2*t);}
+  function valueNoise(x,y){ // bilinear-interpolated value noise
+    const xi=Math.floor(x), yi=Math.floor(y), xf=x-xi, yf=y-yi;
+    const a=hash2(xi,yi), b=hash2(xi+1,yi), c=hash2(xi,yi+1), d=hash2(xi+1,yi+1);
+    const u=smooth(xf), v=smooth(yf);
+    return (a*(1-u)+b*u)*(1-v) + (c*(1-u)+d*u)*v;
+  }
+  function fbm(x,y){ // a few octaves
+    let amp=0.55, freq=1, sum=0, norm=0;
+    for(let o=0;o<5;o++){ sum+=amp*valueNoise(x*freq,y*freq); norm+=amp; amp*=0.5; freq*=2.0; }
+    return sum/norm;
+  }
+
+  // --- build DEM + derived fields -----------------------------------------
+  const N = GRID_W*GRID_H;
+  const elev = new Float32Array(N);   // 0..1 normalized elevation
+  const slope = new Float32Array(N);  // degrees
+  const aspect= new Float32Array(N);  // 0..1 (radians/2pi)
+  const shade = new Float32Array(N);  // 0..1 hillshade
+  const twi   = new Float32Array(N);  // 0..1 wetness proxy
+  const accum = new Float32Array(N);  // 0..1 flow accumulation proxy
+  let eMin=1e9, eMax=-1e9;
+
+  (function buildDEM(){
+    // base elevation: fbm + a broad ridge so there's a mountain spine & a basin
+    const fx=4.2, fy=3.0;
+    for(let y=0;y<GRID_H;y++){
+      for(let x=0;x<GRID_W;x++){
+        const nx=x/GRID_W, ny=y/GRID_H;
+        let e = fbm(nx*fx, ny*fy);
+        // diagonal ridge bias (mountains upper-right, sea lower-left)
+        e = e*0.72 + (nx*0.6 + (1-ny)*0.5)*0.28;
+        // a circular basin / lake bowl near center-left
+        const dx=nx-0.34, dy=ny-0.58, d=Math.sqrt(dx*dx+dy*dy);
+        e -= Math.max(0, 0.16-d)*0.9;
+        const i=y*GRID_W+x; elev[i]=e;
+        if(e<eMin)eMin=e; if(e>eMax)eMax=e;
+      }
+    }
+    // normalize 0..1
+    const rng2=eMax-eMin||1;
+    for(let i=0;i<N;i++) elev[i]=(elev[i]-eMin)/rng2;
+
+    // slope, aspect, hillshade from gradient; light from NW
+    const lx=-0.7, ly=-0.7, lz=0.9, ll=Math.hypot(lx,ly,lz);
+    for(let y=0;y<GRID_H;y++){
+      for(let x=0;x<GRID_W;x++){
+        const i=y*GRID_W+x;
+        const xl=Math.max(0,x-1), xr=Math.min(GRID_W-1,x+1);
+        const yu=Math.max(0,y-1), yd=Math.min(GRID_H-1,y+1);
+        const dzdx=(elev[y*GRID_W+xr]-elev[y*GRID_W+xl])*MAX_ELEV;
+        const dzdy=(elev[yd*GRID_W+x]-elev[yu*GRID_W+x])*MAX_ELEV;
+        const cell=90; // metres/cell approx
+        const gx=dzdx/(2*cell), gy=dzdy/(2*cell);
+        const sl=Math.atan(Math.hypot(gx,gy));
+        slope[i]=sl*180/Math.PI;
+        aspect[i]=(Math.atan2(gy,-gx)+Math.PI)/(2*Math.PI);
+        // hillshade: dot of surface normal with light
+        const nzx=-gx, nzy=-gy, nzz=1, nl=Math.hypot(nzx,nzy,nzz);
+        let h=(nzx*lx+nzy*ly+nzz*lz)/(nl*ll);
+        shade[i]=Math.max(0,h);
+      }
+    }
+    // flow accumulation proxy: water collects in low + flat areas, downhill bias
+    let aMax=0;
+    for(let y=0;y<GRID_H;y++){
+      for(let x=0;x<GRID_W;x++){
+        const i=y*GRID_W+x;
+        const lowness=1-elev[i];
+        const flat=1-Math.min(1,slope[i]/35);
+        const a=Math.pow(lowness,2.0)*0.7 + flat*0.3 + fbm(x*0.05,y*0.05)*0.15;
+        accum[i]=a; if(a>aMax)aMax=a;
+      }
+    }
+    // TWI proxy = ln(accum / tan(slope)) style, normalized
+    let tMin=1e9,tMax=-1e9;
+    for(let i=0;i<N;i++){
+      accum[i]/=aMax||1;
+      const t=Math.log((accum[i]*40+1)/(Math.tan(slope[i]*Math.PI/180)+0.02));
+      twi[i]=t; if(t<tMin)tMin=t; if(t>tMax)tMax=t;
+    }
+    const tr=tMax-tMin||1;
+    for(let i=0;i<N;i++) twi[i]=(twi[i]-tMin)/tr;
+  })();
+
+  function elevMetres(i){ return Math.round((elev[i]-SEA_LEVEL)/(1-SEA_LEVEL)*MAX_ELEV); }
+
+  // --- color ramps --------------------------------------------------------
+  function lerp(a,b,t){return a+(b-a)*t;}
+  function rgb(r,g,b){return [r|0,g|0,b|0];}
+  function rampElevation(e){ // blue sea -> green -> yellow/orange -> white peaks
+    if(e<SEA_LEVEL){ const t=e/SEA_LEVEL; return rgb(lerp(6,24,t),lerp(28,86,t),lerp(64,150,t)); }
+    const t=(e-SEA_LEVEL)/(1-SEA_LEVEL);
+    if(t<0.35){const k=t/0.35;return rgb(lerp(36,150,k),lerp(120,190,k),lerp(70,90,k));}
+    if(t<0.7){const k=(t-0.35)/0.35;return rgb(lerp(150,224,k),lerp(190,170,k),lerp(90,80,k));}
+    const k=(t-0.7)/0.3;return rgb(lerp(224,250,k),lerp(170,250,k),lerp(80,252,k));
+  }
+  function rampMono(v,base){ const s=lerp(40,255,v); return rgb(s*base[0],s*base[1],s*base[2]); }
+  function rampSlope(d){ const v=Math.min(1,d/45); return rgb(lerp(20,255,v),lerp(60,90,v),lerp(120,40,v)); }
+  function rampWet(v){ return rgb(lerp(10,30,v),lerp(40,210,v),lerp(60,235,v)); }
+  function rampAspect(a){ const h=a*360; return hsl2rgb(h,0.55,0.5); }
+  function hsl2rgb(h,s,l){h/=360;const q=l<0.5?l*(1+s):l+s-l*s,p=2*l-q;const f=t=>{t=(t+1)%1;if(t<1/6)return p+(q-p)*6*t;if(t<0.5)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;};return rgb(f(h+1/3)*255,f(h)*255,f(h-1/3)*255);}
+
+  // --- synthetic dams (deterministic positions/specs) ---------------------
+  // Tweak this array to change dams. catch = catchment km^2.
+  const DAMS = [
+    {name_en:"Wadi Najran Dam", name_ar:"سد وادي نجران", cap:85, height:73, material:"Concrete arch", year:1982, verified:true,  catch:1280, region:"Najran", desc:"Flood-control and recharge dam across a major wadi."},
+    {name_en:"Bisha Reservoir",  name_ar:"خزان بيشة",     cap:325,height:36, material:"Earth-fill",   year:1997, verified:true,  catch:4650, region:"Asir",   desc:"Large irrigation reservoir on the Bisha drainage."},
+    {name_en:"King Fahad Dam",   name_ar:"سد الملك فهد",  cap:325,height:103,material:"Concrete arch", year:1997, verified:true,  catch:5230, region:"Asir",   desc:"One of the kingdom's tallest dams; multi-purpose."},
+    {name_en:"Tabuk Wadi Dam",   name_ar:"سد وادي تبوك",  cap:14, height:21, material:"Gravity",      year:2006, verified:false, catch:430,  region:"Tabuk",  desc:"Estimated small storage dam on a northern wadi."},
+    {name_en:"Hali Barrier",     name_ar:"سد وادي حلي",   cap:250,height:48, material:"RCC gravity",  year:2009, verified:true,  catch:3110, region:"Makkah", desc:"Roller-compacted concrete flood barrier."},
+    {name_en:"Jizan Dam",        name_ar:"سد جازان",      cap:71, height:36, material:"Concrete arch", year:1970, verified:true,  catch:980,  region:"Jazan",  desc:"Historic arch dam supplying coastal farmland."},
+    {name_en:"Wadi Hamd Spill",  name_ar:"منشأة وادي الحمض", cap:40, height:18, material:"Embankment", year:2014, verified:false, catch:760, region:"Madinah",desc:"Estimated spillway / recharge structure."},
+    {name_en:"Ranyah Reservoir", name_ar:"خزان رنية",     cap:120,height:42, material:"Earth-fill",   year:2001, verified:false, catch:2040, region:"Makkah", desc:"Estimated reservoir capacity, agricultural use."}
+  ];
+  // place each dam in a plausible low-accumulation valley (deterministic)
+  DAMS.forEach((d,k)=>{
+    let best=-1,bx=0,by=0;
+    for(let s=0;s<60;s++){
+      const gx=Math.floor(rng()*(GRID_W-40))+20, gy=Math.floor(rng()*(GRID_H-40))+20;
+      const i=gy*GRID_W+gx; const score=accum[i]*(elev[i]>SEA_LEVEL?1:0);
+      if(score>best){best=score;bx=gx;by=gy;}
+    }
+    d.gx=bx; d.gy=by; d.fill=0; d.status="idle";
+  });
+  /* ===== END DEMO DATA ===== */
+
+  // ====================== RENDERING / UI ==============================
+  const $=id=>document.getElementById(id);
+  const wrap=$("canvasWrap");
+  const mapC=$("mapCanvas"), floodC=$("floodCanvas"), waterC=$("waterCanvas"), damC=$("damsCanvas");
+  const mapX=mapC.getContext("2d"), floodX=floodC.getContext("2d"), waterX=waterC.getContext("2d"), damX=damC.getContext("2d");
+  let activeLayer="color", showContours=false, showDams=true;
+  let viewW=0, viewH=0, dpr=Math.min(2,window.devicePixelRatio||1);
+
+  // offscreen DEM render at grid resolution, then scaled to canvas
+  const demCanvas=document.createElement("canvas"); demCanvas.width=GRID_W; demCanvas.height=GRID_H;
+  const demX=demCanvas.getContext("2d");
+  const demImg=demX.createImageData(GRID_W,GRID_H);
+
+  function fieldColor(i){
+    switch(activeLayer){
+      case "color": return rampElevation(elev[i]);
+      case "dtm":   return rampElevation(elev[i]<SEA_LEVEL?elev[i]:elev[i]*0.97); // bare-earth variant
+      case "hillshade": { const v=shade[i]; return rgb(v*235,v*240,v*250); }
+      case "slope": return rampSlope(slope[i]);
+      case "aspect":return elev[i]<SEA_LEVEL?rgb(10,26,52):rampAspect(aspect[i]);
+      case "twi":   return rampWet(twi[i]);
+      case "fill":  { // sink-fill: tint basins below local mean
+        const v=elev[i]; const c=rampElevation(v); return accum[i]>0.6?rgb(40,150,210):c; }
+      default: return rampElevation(elev[i]);
+    }
+  }
+  function renderDEM(){
+    const data=demImg.data;
+    for(let i=0;i<N;i++){
+      const c=fieldColor(i); const o=i*4;
+      data[o]=c[0]; data[o+1]=c[1]; data[o+2]=c[2]; data[o+3]=255;
+    }
+    demX.putImageData(demImg,0,0);
+    mapX.imageSmoothingEnabled=true;
+    mapX.clearRect(0,0,viewW,viewH);
+    mapX.drawImage(demCanvas,0,0,viewW,viewH);
+    if(showContours) drawContours();
+    updateLegend();
+  }
+  function drawContours(){
+    mapX.save();
+    mapX.lineWidth=1; mapX.strokeStyle="rgba(8,18,30,.55)";
+    const levels=12;
+    const sx=viewW/GRID_W, sy=viewH/GRID_H;
+    for(let l=1;l<levels;l++){
+      const iso=SEA_LEVEL+(1-SEA_LEVEL)*l/levels;
+      mapX.beginPath();
+      for(let y=0;y<GRID_H-1;y++){
+        for(let x=0;x<GRID_W-1;x++){
+          const a=elev[y*GRID_W+x], b=elev[y*GRID_W+x+1], c=elev[(y+1)*GRID_W+x];
+          if((a-iso)*(b-iso)<0){ const t=(iso-a)/(b-a); mapX.moveTo((x+t)*sx,y*sy); mapX.lineTo((x+t)*sx,(y+1)*sy*0.5+y*sy*0.5);} 
+          if((a-iso)*(c-iso)<0){ const t=(iso-a)/(c-a); mapX.moveTo(x*sx,(y+t)*sy); mapX.lineTo((x+0.5)*sx,(y+t)*sy);} 
+        }
+      }
+      mapX.stroke();
+    }
+    mapX.restore();
+  }
+
+  const LEGENDS={
+    color:{t:"Elevation",min:"0 m",max:MAX_ELEV+" m",grad:"linear-gradient(90deg,#062840,#168aa0,#96be5a,#e0aa50,#fafafc)"},
+    dtm:{t:"DTM (bare earth)",min:"0 m",max:MAX_ELEV+" m",grad:"linear-gradient(90deg,#062840,#168aa0,#96be5a,#e0aa50,#fafafc)"},
+    hillshade:{t:"Hillshade",min:"shadow",max:"light",grad:"linear-gradient(90deg,#0a0f17,#f0f4fa)"},
+    slope:{t:"Slope",min:"0°",max:"45°+",grad:"linear-gradient(90deg,#143c78,#ff5a28)"},
+    aspect:{t:"Aspect",min:"N",max:"N",grad:"linear-gradient(90deg,#e34,#fd4,#4f4,#4df,#44e,#e4e,#e34)"},
+    twi:{t:"Wetness / TWI",min:"dry",max:"wet",grad:"linear-gradient(90deg,#0a283c,#1ed2eb)"},
+    fill:{t:"Sink-fill basins",min:"low",max:"basin",grad:"linear-gradient(90deg,#062840,#2896d2)"}
+  };
+  function updateLegend(){
+    const L=LEGENDS[activeLayer]||LEGENDS.color;
+    $("legendTitle").textContent=L.t;
+    $("legendBar").style.background=L.grad;
+    $("legendMin").textContent=L.min; $("legendMax").textContent=L.max;
+  }
+
+  // ---- dam markers ----
+  function damPix(d){ return { x:(d.gx+0.5)/GRID_W*viewW, y:(d.gy+0.5)/GRID_H*viewH }; }
+  function drawDams(){
+    damX.clearRect(0,0,viewW,viewH);
+    if(!showDams) return;
+    DAMS.forEach(d=>{
+      const p=damPix(d);
+      const danger=d.status==="overflow", warn=d.status==="high";
+      const col=danger?"#ff5f73":warn?"#ffb454":"#25d9ff";
+      damX.save();
+      damX.translate(p.x,p.y);
+      // marker: sharp diamond
+      damX.beginPath(); damX.moveTo(0,-9); damX.lineTo(8,0); damX.lineTo(0,9); damX.lineTo(-8,0); damX.closePath();
+      damX.fillStyle="rgba(3,11,24,.85)"; damX.fill();
+      damX.lineWidth=2; damX.strokeStyle=col; damX.stroke();
+      damX.fillStyle=col; damX.beginPath(); damX.arc(0,0,2.4,0,7); damX.fill();
+      if(d.fill>0){ // fill ring
+        damX.beginPath(); damX.arc(0,0,13,-Math.PI/2,-Math.PI/2+d.fill*Math.PI*2);
+        damX.lineWidth=2.4; damX.strokeStyle=col; damX.globalAlpha=.9; damX.stroke();
+      }
+      damX.restore();
+    });
+  }
+
+  // ---- resize ----
+  function resize(){
+    const r=wrap.getBoundingClientRect(); viewW=r.width; viewH=r.height;
+    [mapC,floodC,waterC,damC].forEach(c=>{ c.width=viewW*dpr; c.height=viewH*dpr; });
+    [mapX,floodX,waterX,damX].forEach(x=>{ x.setTransform(dpr,0,0,dpr,0,0); });
+    renderDEM(); drawDams(); if(floodState.overlay) paintFlood();
+  }
+
+  // ====================== FLOOD SIMULATION (live) =====================
+  const floodState={ overlay:null, live:false, floodedFrac:0, maxDepth:0 };
+
+  function computeFlood(){
+    const depthMm=+$("rainDepth").value;
+    const durH=+$("rainDur").value;
+    const infil=+$("infil").value;            // 0 low(arid) .. 3 high
+    // effective runoff: more rain, shorter storm (higher intensity) => more flooding;
+    // higher infiltration => less. Pure demo math, not real hydrology.
+    const rainNorm=depthMm/200;
+    const intensityNorm=Math.min(1,(depthMm/Math.max(1,durH))/100);
+    const infilFactor=1-infil*0.22;            // 1.0 (arid) .. 0.34 (very high)
+    // floodPower 0.18..0.95: higher => lower cut => more flooded cells & deeper water
+    const floodPower=Math.max(0.12,Math.min(0.8,(0.26 + rainNorm*0.42 + intensityNorm*0.12)*infilFactor));
+    const cut=1-floodPower;
+
+    const overlay=floodState.overlay||new Float32Array(N);
+    overlay.fill(0);
+    let flooded=0, maxD=0;
+    for(let i=0;i<N;i++){
+      if(elev[i]<SEA_LEVEL) continue;           // ocean isn't "flooding"
+      // water pools where accumulation is high and elevation is low (0..1.2 -> 0..1)
+      const susN=(accum[i]*0.7 + (1-elev[i])*0.5)/1.2;
+      if(susN>cut){
+        const d=(susN-cut)*floodPower*22; // metres-ish demo depth
+        overlay[i]=d; flooded++; if(d>maxD)maxD=d;
+      }
+    }
+    floodState.overlay=overlay;
+    floodState.floodedFrac=flooded/N;
+    floodState.maxDepth=maxD;
+    updateDamFills(depthMm,durH,infil);
+    paintFlood();
+    updateFloodStat();
+    renderDamList();
+  }
+  function paintFlood(){
+    floodX.clearRect(0,0,viewW,viewH);
+    const ov=floodState.overlay; if(!ov) return;
+    const img=demX.createImageData(GRID_W,GRID_H); const data=img.data;
+    for(let i=0;i<N;i++){
+      const d=ov[i]; const o=i*4;
+      if(d>0){ const t=Math.min(1,d/6);
+        data[o]=lerp(40,120,t); data[o+1]=lerp(160,90,1-t)+30; data[o+2]=lerp(220,255,t);
+        data[o+3]=Math.min(220,120+t*120);
+      } else data[o+3]=0;
+    }
+    const tmp=document.createElement("canvas"); tmp.width=GRID_W; tmp.height=GRID_H;
+    tmp.getContext("2d").putImageData(img,0,0);
+    floodX.imageSmoothingEnabled=true;
+    floodX.drawImage(tmp,0,0,viewW,viewH);
+  }
+  function updateFloodStat(){
+    $("floodStat").innerHTML=
+      `Flooded area: <b>${(floodState.floodedFrac*100).toFixed(1)}%</b> · `+
+      `max depth <b>${floodState.maxDepth.toFixed(1)} m</b>`+
+      (floodState.live?` · <b style="color:var(--teal)">LIVE</b> — drag sliders to update.`:` · stopped (result kept).`);
+  }
+  function updateDamFills(depthMm,durH,infil){
+    DAMS.forEach(d=>{
+      // catchment + rainfall => inflow; bigger catchment / more rain => fuller
+      const inflow=(depthMm/200)*(d.catch/5000)*(1-infil*0.18)*(1+ (24-durH)/40);
+      const fill=Math.max(0,Math.min(1.25, 0.25 + inflow*1.6));
+      d.fill=fill;
+      d.status= fill>=1 ? "overflow" : fill>=0.8 ? "high" : "ok";
+    });
+    drawDams();
+  }
+
+  let floodDebounce=null;
+  function liveUpdate(){
+    if(!floodState.live) return;
+    clearTimeout(floodDebounce);
+    floodDebounce=setTimeout(computeFlood,180);
+  }
+
+  // ====================== RAINFALL ANIMATION ==========================
+  let rainOn=false, rainRAF=0, drops=[];
+  function startRain(){
+    rainOn=true; $("rainBtnLabel").textContent="Stop rainfall animation";
+    $("rainBtn").classList.add("water-btn"); $("waterBanner").classList.remove("hidden");
+    const count=120+(+$("rainIntensity").value)*40;
+    drops=[]; for(let k=0;k<count;k++) drops.push({x:Math.random()*viewW,y:Math.random()*viewH,l:6+Math.random()*14,s:0.5+Math.random()});
+    loopRain();
+  }
+  function stopRain(){ rainOn=false; cancelAnimationFrame(rainRAF); waterX.clearRect(0,0,viewW,viewH);
+    $("rainBtnLabel").textContent="Start rainfall animation"; $("waterBanner").classList.add("hidden"); }
+  function loopRain(){
+    if(!rainOn) return;
+    const speed=(+$("rainSpeed").value)*(0.6+(+$("rainIntensity").value)/12);
+    waterX.clearRect(0,0,viewW,viewH);
+    waterX.strokeStyle="rgba(120,210,255,.5)"; waterX.lineWidth=1.2;
+    waterX.beginPath();
+    for(const dp of drops){
+      waterX.moveTo(dp.x,dp.y); waterX.lineTo(dp.x-dp.l*0.25,dp.y+dp.l);
+      dp.y+=(8+dp.s*9)*speed; dp.x-=2*speed;
+      if(dp.y>viewH){ dp.y=-dp.l; dp.x=Math.random()*viewW; }
+    }
+    waterX.stroke();
+    // shimmer band at bottom
+    const t=Date.now()/600;
+    waterX.fillStyle="rgba(37,217,255,"+(0.05+0.03*Math.sin(t))+")";
+    waterX.fillRect(0,viewH-40,viewW,40);
+    rainRAF=requestAnimationFrame(loopRain);
+  }
+
+  // ====================== HOVER / TOOLTIP =============================
+  const tip=$("damTip");
+  function gridAt(px,py){ const gx=Math.floor(px/viewW*GRID_W), gy=Math.floor(py/viewH*GRID_H);
+    return {gx:Math.max(0,Math.min(GRID_W-1,gx)),gy:Math.max(0,Math.min(GRID_H-1,gy))}; }
+  function fakeLatLon(gx,gy){ const lat=(17+ (1-gy/GRID_H)*9).toFixed(3); const lon=(38+ gx/GRID_W*10).toFixed(3); return lat+"°N "+lon+"°E"; }
+
+  wrap.addEventListener("mousemove",e=>{
+    const r=wrap.getBoundingClientRect(); const px=e.clientX-r.left, py=e.clientY-r.top;
+    const {gx,gy}=gridAt(px,py); const i=gy*GRID_W+gx;
+    $("readoutValue").textContent=(elev[i]<SEA_LEVEL?"sea":elevMetres(i)+" m");
+    $("readoutCoord").textContent=fakeLatLon(gx,gy);
+    // dam hover
+    let hit=null;
+    if(showDams){ for(const d of DAMS){ const p=damPix(d); if(Math.hypot(p.x-px,p.y-py)<14){hit=d;break;} } }
+    if(hit) showTip(hit,px,py); else hideTip();
+  });
+  wrap.addEventListener("mouseleave",hideTip);
+
+  function showTip(d,px,py){
+    const ver=d.verified?'<span class="dt-badge ok">VERIFIED</span>':'<span class="dt-badge est">ESTIMATED</span>';
+    const fillPct=Math.round(Math.min(1,d.fill)*100);
+    const statusChip = d.status==="overflow"?'<span class="dt-chip danger">OVERFLOW RISK</span>'
+                      : d.status==="high"?'<span class="dt-chip warn">HIGH FILL</span>'
+                      : d.fill>0?'<span class="dt-chip">STABLE</span>':'<span class="dt-chip">NO SIM</span>';
+    tip.innerHTML=
+      `<div class="dt-over">DAM · ${d.region} · ${ver}</div>`+
+      `<div class="dt-title">${d.name_en}</div>`+
+      `<div class="dt-ar">${d.name_ar}</div>`+
+      `<div class="dt-metric">${d.cap}<small> MCM CAPACITY</small></div>`+
+      `<div class="dt-bar"><i style="width:${fillPct}%"></i></div>`+
+      `<div class="dt-desc">${d.desc}</div>`+
+      `<div class="dt-chips">`+
+        `<span class="dt-chip">${d.height} m</span>`+
+        `<span class="dt-chip">${d.material}</span>`+
+        `<span class="dt-chip">${d.year}</span>`+
+        `<span class="dt-chip">${d.catch} km²</span>`+
+        (d.fill>0?`<span class="dt-chip">${fillPct}% full</span>`:'')+statusChip+
+      `</div>`;
+    tip.hidden=false;
+    const tw=290, th=tip.offsetHeight||240;
+    let x=px+18, y=py-10; if(x+tw>viewW)x=px-tw-18; if(y+th>viewH)y=viewH-th-8; if(y<4)y=4;
+    tip.style.left=x+"px"; tip.style.top=y+"px"; tip.style.opacity="1";
+  }
+  function hideTip(){ tip.hidden=true; tip.style.opacity="0"; }
+
+  // ====================== DAM LIST ====================================
+  function renderDamList(){
+    const list=$("damsList"); list.innerHTML="";
+    DAMS.forEach(d=>{
+      const pct=Math.round(Math.min(1,d.fill)*100);
+      const cls=d.status==="overflow"?"danger":d.status==="high"?"warn":"";
+      const label=d.fill>0?(d.status==="overflow"?"Overflow risk · "+pct+"%":d.status==="high"?"High fill · "+pct+"%":"Stable · "+pct+"%"):"Awaiting flood model";
+      const el=document.createElement("div"); el.className="dam-card";
+      el.innerHTML=`<div class="dc-top"><span class="dc-name">${d.name_en}</span><span class="dc-cap">${d.cap} MCM</span></div>`+
+        `<div class="dc-fill"><i style="width:${pct}%"></i></div>`+
+        `<div class="dc-status ${cls}">${label}</div>`;
+      list.appendChild(el);
+    });
+  }
+
+  // ====================== WIRING ======================================
+  $("layerGrid").addEventListener("click",e=>{
+    const b=e.target.closest(".layer-btn"); if(!b)return;
+    document.querySelectorAll(".layer-btn").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active"); activeLayer=b.dataset.layer; renderDEM();
+  });
+  $("contourToggle").addEventListener("change",e=>{ showContours=e.target.checked; renderDEM(); });
+  $("damsToggle").addEventListener("change",e=>{ showDams=e.target.checked; drawDams(); if(!showDams)hideTip(); });
+
+  // sim mode toggle
+  document.querySelectorAll(".sim-seg").forEach(seg=>seg.addEventListener("click",()=>{
+    document.querySelectorAll(".sim-seg").forEach(s=>s.classList.remove("active"));
+    seg.classList.add("active");
+    const v=seg.dataset.simView;
+    $("floodView").classList.toggle("is-hidden",v!=="flood");
+    $("rainView").classList.toggle("is-hidden",v!=="rain");
+  }));
+
+  // flood slider labels + live update
+  const INFIL_LABELS=["Low (arid)","Moderate","High","Very high"];
+  function syncFloodLabels(){
+    $("rainDepthVal").textContent=$("rainDepth").value+" mm";
+    $("rainDurVal").textContent=$("rainDur").value+" h";
+    $("infilVal").textContent=INFIL_LABELS[+$("infil").value];
+  }
+  ["rainDepth","rainDur","infil"].forEach(id=>$(id).addEventListener("input",()=>{ syncFloodLabels(); liveUpdate(); }));
+  $("rainIntensity").addEventListener("input",()=>{ const v=+$("rainIntensity").value;
+    $("rainIntVal").textContent=v<3?"Light":v<6?"Moderate":v<8?"Heavy":"Torrential"; });
+  $("rainSpeed").addEventListener("input",()=>{ $("rainSpeedVal").textContent=(+$("rainSpeed").value).toFixed(2)+"×"; });
+
+  $("floodRunBtn").addEventListener("click",()=>{
+    floodState.live=true; $("floodStopBtn").disabled=false;
+    $("floodRunBtn").querySelector(".flood-run-label").textContent="Re-run model";
+    computeFlood();
+  });
+  $("floodStopBtn").addEventListener("click",()=>{
+    floodState.live=false; $("floodStopBtn").disabled=true; updateFloodStat();
+  });
+  $("floodClearBtn").addEventListener("click",()=>{
+    floodState.live=false; floodState.overlay=null; $("floodStopBtn").disabled=true;
+    floodX.clearRect(0,0,viewW,viewH);
+    DAMS.forEach(d=>{d.fill=0;d.status="idle";}); drawDams(); renderDamList();
+    $("floodStat").textContent="Set rainfall, then run the model to predict flooded wadis and depths.";
+    $("floodRunBtn").querySelector(".flood-run-label").textContent="Run flood model";
+  });
+  $("rainBtn").addEventListener("click",()=>{ rainOn?stopRain():startRain(); });
+
+  window.addEventListener("resize",resize);
+
+  // ====================== INIT ========================================
+  function init(){ syncFloodLabels(); renderDamList(); resize(); }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+  </script>
+</body>
+</html>
