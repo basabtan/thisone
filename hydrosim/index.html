@@ -45,6 +45,13 @@
       <div class="top-search">
         <span class="search-dot"></span>
         <span>Saudi Arabia Multi-Region Flood Viewer</span>
+        <label class="version-picker" aria-label="HydroSim version">
+          <span>Version</span>
+          <select id="hydrosimVersion">
+            <option value="v11.2" selected>HydroSim v11.2 — Cinematic Dam View</option>
+            <option value="v11.1">HydroSim v11.1 — Live Flood Mode</option>
+          </select>
+        </label>
       </div>
 
       <div class="top-item">
@@ -176,6 +183,47 @@
           <canvas id="profileChart"></canvas>
           <div class="profile-stats" id="profileStats"></div>
         </div>
+
+        <section id="cinematicView" class="cinematic-view hidden" aria-label="Cinematic dam visualization" aria-modal="true" role="dialog">
+          <div class="cinematic-shell">
+            <header class="cinematic-head">
+              <div>
+                <span class="cinematic-kicker">HydroSim v11.2 · Cinematic Dam View</span>
+                <h2 id="cinematicDamName">Dam cinematic</h2>
+                <p id="cinematicDamArabic" class="cinematic-ar"></p>
+              </div>
+              <div class="cinematic-actions">
+                <label class="cinematic-zoom">
+                  <span>DEM zoom</span>
+                  <select id="cinematicZoom">
+                    <option value="13" selected>13 · main local view</option>
+                    <option value="14">14 · maximum useful close view</option>
+                  </select>
+                </label>
+                <button id="closeCinematic" class="cinematic-close" type="button" aria-label="Close cinematic view">×</button>
+              </div>
+            </header>
+
+            <div class="cinematic-stage">
+              <canvas id="cinematicCanvas"></canvas>
+              <div class="cinematic-vignette" aria-hidden="true"></div>
+              <div class="cinematic-note" id="cinematicSceneNote">
+                Illustrative local visualization based on DEM terrain and simulation state.
+              </div>
+            </div>
+
+            <aside class="cinematic-info">
+              <div class="cinematic-stat"><span>Fill</span><b id="cinematicFill">—</b></div>
+              <div class="cinematic-stat"><span>State</span><b id="cinematicState">—</b></div>
+              <div class="cinematic-stat"><span>Capacity</span><b id="cinematicCapacity">—</b></div>
+              <div class="cinematic-stat"><span>Catchment</span><b id="cinematicCatchment">—</b></div>
+              <p id="cinematicNarrative" class="cinematic-narrative"></p>
+              <p class="cinematic-limits">
+                Cinematic, terrain-based, simulation-derived interpretation only. Not a precise engineering flood-depth model, CFD result, or street-scale hydrodynamic truth.
+              </p>
+            </aside>
+          </div>
+        </section>
       </main>
 
       <aside id="hydroPanel">

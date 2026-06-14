@@ -12,7 +12,37 @@ const REGIONS = {
   eastern_province:   { name: 'Eastern Province (Dammam – Khobar)', short: 'Eastern Province', path: './data/regions/eastern_province' },
   asir_abha:          { name: 'Asir / Abha Highlands',   short: 'Asir / Abha', path: './data/regions/asir_abha' },
 };
+const HYDROSIM_VERSION = 'v11.2';
 let DATA = './data/regions/makkah_jeddah_taif';  // active region data path (mutable)
+const supportedCinematicDams = {
+  'wadi-al-aslaa-dam': {
+    mode: 'contained',
+    zoom: 13,
+    maxZoom: 14,
+    fillPct: 97,
+    status: 'Estimated',
+    capacityMCM: 2.0,
+    inflowMCM: 1.9,
+    overflowMCM: 0,
+    stateLabel: 'Contained',
+    sceneFeeling: 'Near-full tension, but controlled.',
+    intent: 'Nearly full reservoir, high waterline, storm atmosphere, no spill and no downstream overflow plume.',
+  },
+  'wadi-fatimah-dam': {
+    mode: 'overflow',
+    zoom: 13,
+    maxZoom: 14,
+    fillPct: 100,
+    status: 'Verified',
+    capacityMCM: 20.0,
+    inflowMCM: 22.9,
+    overflowMCM: 2.9,
+    firstOverflowHours: 11.3,
+    stateLabel: 'Active overflow',
+    sceneFeeling: 'Full reservoir with active overflow and downstream release.',
+    intent: 'Full reservoir, visible terrain-guided downstream discharge path, storm atmosphere and stronger cinematic drama.',
+  },
+};
 const state = {
   region: 'makkah_jeddah_taif',  // active scope key
   isOverview: false,
@@ -47,6 +77,7 @@ const state = {
     show: true,
     lastRun: null,     // [{idx, inflowM3, fillPct, overflowM3, overflows, hoursToFull}]
   },
+  cinematic: { active: false, damIdx: null, zoom: 13 },
 };
 
 const LEGENDS = {
@@ -144,6 +175,7 @@ function resetCaches() {
   state.profile.p0 = state.profile.p1 = null;
   const pp = document.getElementById('profilePanel');
   if (pp) pp.classList.add('hidden');
+  closeCinematicView();
 }
 
 async function fetchBin(url, Ctor) {
@@ -692,6 +724,20 @@ function findDamAt(evt) {
 function damRunFor(idx) {
   if (!state.dams.lastRun) return null;
   return state.dams.lastRun.find(r => r.idx === idx) || null;
+}
+
+function damSlug(name) {
+  return String(name || '')
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function cinematicSpecForDam(d) {
+  if (!d) return null;
+  const slug = damSlug(d.name_en);
+  return supportedCinematicDams[slug] || supportedCinematicDams[slug.replace(/-dam$/, '')] || null;
 }
 
 function buildDamTip(d, r) {
@@ -1489,6 +1535,7 @@ function renderDamsPanel() {
   listEl.innerHTML = order.map(idx => {
     const d = dams[idx];
     const r = runById[idx];
+    const cinematic = cinematicSpecForDam(d);
     const fill = r ? r.fillPct : 0;
     const color = r ? damColor(r.fillPct, r.overflows) : '#3a4250';
     const capTxt = d.capacity_m3 ? fmtVol(d.capacity_m3) : '—';
@@ -1501,13 +1548,20 @@ function renderDamsPanel() {
              : `Fill <b>${fill.toFixed(0)}%</b>`}</span>
          </div>`
       : `<div class="dam-sub"><span>Catchment <b>${(d.catchment_area_km2||0).toFixed(1)} km²</b></span><span>${estTag}</span></div>`;
-    return `<div class="dam-row${r && r.overflows ? ' overflow' : ''}">
+    const cinematicAction = cinematic
+      ? `<button class="dam-cinematic-btn" type="button" data-cinematic-dam="${idx}">
+           <span>View Cinematic</span>
+           <small>${cinematic.mode === 'overflow' ? 'overflow scene' : 'contained scene'}</small>
+         </button>`
+      : '';
+    return `<div class="dam-row${r && r.overflows ? ' overflow' : ''}${cinematic ? ' cinematic-enabled' : ''}">
       <div class="dam-row-top">
         <span class="dam-name"><span class="dam-dot" style="background:${color}"></span>${d.name_en}</span>
         <span class="dam-cap">${capTxt} ${d.verified ? '' : estTag}</span>
       </div>
       <div class="dam-bar"><div class="dam-bar-fill" style="width:${Math.min(100,fill)}%;background:${color}"></div></div>
       ${sub}
+      ${cinematicAction}
     </div>`;
   }).join('');
 
@@ -1536,6 +1590,275 @@ function renderDamsPanel() {
     if (!s) { s = document.createElement('div'); s.id = 'damsSummary'; s.className = 'dams-summary'; listEl.after(s); }
     s.innerHTML = html;
   }
+}
+
+// ---------------- v11.2 Cinematic Dam View ----------------
+function openCinematicDam(idx) {
+  const d = state.dams.list[idx];
+  const spec = cinematicSpecForDam(d);
+  const view = document.getElementById('cinematicView');
+  if (!d || !spec || !view || state.isOverview) return;
+
+  hideDamTip();
+  state.cinematic = { active: true, damIdx: idx, zoom: spec.zoom };
+  view.classList.remove('hidden');
+  view.setAttribute('aria-hidden', 'false');
+
+  const zoomSel = document.getElementById('cinematicZoom');
+  if (zoomSel) zoomSel.value = String(spec.zoom);
+  updateCinematicInfo(d, spec);
+  requestAnimationFrame(renderCinematicScene);
+}
+
+function closeCinematicView() {
+  const view = document.getElementById('cinematicView');
+  if (view) {
+    view.classList.add('hidden');
+    view.setAttribute('aria-hidden', 'true');
+  }
+  state.cinematic.active = false;
+  state.cinematic.damIdx = null;
+}
+
+function updateCinematicInfo(d, spec) {
+  const setText = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+  setText('cinematicDamName', d.name_en || 'Dam cinematic');
+  setText('cinematicDamArabic', d.name_ar || '');
+  setText('cinematicFill', `${spec.fillPct}%`);
+  setText('cinematicState', spec.stateLabel);
+  setText('cinematicCapacity', `${spec.capacityMCM.toFixed(1)} MCM`);
+  setText('cinematicCatchment', d.catchment_area_km2 ? `${d.catchment_area_km2.toFixed(1)} km²` : '—');
+  setText('cinematicNarrative',
+    `${spec.sceneFeeling} ${spec.intent} Storm inflow ${spec.inflowMCM.toFixed(1)} MCM`
+    + (spec.overflowMCM ? `; overflow ${spec.overflowMCM.toFixed(1)} MCM` : '; no downstream overflow')
+    + (spec.firstOverflowHours ? `; first overflow ≈ ${spec.firstOverflowHours.toFixed(1)} h after storm start.` : '.'));
+}
+
+function cinematicWindow(d, zoom) {
+  // 30 m DEM: zoom 13 is the main local view; zoom 14 is the closest useful view.
+  const radius = zoom >= 14 ? 54 : 88;
+  const x0 = Math.max(0, Math.round(d.px - radius));
+  const y0 = Math.max(0, Math.round(d.py - radius));
+  const x1 = Math.min(state.W - 1, Math.round(d.px + radius));
+  const y1 = Math.min(state.H - 1, Math.round(d.py + radius));
+  return { x0, y0, x1, y1, w: Math.max(1, x1 - x0), h: Math.max(1, y1 - y0), radius };
+}
+
+function sampleElev(px, py) {
+  const x = Math.max(0, Math.min(state.W - 1, Math.round(px)));
+  const y = Math.max(0, Math.min(state.H - 1, Math.round(py)));
+  const v = state.elev[y * state.W + x];
+  return v === -32768 ? null : v;
+}
+
+function sampleTwi(px, py) {
+  if (!state.twi) return 0;
+  const x = Math.max(0, Math.min(state.W - 1, Math.round(px)));
+  const y = Math.max(0, Math.min(state.H - 1, Math.round(py)));
+  const v = state.twi[y * state.W + x];
+  return isFinite(v) ? Math.max(0, Math.min(1, v)) : 0;
+}
+
+function localToCinematic(px, py, win, cw, ch) {
+  return {
+    x: (px - win.x0) / win.w * cw,
+    y: (py - win.y0) / win.h * ch,
+  };
+}
+
+function cinematicTerrainRGB(t, wetness, shade) {
+  const base = elevColorRGB(t);
+  const wet = [
+    base[0] * (1 - wetness * 0.28) + 34 * wetness * 0.28,
+    base[1] * (1 - wetness * 0.28) + 92 * wetness * 0.28,
+    base[2] * (1 - wetness * 0.28) + 118 * wetness * 0.28,
+  ];
+  const storm = 0.52 + shade * 0.58;
+  return [
+    Math.max(0, Math.min(255, wet[0] * storm + 4)),
+    Math.max(0, Math.min(255, wet[1] * storm + 8)),
+    Math.max(0, Math.min(255, wet[2] * storm + 14)),
+  ];
+}
+
+function cinematicShade(px, py, fallback) {
+  const x = Math.max(1, Math.min(state.W - 2, Math.round(px)));
+  const y = Math.max(1, Math.min(state.H - 2, Math.round(py)));
+  const c = sampleElev(x, y) ?? fallback;
+  const cellM = _cellM();
+  const dzdx = ((sampleElev(x + 1, y) ?? c) - (sampleElev(x - 1, y) ?? c)) / (2 * cellM);
+  const dzdy = ((sampleElev(x, y + 1) ?? c) - (sampleElev(x, y - 1) ?? c)) / (2 * cellM);
+  const slope = Math.atan(Math.sqrt(dzdx * dzdx + dzdy * dzdy));
+  const aspect = Math.atan2(dzdy, -dzdx);
+  const az = 310 * Math.PI / 180;
+  const alt = 28 * Math.PI / 180;
+  return Math.max(0, Math.sin(alt) * Math.cos(slope) + Math.cos(alt) * Math.sin(slope) * Math.cos(az - aspect));
+}
+
+function downstreamPath(d, maxSteps) {
+  const pts = [];
+  if (!state.flow) return pts;
+  let x = Math.round(d.px);
+  let y = Math.round(d.py);
+  const seen = new Set();
+  for (let step = 0; step < maxSteps; step++) {
+    pts.push({ px: x, py: y });
+    const key = `${x},${y}`;
+    if (seen.has(key)) break;
+    seen.add(key);
+    const i = (y * state.W + x) * 2;
+    const dx = state.flow[i], dy = state.flow[i + 1];
+    if (!dx && !dy) break;
+    x += dx; y += dy;
+    if (x < 1 || y < 1 || x >= state.W - 1 || y >= state.H - 1) break;
+  }
+  return pts;
+}
+
+function drawCinematicWater(ctx, d, spec, win, cw, ch) {
+  const damElev = sampleElev(d.px, d.py) ?? state.meta.elevation.mean;
+  const waterLevel = damElev + (spec.mode === 'overflow' ? 24 : 17);
+  const step = Math.max(2, Math.round(win.radius / 34));
+  const alpha = spec.mode === 'overflow' ? 0.58 : 0.46;
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  for (let gy = win.y0; gy <= win.y1; gy += step) {
+    for (let gx = win.x0; gx <= win.x1; gx += step) {
+      const elev = sampleElev(gx, gy);
+      if (elev == null) continue;
+      const dx = (gx - d.px) / (win.radius * 0.78);
+      const dy = (gy - d.py) / (win.radius * 0.52);
+      const basin = Math.hypot(dx, dy);
+      const twi = sampleTwi(gx, gy);
+      const terrainAllowsWater = elev <= waterLevel || twi > 0.56 || basin < 0.34;
+      if (basin > 1 || !terrainAllowsWater) continue;
+      const p = localToCinematic(gx, gy, win, cw, ch);
+      const sz = Math.max(2, step * cw / win.w + 1);
+      ctx.fillStyle = `rgba(28, 170, 210, ${alpha * (0.56 + twi * 0.44)})`;
+      ctx.fillRect(p.x - sz * 0.5, p.y - sz * 0.5, sz, sz);
+    }
+  }
+  ctx.restore();
+
+  if (spec.mode === 'overflow') {
+    let pts = downstreamPath(d, 180).filter(p => p.px >= win.x0 && p.px <= win.x1 && p.py >= win.y0 && p.py <= win.y1);
+    if (pts.length < 4) {
+      pts = [
+        { px: d.px, py: d.py },
+        { px: d.px + win.radius * 0.18, py: d.py + win.radius * 0.34 },
+        { px: d.px + win.radius * 0.28, py: d.py + win.radius * 0.72 },
+      ];
+    }
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.shadowColor = 'rgba(50,210,255,.85)';
+    ctx.shadowBlur = 22;
+    ctx.beginPath();
+    pts.forEach((pt, i) => {
+      const p = localToCinematic(pt.px, pt.py, win, cw, ch);
+      if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+    });
+    ctx.lineWidth = Math.max(8, cw * 0.012);
+    ctx.strokeStyle = 'rgba(24,165,220,.68)';
+    ctx.stroke();
+    ctx.lineWidth = Math.max(3, cw * 0.0045);
+    ctx.strokeStyle = 'rgba(215,247,255,.82)';
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawCinematicAtmosphere(ctx, cw, ch, spec) {
+  const cloud = ctx.createLinearGradient(0, 0, 0, ch * 0.55);
+  cloud.addColorStop(0, spec.mode === 'overflow' ? 'rgba(8,13,23,.76)' : 'rgba(8,15,25,.64)');
+  cloud.addColorStop(1, 'rgba(8,13,23,0)');
+  ctx.fillStyle = cloud;
+  ctx.fillRect(0, 0, cw, ch);
+
+  ctx.save();
+  ctx.globalAlpha = spec.mode === 'overflow' ? 0.34 : 0.22;
+  ctx.strokeStyle = 'rgba(190,225,255,.55)';
+  ctx.lineWidth = 1;
+  for (let x = -cw * 0.2; x < cw * 1.1; x += 28) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x + cw * 0.12, ch);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function renderCinematicScene() {
+  if (!state.cinematic.active) return;
+  const d = state.dams.list[state.cinematic.damIdx];
+  const spec = cinematicSpecForDam(d);
+  const canvas = document.getElementById('cinematicCanvas');
+  if (!d || !spec || !canvas) return;
+
+  const zoom = Math.min(spec.maxZoom, Math.max(13, Number(state.cinematic.zoom) || spec.zoom));
+  const rect = canvas.getBoundingClientRect();
+  const cw = Math.max(640, Math.min(1280, Math.round(rect.width || 960)));
+  const ch = Math.max(380, Math.min(760, Math.round(rect.height || 540)));
+  if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
+
+  const ctx = canvas.getContext('2d');
+  const win = cinematicWindow(d, zoom);
+  const meta = state.meta.elevation;
+  const span = (meta.max - meta.min) || 1;
+  const img = ctx.createImageData(cw, ch);
+  const data = img.data;
+
+  for (let y = 0; y < ch; y++) {
+    const gy = win.y0 + (y / Math.max(1, ch - 1)) * win.h;
+    for (let x = 0; x < cw; x++) {
+      const gx = win.x0 + (x / Math.max(1, cw - 1)) * win.w;
+      const elev = sampleElev(gx, gy);
+      const o = (y * cw + x) * 4;
+      if (elev == null) {
+        data[o] = 4; data[o + 1] = 11; data[o + 2] = 22; data[o + 3] = 255;
+        continue;
+      }
+      const t = Math.max(0, Math.min(1, (elev - meta.min) / span));
+      const shade = cinematicShade(gx, gy, elev);
+      const wet = sampleTwi(gx, gy);
+      const rgb = cinematicTerrainRGB(t, wet, shade);
+      data[o] = rgb[0]; data[o + 1] = rgb[1]; data[o + 2] = rgb[2]; data[o + 3] = 255;
+    }
+  }
+
+  ctx.putImageData(img, 0, 0);
+  drawCinematicWater(ctx, d, spec, win, cw, ch);
+
+  const damP = localToCinematic(d.px, d.py, win, cw, ch);
+  ctx.save();
+  ctx.translate(damP.x, damP.y);
+  ctx.rotate(-0.18);
+  ctx.shadowColor = 'rgba(0,0,0,.85)';
+  ctx.shadowBlur = 16;
+  ctx.fillStyle = 'rgba(3,8,14,.88)';
+  ctx.fillRect(-42, -5, 84, 10);
+  ctx.strokeStyle = spec.mode === 'overflow' ? 'rgba(255,105,125,.92)' : 'rgba(37,217,255,.92)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(-42, -5, 84, 10);
+  ctx.restore();
+
+  drawCinematicAtmosphere(ctx, cw, ch, spec);
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(3,12,24,.72)';
+  ctx.strokeStyle = 'rgba(118,172,218,.26)';
+  ctx.lineWidth = 1;
+  ctx.fillRect(18, ch - 70, 300, 48);
+  ctx.strokeRect(18, ch - 70, 300, 48);
+  ctx.fillStyle = '#dff8ff';
+  ctx.font = '600 15px General Sans, sans-serif';
+  ctx.fillText(spec.mode === 'overflow' ? 'Overflow path active' : 'Contained high-water scene', 34, ch - 43);
+  ctx.fillStyle = '#9cb5c8';
+  ctx.font = '11px JetBrains Mono, monospace';
+  ctx.fillText(`DEM zoom ${zoom} · max useful zoom ${spec.maxZoom}`, 34, ch - 25);
+  ctx.restore();
 }
 
 function toggleDams(on) {
@@ -1618,6 +1941,15 @@ function onOverviewClick(evt) {
 
 
 function bindUI() {
+  const versionSelect = document.getElementById('hydrosimVersion');
+  if (versionSelect) {
+    versionSelect.value = HYDROSIM_VERSION;
+    versionSelect.addEventListener('change', () => {
+      // Earlier versions are listed for context; this static build runs the active bundle.
+      versionSelect.value = HYDROSIM_VERSION;
+    });
+  }
+
   document.querySelectorAll('.layer-btn').forEach(b =>
     b.addEventListener('click', () => setLayer(b.dataset.layer)));
   mapCanvas.addEventListener('mousemove', onMove);
@@ -1707,6 +2039,23 @@ function bindUI() {
   // Phase 2: dams visibility toggle
   const damsToggle = document.getElementById('damsToggle');
   if (damsToggle) damsToggle.addEventListener('change', e => toggleDams(e.target.checked));
+  const damsList = document.getElementById('damsList');
+  if (damsList) {
+    damsList.addEventListener('click', e => {
+      const btn = e.target.closest('[data-cinematic-dam]');
+      if (!btn) return;
+      openCinematicDam(Number(btn.dataset.cinematicDam));
+    });
+  }
+  const closeCinematic = document.getElementById('closeCinematic');
+  if (closeCinematic) closeCinematic.addEventListener('click', closeCinematicView);
+  const cinematicZoom = document.getElementById('cinematicZoom');
+  if (cinematicZoom) {
+    cinematicZoom.addEventListener('change', e => {
+      state.cinematic.zoom = Math.min(14, Math.max(13, Number(e.target.value) || 13));
+      renderCinematicScene();
+    });
+  }
   window.addEventListener('resize', () => {
     fitCanvas(); drawMap(); drawProfileMarkers();
     if (state.three) {
@@ -1714,6 +2063,7 @@ function bindUI() {
       state.three.camera.aspect = w / h; state.three.camera.updateProjectionMatrix();
       state.three.renderer.setSize(w, h);
     }
+    renderCinematicScene();
   });
 }
 
