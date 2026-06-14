@@ -483,6 +483,99 @@
       transform: translateX(calc(-50% + var(--hub-add-x))) translateY(0) scale(1);
     }
 
+    /* ── "New!" highlighted shortcut — mirrors the Add button on the left ── */
+    .hub-new-wrap {
+      position: absolute;
+      bottom: calc(100% + 22px);
+      left: 50%;
+      z-index: 51;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateX(calc(-50% - var(--hub-add-x))) translateY(12px) scale(0.92);
+      transition:
+        opacity 0.35s ease,
+        visibility 0.35s ease,
+        transform 0.4s cubic-bezier(0.32, 0.72, 0.28, 1);
+    }
+
+    .hub.open:not(.profile-mode):not(.ideas-mode) .hub-new-wrap {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateX(calc(-50% - var(--hub-add-x))) translateY(0) scale(1);
+    }
+
+    .whats-new.hub-disc { --accent: var(--copper); }
+
+    /* pulsing attention halo behind the disc */
+    .hub-new-wrap::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: var(--hub-disc-size);
+      height: var(--hub-disc-size);
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      z-index: -1;
+      pointer-events: none;
+      animation: whatsNewPulse 2.8s ease-out infinite;
+    }
+
+    @keyframes whatsNewPulse {
+      0%   { box-shadow: 0 0 16px 3px rgba(165, 100, 58, 0.5),  0 0 0 0 rgba(165, 100, 58, 0.5); }
+      70%  { box-shadow: 0 0 28px 7px rgba(165, 100, 58, 0.32), 0 0 0 26px rgba(165, 100, 58, 0); }
+      100% { box-shadow: 0 0 16px 3px rgba(165, 100, 58, 0.5),  0 0 0 0 rgba(165, 100, 58, 0); }
+    }
+
+    /* steady accent ring for constant emphasis */
+    .whats-new.hub-disc {
+      box-shadow:
+        var(--hub-shadow-1),
+        var(--hub-shadow-2),
+        var(--hub-inset),
+        0 0 0 2px rgba(165, 100, 58, 0.55);
+    }
+
+    .whats-new.hub-disc:hover {
+      box-shadow:
+        var(--hub-hover-shadow-1),
+        var(--hub-hover-shadow-2),
+        var(--hub-hover-inset),
+        0 0 0 2px rgba(165, 100, 58, 0.75);
+    }
+
+    .whats-new-badge {
+      position: absolute;
+      top: -4px;
+      right: -16px;
+      z-index: 3;
+      font-family: "Playfair Display", serif;
+      font-style: italic;
+      font-weight: 700;
+      font-size: 15px;
+      line-height: 1;
+      color: var(--paper);
+      background: linear-gradient(135deg, #b8763f, #a5643a);
+      padding: 5px 11px;
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(120, 70, 40, 0.4);
+      letter-spacing: 0.4px;
+      pointer-events: none;
+      animation: whatsNewBob 2.8s ease-in-out infinite;
+    }
+
+    @keyframes whatsNewBob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hub-new-wrap::before,
+      .whats-new-badge { animation: none; }
+    }
+
     .hub-util.hub-disc {
       width: 72px;
       height: 72px;
@@ -989,6 +1082,19 @@
               <div class="picker-head">Add page shortcut</div>
               <ul class="picker-list" id="hub-picker-list"></ul>
             </div>
+          </div>
+          <div class="hub-new-wrap" id="hub-new-wrap">
+            <a class="hub-disc whats-new" href="najd-vault-maps.html" data-page-id="maps" aria-label="Maps — new">
+              <span class="opt-label">
+                <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z"/>
+                  <path d="M9 4v13"/>
+                  <path d="M15 6.5v13"/>
+                </svg>
+                <span class="opt-title">Maps</span>
+              </span>
+            </a>
+            <span class="whats-new-badge" aria-hidden="true">New!</span>
           </div>
           <button type="button" class="hub-disc hub-main" id="hub-main" aria-expanded="false" aria-controls="hub-menu">
             <span class="hub-bezel" aria-hidden="true"></span>
