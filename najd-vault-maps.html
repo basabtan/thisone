@@ -463,6 +463,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m21 15-5-5L5 21"/><path d="M3 9V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14"/><circle cx="9" cy="9" r="2"/></svg>
         <span>Aerial Atlas</span><span class="ct" id="ct-aerial">—</span>
       </button>
+      <button class="nav-item" data-cat="mosaic" onclick="selCat(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
+        <span>Satellite Mosaics</span><span class="ct" id="ct-mosaic">—</span>
+      </button>
     </div>
 
     <div class="side-foot">
@@ -516,6 +520,7 @@
         <option value="Geological 1:500,000">1:500,000</option>
         <option value="Geological 1:100,000">1:100,000</option>
         <option value="Jeddah Aerial Atlas">Aerial Atlas</option>
+        <option value="Jeddah Satellite Mosaic">Satellite Mosaics</option>
       </select>
       <div class="seg" role="group" aria-label="View">
         <button id="v-grid" class="on" onclick="setView('grid')" aria-label="Grid view">
@@ -601,7 +606,8 @@ const state={ all:[], items:[], view:'grid', query:'', current:null, group:'all'
 const GROUPS={
   all:   {label:'Map Collection', sub:'Georeferenced geological map sheets and the Jeddah aerial atlas, served from Supabase.', match:()=>true},
   geo:   {label:'Geological Maps', sub:'Scanned 1:100,000 / 250,000 / 500,000 geological map sheets (WGS84).', match:c=>/^Geological/.test(c||'')},
-  aerial:{label:'Aerial Atlas', sub:'Jeddah aerial photo atlas sheets (UTM, Ain el Abd).', match:c=>/Aerial/i.test(c||'')}
+  aerial:{label:'Aerial Atlas', sub:'Jeddah aerial photo atlas sheets (UTM, Ain el Abd).', match:c=>/Aerial/i.test(c||'')},
+  mosaic:{label:'Satellite Mosaics', sub:'High-resolution Jeddah Google satellite mosaics (downscaled web previews of the original gigapixel TIFFs).', match:c=>/Mosaic/i.test(c||'')}
 };
 
 function scaleLabel(cat){
@@ -609,10 +615,11 @@ function scaleLabel(cat){
   if(/250,000/.test(cat))return '1:250K';
   if(/500,000/.test(cat))return '1:500K';
   if(/100,000/.test(cat))return '1:100K';
+  if(/Mosaic/i.test(cat))return 'MOSAIC';
   if(/Aerial/i.test(cat))return 'ATLAS';
   return cat;
 }
-function catColor(cat){ return /Aerial/i.test(cat||'')?'var(--c-img)':'var(--c-data)'; }
+function catColor(cat){ return /Aerial|Mosaic/i.test(cat||'')?'var(--c-img)':'var(--c-data)'; }
 
 const $=(id)=>document.getElementById(id);
 const esc=(s)=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -738,7 +745,7 @@ function applyGroupMeta(){
   $('mast-sub').textContent=g.sub;
 }
 function updateCounts(){
-  const map={all:'ct-all',geo:'ct-geo',aerial:'ct-aerial'};
+  const map={all:'ct-all',geo:'ct-geo',aerial:'ct-aerial',mosaic:'ct-mosaic'};
   for(const k in map){ const el=$(map[k]); if(el) el.textContent=state.all.filter(r=>GROUPS[k].match(r.category)).length; }
 }
 
