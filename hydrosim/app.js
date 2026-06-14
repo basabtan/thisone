@@ -600,62 +600,20 @@ function elevAt(px, py) {
 function drawContours() {
   const m = state.meta.elevation;
   const interval = Math.max(10, Math.round((m.max - m.min) / 18 / 10) * 10);
-  const majorEvery = 5;                 // every 5th contour is a "major" (index) line
+  mctx.save();
+  mctx.strokeStyle = 'rgba(255,255,255,0.32)';
+  mctx.lineWidth = 0.6;
   const step = 2;
-
-  // Build minor and major contour geometry in one grid pass, then stroke each
-  // group in dedicated passes so styling stays clean and consistent.
-  const minorPath = new Path2D();
-  const majorPath = new Path2D();
-
   for (let y = 0; y < state.H - step; y += step) {
     for (let x = 0; x < state.W - step; x += step) {
       const v = elevAt(x, y);
       if (v === null) continue;
       const band = Math.floor(v / interval);
-
-      const vr = elevAt(x + step, y);
-      if (vr !== null) {
-        const nb = Math.floor(vr / interval);
-        if (nb !== band) {
-          const boundary = Math.max(band, nb);              // crossed contour index
-          const p = (boundary % majorEvery === 0) ? majorPath : minorPath;
-          p.moveTo(x + step, y); p.lineTo(x + step, y + step);
-        }
-      }
-
-      const vd = elevAt(x, y + step);
-      if (vd !== null) {
-        const nb = Math.floor(vd / interval);
-        if (nb !== band) {
-          const boundary = Math.max(band, nb);
-          const p = (boundary % majorEvery === 0) ? majorPath : minorPath;
-          p.moveTo(x, y + step); p.lineTo(x + step, y + step);
-        }
-      }
+      const vr = elevAt(x + step, y), vd = elevAt(x, y + step);
+      if (vr !== null && Math.floor(vr / interval) !== band) { mctx.beginPath(); mctx.moveTo(x + step, y); mctx.lineTo(x + step, y + step); mctx.stroke(); }
+      if (vd !== null && Math.floor(vd / interval) !== band) { mctx.beginPath(); mctx.moveTo(x, y + step); mctx.lineTo(x + step, y + step); mctx.stroke(); }
     }
   }
-
-  // Line widths are in canvas/grid units; the canvas is downscaled to the
-  // viewport, so these are slightly larger than their on-screen pixel size.
-  mctx.save();
-  mctx.lineCap = 'round';
-  mctx.lineJoin = 'round';
-
-  // 1) Soft light halo behind the lines — keeps them readable over the darker
-  //    blues/greens of the elevation ramp without washing out lighter areas.
-  mctx.strokeStyle = 'rgba(244,249,255,0.30)';
-  mctx.lineWidth = 3.4; mctx.stroke(majorPath);
-  mctx.lineWidth = 2.2; mctx.stroke(minorPath);
-
-  // 2) Minor contour lines — dark navy, clearly visible but secondary.
-  mctx.strokeStyle = 'rgba(12,24,44,0.58)';
-  mctx.lineWidth = 1.3; mctx.stroke(minorPath);
-
-  // 3) Major (index) contour lines — near-black deep navy, thicker + dominant.
-  mctx.strokeStyle = 'rgba(3,9,18,0.9)';
-  mctx.lineWidth = 2.4; mctx.stroke(majorPath);
-
   mctx.restore();
 }
 
