@@ -1,0 +1,5 @@
+# Local preview tooling
+.preview_server.py
+
+# Local backups
+hydrosim_backup_old/
